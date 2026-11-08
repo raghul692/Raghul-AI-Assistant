@@ -1,0 +1,31 @@
+{
+  "name": "ai-chatbot",
+  "version": "1.0.0",
+  "description": "Full-Stack AI Web Chatbot powered by Gemini 3.8 Flash & Agent Memory Architecture",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node --dns-result-order=ipv4first server.js",
+    "dev": "node --watch-path=server.js --dns-result-order=ipv4first server.js"
+  },
+  "keywords": [
+    "ai",
+    "chatbot",
+    "gemini",
+    "agent-memory"
+  ],
+  "dependencies": {
+    "@google/genai": "^2.32.0",
+    "better-sqlite3": "^13.0.3",
+    "cheerio": "^1.2.0",
+    "compression": "^1.8.2",
+    "cors": "^2.8.5",
+    "docx": "^9.15.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pdf-lib": "^1.17.1",
+    "pdf-parse": "^2.4.5",
+    "pptxgenjs": "^4.0.1",
+    "undici": "^8.12.3"
+  }
+}

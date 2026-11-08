@@ -1,0 +1,257 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bg-glow" cx="50%" cy="60%" r="70%">
+      <stop offset="0%" stop-color="#120428" />
+      <stop offset="40%" stop-color="#080214" />
+      <stop offset="100%" stop-color="#020005" />
+    </radialGradient>
+
+    <!-- Neon Flame Gradients -->
+    <linearGradient id="neon-cyan" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#00ffff" stop-opacity="0" />
+      <stop offset="50%" stop-color="#00ffff" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#ffffff" />
+    </linearGradient>
+
+    <linearGradient id="neon-magenta" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff0077" stop-opacity="0.2" />
+      <stop offset="60%" stop-color="#ff00aa" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#ffccff" />
+    </linearGradient>
+
+    <linearGradient id="laser-orange" x1="0%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" stop-color="#ff3300" stop-opacity="0" />
+      <stop offset="50%" stop-color="#ff6600" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#ffee00" />
+    </linearGradient>
+
+    <!-- Cyber Gold/Copper Gradients for Phoenix Body -->
+    <linearGradient id="cyber-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe600" />
+      <stop offset="30%" stop-color="#ff7b00" />
+      <stop offset="70%" stop-color="#990033" />
+      <stop offset="100%" stop-color="#2a0845" />
+    </linearGradient>
+
+    <linearGradient id="chrome-silver" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="50%" stop-color="#a0c8ff" />
+      <stop offset="100%" stop-color="#204080" />
+    </linearGradient>
+
+    <!-- Glow & Shadow Filters -->
+    <filter id="super-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="16" result="blur1" />
+      <feGaussianBlur stdDeviation="32" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur2" />
+        <feMergeNode in="blur1" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="intense-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="cyber-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.8"/>
+    </filter>
+
+    <!-- Hexagon Grid Pattern -->
+    <pattern id="hex-grid" width="40" height="69.282" patternUnits="userSpaceOnUse" patternTransform="scale(1)">
+      <path d="M 40 0 L 20 11.547 L 0 0 L 0 23.094 L 20 34.641 L 40 23.094 Z M 0 34.641 L 20 46.188 L 40 34.641 L 40 57.735 L 20 69.282 L 0 57.735 Z" stroke="#00ffff" stroke-width="0.5" stroke-opacity="0.08" fill="none" />
+    </pattern>
+
+    <!-- Circuit Trace Template -->
+    <path id="circuit-line" d="M0,0 L0,-30 L20,-50 L60,-50" fill="none" stroke="#00ffff" stroke-width="1.5" stroke-opacity="0.4" />
+  </defs>
+
+  <!-- ================= BACKGROUND ================= -->
+  <rect width="1024" height="1024" fill="url(#bg-glow)" />
+  <rect width="1024" height="1024" fill="url(#hex-grid)" />
+
+  <!-- Background Cyber Circles/Rings -->
+  <g transform="translate(512, 600)">
+    <circle cx="0" cy="0" r="380" fill="none" stroke="#ff0077" stroke-width="1" stroke-opacity="0.2" stroke-dasharray="4 12" />
+    <circle cx="0" cy="0" r="350" fill="none" stroke="#00ffff" stroke-width="2" stroke-opacity="0.3" stroke-dasharray="20 40 5 10" />
+    <circle cx="0" cy="0" r="300" fill="none" stroke="#ff6600" stroke-width="1.5" stroke-opacity="0.4" stroke-dasharray="100 20 10 20" />
+    <path d="M-400,0 H400 M0,-400 V400" stroke="#00ffff" stroke-width="0.5" stroke-opacity="0.1" />
+  </g>
+
+  <!-- ================= NEON FLAMES (BACK LAYER) ================= -->
+  <g filter="url(#super-glow)">
+    <!-- Outer Cyan Wings of Fire -->
+    <path d="M 512,850 C 350,800 150,700 80,500 C 30,350 100,200 200,150 C 280,110 350,180 380,250 C 410,320 380,450 480,550 C 420,400 440,250 500,120 C 530,200 520,350 580,450 C 650,300 620,150 720,100 C 820,50 940,150 900,350 C 860,550 700,750 512,850 Z" fill="url(#neon-cyan)" opacity="0.6" />
+    
+    <!-- Magenta Flame Plumes -->
+    <path d="M 512,900 C 400,800 200,650 180,450 C 160,250 300,180 350,280 C 400,380 450,500 512,600 C 574,500 624,380 674,280 C 724,180 864,250 844,450 C 824,650 624,800 512,900 Z" fill="url(#neon-magenta)" opacity="0.5" />
+
+    <!-- Center Laser Orange Core -->
+    <path d="M 512,950 C 450,850 300,700 280,520 C 260,340 380,250 420,350 C 460,450 490,550 512,680 C 534,550 564,450 604,350 C 644,250 764,340 744,520 C 724,700 574,850 512,950 Z" fill="url(#laser-orange)" opacity="0.8" />
+  </g>
+
+  <!-- ================= CYBERNETIC PHOENIX ================= -->
+  <g filter="url(#cyber-shadow)">
+
+    <!-- TAIL FEATHERS (Cybernetic Blades & Energy) -->
+    <g id="cyber-tail">
+      <path d="M 512,680 L 480,850 L 512,920 L 544,850 Z" fill="#111927" stroke="#00ffff" stroke-width="2" />
+      <path d="M 480,850 L 420,900 L 460,820 Z" fill="url(#cyber-gold)" stroke="#ff0077" stroke-width="1.5" />
+      <path d="M 544,850 L 604,900 L 564,820 Z" fill="url(#cyber-gold)" stroke="#ff0077" stroke-width="1.5" />
+      <path d="M 460,820 L 380,860 L 430,780 Z" fill="#0d1b2a" stroke="#00ffff" stroke-width="1.5" />
+      <path d="M 564,820 L 644,860 L 594,780 Z" fill="#0d1b2a" stroke="#00ffff" stroke-width="1.5" />
+      <!-- Energy streamers in tail -->
+      <path d="M 512,680 V 960" stroke="#00ffff" stroke-width="3" filter="url(#intense-glow)" />
+      <path d="M 480,850 L 400,950" stroke="#ff3300" stroke-width="2" filter="url(#intense-glow)" />
+      <path d="M 544,850 L 624,950" stroke="#ff3300" stroke-width="2" filter="url(#intense-glow)" />
+    </g>
+
+    <!-- LOWER BODY & CHASSIS -->
+    <g id="lower-body">
+      <!-- pelvis / core reactor -->
+      <polygon points="512,650 460,580 480,500 544,500 564,580" fill="#0a0a12" stroke="#00ffff" stroke-width="2" />
+      <circle cx="512" cy="570" r="25" fill="#05050a" stroke="#ff0077" stroke-width="3" filter="url(#intense-glow)" />
+      <circle cx="512" cy="570" r="10" fill="#00ffff" filter="url(#intense-glow)" />
+
+      <!-- Chest Plates (Armor) -->
+      <path d="M 512,500 L 450,420 L 470,320 L 512,380 L 554,320 L 574,420 Z" fill="url(#cyber-gold)" stroke="#ffffff" stroke-width="1.5" />
+      <path d="M 512,380 L 480,300 L 512,240 L 544,300 Z" fill="#151b29" stroke="#00ffff" stroke-width="2" />
+      <!-- Core Arc Reactor (Chest) -->
+      <polygon points="512,330 495,360 512,390 529,360" fill="#ff3300" stroke="#ffcc00" stroke-width="2" filter="url(#intense-glow)" />
+    </g>
+
+    <!-- WINGS (Intricate Geometric Mechanical Origami & Feathers) -->
+    <g id="wings">
+      <!-- LEFT WING -->
+      <g id="left-wing" transform="translate(512, 420)">
+        <!-- Wing Bone Structure -->
+        <path d="M 0,0 C -80,-50 -200,-80 -320,-40 C -420,-5 -480,50 -480,50 C -480,50 -380,20 -280,-10 C -180,-40 -100,-20 0,20 Z" fill="#0c101d" stroke="#00ffff" stroke-width="2" />
+        <path d="M -100,-30 C -160,-80 -260,-120 -380,-100 C -440,-90 -490,-60 -540,-20 C -480,-10 -400,-40 -300,-50 C -200,-60 -140,-30 -100,-30 Z" fill="#111827" stroke="#ff0077" stroke-width="1.5" />
+        
+        <!-- Feathers / Blade Layers - Left Outer -->
+        <g stroke="#00ffff" stroke-width="1.5" fill="url(#cyber-gold)">
+          <path d="M -320,-40 L -420,-120 L -380,-40 Z" />
+          <path d="M -360,-50 L -480,-100 L -400,-30 Z" />
+          <path d="M -400,-40 L -540,-60 L -430,-10 Z" />
+          <path d="M -440,-20 L -580,-10 L -460,20 Z" />
+          <path d="M -420,10 L -520,40 L -400,50 Z" />
+          <path d="M -350,30 L -440,90 L -330,60 Z" />
+          <path d="M -280,20 L -340,120 L -250,70 Z" />
+          <path d="M -200,10 L -240,140 L -170,80 Z" />
+          <path d="M -120,0 L -140,130 L -90,70 Z" />
+        </g>
+        <!-- Inner Wing Tech Lines -->
+        <path d="M -50,-10 C -120,-50 -200,-50 -300,-20" fill="none" stroke="#ff3300" stroke-width="2" filter="url(#intense-glow)" />
+        <path d="M -80,10 C -150,-20 -250,-10 -350,20" fill="none" stroke="#00ffff" stroke-width="1.5" />
+      </g>
+
+      <!-- RIGHT WING (Mirrored & Adjusted) -->
+      <g id="right-wing" transform="translate(512, 420) scale(-1, 1)">
+        <!-- Wing Bone Structure -->
+        <path d="M 0,0 C -80,-50 -200,-80 -320,-40 C -420,-5 -480,50 -480,50 C -480,50 -380,20 -280,-10 C -180,-40 -100,-20 0,20 Z" fill="#0c101d" stroke="#00ffff" stroke-width="2" />
+        <path d="M -100,-30 C -160,-80 -260,-120 -380,-100 C -440,-90 -490,-60 -540,-20 C -480,-10 -400,-40 -300,-50 C -200,-60 -140,-30 -100,-30 Z" fill="#111827" stroke="#ff0077" stroke-width="1.5" />
+        
+        <!-- Feathers / Blade Layers - Right Outer -->
+        <g stroke="#00ffff" stroke-width="1.5" fill="url(#cyber-gold)">
+          <path d="M -320,-40 L -420,-120 L -380,-40 Z" />
+          <path d="M -360,-50 L -480,-100 L -400,-30 Z" />
+          <path d="M -400,-40 L -540,-60 L -430,-10 Z" />
+          <path d="M -440,-20 L -580,-10 L -460,20 Z" />
+          <path d="M -420,10 L -520,40 L -400,50 Z" />
+          <path d="M -350,30 L -440,90 L -330,60 Z" />
+          <path d="M -280,20 L -340,120 L -250,70 Z" />
+          <path d="M -200,10 L -240,140 L -170,80 Z" />
+          <path d="M -120,0 L -140,130 L -90,70 Z" />
+        </g>
+        <!-- Inner Wing Tech Lines -->
+        <path d="M -50,-10 C -120,-50 -200,-50 -300,-20" fill="none" stroke="#ff3300" stroke-width="2" filter="url(#intense-glow)" />
+        <path d="M -80,10 C -150,-20 -250,-10 -350,20" fill="none" stroke="#00ffff" stroke-width="1.5" />
+      </g>
+    </g>
+
+    <!-- NECK & HEAD (Majestic Cybernetic Crown & Face) -->
+    <g id="head-and-neck">
+      <!-- Articulated Neck Plates -->
+      <path d="M 490,240 L 480,180 L 512,150 L 544,180 L 534,240 Z" fill="url(#chrome-silver)" stroke="#00ffff" stroke-width="1.5" />
+      <path d="M 495,190 L 485,140 L 512,110 L 539,140 L 529,190 Z" fill="#101522" stroke="#ff0077" stroke-width="1.5" />
+
+      <!-- Head Base -->
+      <path d="M 490,120 L 500,70 L 512,50 L 524,70 L 534,120 L 550,90 L 512,30 L 474,90 Z" fill="url(#cyber-gold)" stroke="#ffffff" stroke-width="1.5" />
+
+      <!-- Glowing Cyber Eye -->
+      <circle cx="512" cy="95" r="8" fill="#00ffff" filter="url(#super-glow)" />
+      <polygon points="512,85 525,95 512,105 499,95" fill="none" stroke="#ffffff" stroke-width="1.5" />
+
+      <!-- Beak (Razor Sharp Alloy Mandible) -->
+      <path d="M 502,110 L 512,160 L 522,110 Z" fill="url(#chrome-silver)" stroke="#ff3300" stroke-width="1.5" />
+      <path d="M 512,160 L 512,185 L 516,160 Z" fill="#ff6600" filter="url(#intense-glow)" />
+
+      <!-- Cybernetic Crest / Crown (Energy Plumes) -->
+      <path d="M 512,50 C 512,20 480,0 450,-20 C 490,-10 512,10 512,50 Z" fill="#00ffff" filter="url(#intense-glow)" />
+      <path d="M 512,50 C 512,20 544,0 574,-20 C 534,-10 512,10 512,50 Z" fill="#00ffff" filter="url(#intense-glow)" />
+      <path d="M 512,40 C 512,0 512,-30 512,-50 C 512,-30 512,0 512,40 Z" fill="#ff0077" stroke="#ffcc00" stroke-width="1.5" filter="url(#super-glow)" />
+    </g>
+
+    <!-- TALONS & ENERGY SPARKS (Reaching Downward) -->
+    <g id="talons">
+      <!-- Left Leg -->
+      <path d="M 480,580 L 460,680 L 430,720" fill="none" stroke="url(#chrome-silver)" stroke-width="6" stroke-linecap="round" />
+      <path d="M 430,720 L 400,710 M 430,720 L 410,740 M 430,720 L 450,730" fill="none" stroke="#ff3300" stroke-width="3" filter="url(#intense-glow)" />
+
+      <!-- Right Leg -->
+      <path d="M 544,580 L 564,680 L 594,720" fill="none" stroke="url(#chrome-silver)" stroke-width="6" stroke-linecap="round" />
+      <path d="M 594,720 L 624,710 M 594,720 L 614,740 M 594,720 L 574,730" fill="none" stroke="#ff3300" stroke-width="3" filter="url(#intense-glow)" />
+    </g>
+
+  </g> <!-- END PHOENIX -->
+
+  <!-- ================= FOREGROUND NEON FLAMES & PARTICLES ================= -->
+  <g filter="url(#super-glow)">
+    <!-- Swirling Flame Tendrils around Base -->
+    <path d="M 200,900 C 300,750 400,950 512,850 C 624,950 724,750 824,900" fill="none" stroke="url(#neon-cyan)" stroke-width="6" stroke-linecap="round" opacity="0.8" />
+    <path d="M 250,950 C 350,800 450,1000 512,900 C 574,1000 674,800 774,950" fill="none" stroke="url(#neon-magenta)" stroke-width="4" stroke-linecap="round" opacity="0.9" />
+
+    <!-- Floating Cyber Energy Sparks / Embers -->
+    <g fill="#00ffff">
+      <circle cx="300" cy="400" r="3" filter="url(#intense-glow)" />
+      <circle cx="250" cy="550" r="4" filter="url(#intense-glow)" />
+      <circle cx="350" cy="700" r="2" filter="url(#intense-glow)" />
+      <circle cx="200" cy="300" r="5" filter="url(#intense-glow)" />
+      <circle cx="150" cy="650" r="3" filter="url(#intense-glow)" />
+      <circle cx="380" cy="200" r="4" filter="url(#intense-glow)" />
+    </g>
+    <g fill="#ff3300">
+      <circle cx="724" cy="400" r="4" filter="url(#intense-glow)" />
+      <circle cx="774" cy="550" r="3" filter="url(#intense-glow)" />
+      <circle cx="674" cy="700" r="5" filter="url(#intense-glow)" />
+      <circle cx="824" cy="300" r="3" filter="url(#intense-glow)" />
+      <circle cx="874" cy="650" r="4" filter="url(#intense-glow)" />
+      <circle cx="644" cy="200" r="2" filter="url(#intense-glow)" />
+    </g>
+    <g fill="#ffffff">
+      <circle cx="512" cy="780" r="4" filter="url(#intense-glow)" />
+      <circle cx="480" cy="650" r="2" filter="url(#intense-glow)" />
+      <circle cx="544" cy="650" r="3" filter="url(#intense-glow)" />
+      <circle cx="512" cy="920" r="5" filter="url(#intense-glow)" />
+    </g>
+
+    <!-- Holographic Circuit Overlay Elements -->
+    <use href="#circuit-line" x="200" y="500" transform="rotate(45 200 500)" />
+    <use href="#circuit-line" x="824" y="500" transform="scale(-1, 1) translate(-1024, 0) rotate(45 824 500)" />
+    <use href="#circuit-line" x="300" y="300" transform="rotate(-30 300 300)" />
+    <use href="#circuit-line" x="724" y="300" transform="scale(-1, 1) translate(-1024, 0) rotate(-30 724 300)" />
+  </g>
+
+  <!-- Final Vignette / Ambient Occlusion Overlay -->
+  <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+    <stop offset="60%" stop-color="#000000" stop-opacity="0" />
+    <stop offset="100%" stop-color="#020005" stop-opacity="0.8" />
+  </radialGradient>
+  <rect width="1024" height="1024" fill="url(#vignette)" pointer-events="none" />
+</svg>

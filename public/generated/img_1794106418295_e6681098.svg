@@ -1,0 +1,804 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1494" width="1600" height="1494">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080c14" />
+      <stop offset="50%" stop-color="#0d1424" />
+      <stop offset="100%" stop-color="#05080f" />
+    </linearGradient>
+
+    <!-- Header Gradient -->
+    <linearGradient id="title-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="50%" stop-color="#818cf8" />
+      <stop offset="100%" stop-color="#c084fc" />
+    </linearGradient>
+
+    <!-- Glow Filters -->
+    <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="60" result="blur" />
+    </filter>
+  </defs>
+
+  <!-- Deep Dark Canvas -->
+  <rect width="1600" height="1494" fill="url(#bg-grad)" />
+
+  <!-- Ambient Glow Background Blobs -->
+  <circle cx="200" cy="180" r="160" fill="#3b82f6" fill-opacity="0.12" filter="url(#glow-cyan)" />
+  <circle cx="1400" cy="300" r="180" fill="#8b5cf6" fill-opacity="0.12" filter="url(#glow-cyan)" />
+  <circle cx="800" cy="1100" r="220" fill="#10b981" fill-opacity="0.08" filter="url(#glow-cyan)" />
+
+  <!-- Top Decorative Header Banner -->
+  <g class="header" transform="translate(60, 60)">
+    <rect width="1480" height="120" rx="16" fill="#111827" fill-opacity="0.75" stroke="rgba(255, 255, 255, 0.1)" stroke-width="1" />
+    
+    <!-- Title and Subtitle -->
+    <text x="40" y="48" fill="url(#title-grad)" font-size="28" font-weight="800" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" letter-spacing="-0.5">
+      Python Mastery 30-Day Learning Roadmap
+    </text>
+    <text x="40" y="80" fill="#94a3b8" font-size="15" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+      Complete Step-by-Step Mastery Path • Complete 30-Day Sequential Learning Roadmap
+    </text>
+
+    <!-- Badges Right -->
+    <g transform="translate(1140, 36)">
+      <rect width="100" height="32" rx="8" fill="#1e293b" stroke="rgba(255,255,255,0.1)" />
+      <text x="50" y="21" fill="#38bdf8" font-size="12" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">30 DAYS</text>
+
+      <rect x="112" width="100" height="32" rx="8" fill="#1e293b" stroke="rgba(255,255,255,0.1)" />
+      <text x="162" y="21" fill="#a855f7" font-size="12" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">4 WEEKS</text>
+
+      <rect x="224" width="100" height="32" rx="8" fill="#1e293b" stroke="rgba(255,255,255,0.1)" />
+      <text x="274" y="21" fill="#10b981" font-size="12" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DEVELOPER</text>
+    </g>
+  </g>
+
+  <!-- 4-Column Week Grid -->
+  
+      <!-- Column 1: Week 1: Foundation -->
+      <g class="week-column">
+        <!-- Week Header Pill -->
+        <rect x="60" y="220" width="347.5" height="44" rx="10" fill="#00CED1" fill-opacity="0.12" stroke="#00CED1" stroke-opacity="0.4" stroke-width="1.5" />
+        <circle cx="82" cy="242" r="6" fill="#00CED1" />
+        <text x="98" y="247" fill="#ffffff" font-size="14" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+          Week 1: Foundation
+        </text>
+        
+        <!-- Day 01 Card -->
+        <g class="day-card" transform="translate(60, 280)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 01</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Python Setup &amp; Basics
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Install Python, configure environment, write an...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            d execute first script.
+          </text>
+        </g>
+      
+        <!-- Day 02 Card -->
+        <g class="day-card" transform="translate(60, 406)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 02</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Variables &amp; Data Types
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Explore fundamental data types: numbers, string...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            s, lists, dictionaries, booleans.
+          </text>
+        </g>
+      
+        <!-- Day 03 Card -->
+        <g class="day-card" transform="translate(60, 532)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 03</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Operators &amp; Expressions
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Understand arithmetic, comparison, logical, and...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+             assignment operators in Python.
+          </text>
+        </g>
+      
+        <!-- Day 04 Card -->
+        <g class="day-card" transform="translate(60, 658)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 04</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Control Flow Statements
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Master conditional statements (if/elif/else) an...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            d looping constructs (for/while).
+          </text>
+        </g>
+      
+        <!-- Day 05 Card -->
+        <g class="day-card" transform="translate(60, 784)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 05</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Functions &amp; Scope
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Define, call functions, pass arguments, and gra...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            sp variable scope rules.
+          </text>
+        </g>
+      
+        <!-- Day 06 Card -->
+        <g class="day-card" transform="translate(60, 910)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 06</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Modules &amp; Packages
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Organize code effectively using modules and cre...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            ate Python packages.
+          </text>
+        </g>
+      
+        <!-- Day 07 Card -->
+        <g class="day-card" transform="translate(60, 1036)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 07</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Basic Object-Oriented Programming
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Introduction to classes, objects, attributes, a...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            nd methods in Python OOP.
+          </text>
+        </g>
+      
+      </g>
+    
+      <!-- Column 2: Week 2: Intermediate Python &amp; Data Structures -->
+      <g class="week-column">
+        <!-- Week Header Pill -->
+        <rect x="437.5" y="220" width="347.5" height="44" rx="10" fill="#00CED1" fill-opacity="0.12" stroke="#00CED1" stroke-opacity="0.4" stroke-width="1.5" />
+        <circle cx="459.5" cy="242" r="6" fill="#00CED1" />
+        <text x="475.5" y="247" fill="#ffffff" font-size="14" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+          Week 2: Intermediate Python &amp; Data Structures
+        </text>
+        
+        <!-- Day 08 Card -->
+        <g class="day-card" transform="translate(437.5, 280)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 08</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Error Handling (Try-Except)
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Implement robust error handling using try, exce...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            pt, else, and finally blocks.
+          </text>
+        </g>
+      
+        <!-- Day 09 Card -->
+        <g class="day-card" transform="translate(437.5, 406)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 09</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            File I/O Operations
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Read from and write to various file types, mana...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            ging file resources.
+          </text>
+        </g>
+      
+        <!-- Day 10 Card -->
+        <g class="day-card" transform="translate(437.5, 532)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 10</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Advanced Data Structures
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Explore sets, tuples, and collections module fo...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            r efficient data management.
+          </text>
+        </g>
+      
+        <!-- Day 11 Card -->
+        <g class="day-card" transform="translate(437.5, 658)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 11</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            List Comprehensions &amp; Lambdas
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Write concise and efficient code using list com...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            prehensions and anonymous functions.
+          </text>
+        </g>
+      
+        <!-- Day 12 Card -->
+        <g class="day-card" transform="translate(437.5, 784)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 12</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Generators &amp; Iterators
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Understand memory-efficient data processing wit...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            h generators and iterators.
+          </text>
+        </g>
+      
+        <!-- Day 13 Card -->
+        <g class="day-card" transform="translate(437.5, 910)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 13</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Decorators in Python
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Enhance function behavior dynamically without a...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            ltering their core code.
+          </text>
+        </g>
+      
+        <!-- Day 14 Card -->
+        <g class="day-card" transform="translate(437.5, 1036)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 14</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Regular Expressions
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Master pattern matching and text manipulation u...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            sing Python&apos;s re module.
+          </text>
+        </g>
+      
+      </g>
+    
+      <!-- Column 3: Week 3: OOP, Web Fundamentals &amp; Libraries -->
+      <g class="week-column">
+        <!-- Week Header Pill -->
+        <rect x="815" y="220" width="347.5" height="44" rx="10" fill="#00CED1" fill-opacity="0.12" stroke="#00CED1" stroke-opacity="0.4" stroke-width="1.5" />
+        <circle cx="837" cy="242" r="6" fill="#00CED1" />
+        <text x="853" y="247" fill="#ffffff" font-size="14" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+          Week 3: OOP, Web Fundamentals &amp; Libraries
+        </text>
+        
+        <!-- Day 15 Card -->
+        <g class="day-card" transform="translate(815, 280)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 15</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Advanced OOP Concepts
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Deep dive into inheritance, polymorphism, abstr...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            action, and encapsulation principles.
+          </text>
+        </g>
+      
+        <!-- Day 16 Card -->
+        <g class="day-card" transform="translate(815, 406)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 16</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Virtual Environments
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Isolate project dependencies and manage Python ...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            packages effectively.
+          </text>
+        </g>
+      
+        <!-- Day 17 Card -->
+        <g class="day-card" transform="translate(815, 532)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 17</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Introduction to FastAPI
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Build high-performance web APIs using FastAPI a...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            nd Pydantic for data validation.
+          </text>
+        </g>
+      
+        <!-- Day 18 Card -->
+        <g class="day-card" transform="translate(815, 658)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 18</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Path &amp; Query Parameters
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Define flexible API endpoints, handle path and ...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            query parameters efficiently.
+          </text>
+        </g>
+      
+        <!-- Day 19 Card -->
+        <g class="day-card" transform="translate(815, 784)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 19</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Request Body &amp; Pydantic
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Process complex request bodies using Pydantic m...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            odels for data parsing.
+          </text>
+        </g>
+      
+        <!-- Day 20 Card -->
+        <g class="day-card" transform="translate(815, 910)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 20</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            FastAPI Dependencies &amp; Secu...
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Implement dependency injection, basic authentic...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            ation, and authorization mechanisms.
+          </text>
+        </g>
+      
+        <!-- Day 21 Card -->
+        <g class="day-card" transform="translate(815, 1036)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 21</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Database Integration Basics
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Connect FastAPI applications with relational da...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            tabases like SQLite or PostgreSQL.
+          </text>
+        </g>
+      
+      </g>
+    
+      <!-- Column 4: Week 4: Advanced Topics &amp; Project -->
+      <g class="week-column">
+        <!-- Week Header Pill -->
+        <rect x="1192.5" y="220" width="347.5" height="44" rx="10" fill="#00CED1" fill-opacity="0.12" stroke="#00CED1" stroke-opacity="0.4" stroke-width="1.5" />
+        <circle cx="1214.5" cy="242" r="6" fill="#00CED1" />
+        <text x="1230.5" y="247" fill="#ffffff" font-size="14" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+          Week 4: Advanced Topics &amp; Project
+        </text>
+        
+        <!-- Day 22 Card -->
+        <g class="day-card" transform="translate(1192.5, 280)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 22</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Asynchronous Python (async/await)
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Build concurrent and high-performance applicati...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            ons using async/await syntax.
+          </text>
+        </g>
+      
+        <!-- Day 23 Card -->
+        <g class="day-card" transform="translate(1192.5, 406)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 23</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            FastAPI Background Tasks
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Execute long-running operations efficiently wit...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            hout blocking the main request.
+          </text>
+        </g>
+      
+        <!-- Day 24 Card -->
+        <g class="day-card" transform="translate(1192.5, 532)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 24</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Testing FastAPI Endpoints
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Write unit and integration tests for FastAPI AP...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Is using Pytest.
+          </text>
+        </g>
+      
+        <!-- Day 25 Card -->
+        <g class="day-card" transform="translate(1192.5, 658)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 25</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            FastAPI Microservice Testing
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Advanced testing strategies: mocking external s...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            ervices, end-to-end testing.
+          </text>
+        </g>
+      
+        <!-- Day 26 Card -->
+        <g class="day-card" transform="translate(1192.5, 784)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 26</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            API Deployment Strategies
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Prepare FastAPI applications for deployment on ...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            cloud platforms or servers.
+          </text>
+        </g>
+      
+        <!-- Day 27 Card -->
+        <g class="day-card" transform="translate(1192.5, 910)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 27</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Containerization with Docker
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Package FastAPI applications into Docker contai...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            ners for consistent environments.
+          </text>
+        </g>
+      
+        <!-- Day 28 Card -->
+        <g class="day-card" transform="translate(1192.5, 1036)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 28</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            ORM with SQLAlchemy
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Master Object Relational Mapping for advanced, ...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            efficient database interactions.
+          </text>
+        </g>
+      
+        <!-- Day 29 Card -->
+        <g class="day-card" transform="translate(1192.5, 1162)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 29</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Project Day: Build a Microservice
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Apply all learned skills to build a functional,...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+             tested FastAPI microservice.
+          </text>
+        </g>
+      
+        <!-- Day 30 Card -->
+        <g class="day-card" transform="translate(1192.5, 1288)">
+          <rect width="347.5" height="110" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          <rect width="4" height="90" x="0" y="10" rx="2" fill="#00CED1" />
+          
+          <!-- Day Badge -->
+          <rect x="16" y="14" width="64" height="24" rx="6" fill="#00CED1" fill-opacity="0.18" />
+          <text x="48" y="30" fill="#00CED1" font-size="11" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">DAY 30</text>
+          
+          <!-- Topic Title -->
+          <text x="16" y="60" fill="#f8fafc" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Review &amp; Future Learning
+          </text>
+          
+          <!-- Description -->
+          <text x="16" y="82" fill="#94a3b8" font-size="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+            Consolidate knowledge, explore advanced topics,...
+          </text>
+          <text x="16" y="98" fill="#64748b" font-size="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+             and plan continuous learning.
+          </text>
+        </g>
+      
+      </g>
+    
+
+  <!-- Footer Branding -->
+  <g transform="translate(60, 1434)">
+    <line x1="0" y1="0" x2="1480" y2="0" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+    <text x="0" y="32" fill="#64748b" font-size="12" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+      Synthesized with Raghul AI Generative Engine • Guaranteed 100% Sequential Coverage
+    </text>
+    <text x="1480" y="32" fill="#64748b" font-size="12" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="end">
+      High-Resolution Infographic • Vector Scalable
+    </text>
+  </g>
+</svg>

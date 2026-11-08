@@ -1,0 +1,262 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050814"/>
+      <stop offset="40%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+
+    <!-- Nebula / Glowing Orbs Gradients -->
+    <radialGradient id="nebulaCyan" cx="30%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#06b6d4" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nebulaAmber" cx="80%" cy="70%" r="50%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="portalGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#818cf8" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#4f46e5" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Dog Fur Gradients -->
+    <linearGradient id="dogBase" x1="30%" y1="0%" x2="70%" y2="100%">
+      <stop offset="0%" stop-color="#e2e8f0"/>
+      <stop offset="40%" stop-color="#cbd5e1"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+    <linearGradient id="dogDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="dogChest" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+
+    <!-- Visor / Sci-Fi Gradients -->
+    <linearGradient id="visorGlass" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#0284c7" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="visorRim" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00ffff"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+
+    <!-- Wing Gradients -->
+    <linearGradient id="wingMembrane" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.6"/>
+      <stop offset="50%" stop-color="#818cf8" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#c084fc" stop-opacity="0.1"/>
+    </linearGradient>
+    <linearGradient id="wingBone" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+
+    <!-- Glow & Shadow Filters -->
+    <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="15" stdDeviation="20" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+
+    <!-- Star Symbol for Background -->
+    <g id="star">
+      <circle cx="0" cy="0" r="1.5" fill="#ffffff"/>
+    </g>
+    <g id="starGlow">
+      <circle cx="0" cy="0" r="2.5" fill="#38bdf8" filter="url(#softGlow)"/>
+      <circle cx="0" cy="0" r="1" fill="#ffffff"/>
+    </g>
+  </defs>
+
+  <!-- ==================== BACKGROUND ==================== -->
+  <rect width="1024" height="1024" fill="url(#bgGradient)"/>
+
+  <!-- Nebulae -->
+  <circle cx="300" cy="300" r="450" fill="url(#nebulaCyan)"/>
+  <circle cx="800" cy="700" r="400" fill="url(#nebulaAmber)"/>
+  <circle cx="512" cy="512" r="350" fill="url(#portalGlow)"/>
+
+  <!-- Starfield -->
+  <g opacity="0.7">
+    <use href="#star" x="120" y="150"/>
+    <use href="#starGlow" x="240" y="80"/>
+    <use href="#star" x="850" y="120"/>
+    <use href="#starGlow" x="900" y="300"/>
+    <use href="#star" x="150" y="750"/>
+    <use href="#starGlow" x="280" y="850"/>
+    <use href="#star" x="780" y="820"/>
+    <use href="#starGlow" x="880" y="650"/>
+    <use href="#star" x="500" y="100"/>
+    <use href="#star" x="90" y="450"/>
+    <use href="#starGlow" x="930" y="480"/>
+    <use href="#star" x="420" y="920"/>
+    <use href="#starGlow" x="650" y="880"/>
+    <use href="#star" x="700" y="180"/>
+    <use href="#star" x="180" y="320"/>
+  </g>
+
+  <!-- Floating Digital Cyber Particles / Hexagons -->
+  <g opacity="0.3" stroke="#38bdf8" stroke-width="1.5" fill="none">
+    <polygon points="200,200 220,190 240,200 240,220 220,230 200,220"/>
+    <polygon points="820,180 835,172 850,180 850,195 835,203 820,195"/>
+    <polygon points="150,650 165,642 180,650 180,665 165,673 150,665"/>
+    <polygon points="870,750 890,740 910,750 910,770 890,780 870,770"/>
+  </g>
+
+  <!-- ==================== WINGS (BACK LAYER) ==================== -->
+  <!-- Left Wing (Back/Lower) -->
+  <g id="leftWing" filter="url(#dropShadow)">
+    <!-- Wing Bones -->
+    <path d="M 440 520 Q 250 350 100 250 Q 80 240 70 260 Q 150 400 300 560 Z" fill="url(#wingBone)" opacity="0.8"/>
+    <path d="M 300 560 Q 180 480 80 450 Q 75 460 90 480 Q 200 550 350 580 Z" fill="url(#wingBone)" opacity="0.6"/>
+    <!-- Wing Membrane -->
+    <path d="M 440 520 C 350 420 220 300 100 250 C 120 350 200 480 300 560 C 360 560 410 540 440 520 Z" fill="url(#wingMembrane)" filter="url(#softGlow)"/>
+    <!-- Wing Tech Ribs -->
+    <path d="M 370 480 Q 260 380 150 310" stroke="#38bdf8" stroke-width="2" fill="none" opacity="0.7"/>
+    <path d="M 340 510 Q 240 430 115 360" stroke="#38bdf8" stroke-width="1.5" fill="none" opacity="0.5"/>
+    <path d="M 320 540 Q 210 470 95 440" stroke="#c084fc" stroke-width="1.5" fill="none" opacity="0.5"/>
+  </g>
+
+  <!-- Right Wing (Back/Lower) -->
+  <g id="rightWing" filter="url(#dropShadow)">
+    <path d="M 584 520 Q 774 350 924 250 Q 944 240 954 260 Q 874 400 724 560 Z" fill="url(#wingBone)" opacity="0.8"/>
+    <path d="M 724 560 Q 844 480 944 450 Q 949 460 934 480 Q 824 550 674 580 Z" fill="url(#wingBone)" opacity="0.6"/>
+    <path d="M 584 520 C 674 420 804 300 924 250 C 904 350 824 480 724 560 C 664 560 614 540 584 520 Z" fill="url(#wingMembrane)" filter="url(#softGlow)"/>
+    <path d="M 654 480 Q 764 380 874 310" stroke="#38bdf8" stroke-width="2" fill="none" opacity="0.7"/>
+    <path d="M 684 510 Q 784 430 909 360" stroke="#38bdf8" stroke-width="1.5" fill="none" opacity="0.5"/>
+    <path d="M 704 540 Q 814 470 929 440" stroke="#c084fc" stroke-width="1.5" fill="none" opacity="0.5"/>
+  </g>
+
+
+  <!-- ==================== THE DOG SUBJECT ==================== -->
+  <g id="cyberDog" filter="url(#dropShadow)">
+
+    <!-- Dog Body & Neck -->
+    <path d="M 400 680 C 370 580 430 500 512 500 C 594 500 654 580 624 680 C 650 730 680 800 720 850 C 600 880 424 880 304 850 C 344 800 374 730 400 680 Z" fill="url(#dogBase)"/>
+    
+    <!-- Chest Plate / Armor Highlight -->
+    <path d="M 512 540 C 560 540 600 590 590 670 C 580 750 544 820 512 850 C 480 820 444 750 434 670 C 424 590 464 540 512 540 Z" fill="url(#dogChest)"/>
+
+    <!-- Cybernetic Neck Collar & Lines -->
+    <path d="M 420 630 Q 512 660 604 630" stroke="#0ea5e9" stroke-width="8" fill="none" filter="url(#neonGlow)"/>
+    <path d="M 420 630 Q 512 660 604 630" stroke="#ffffff" stroke-width="3" fill="none"/>
+    <circle cx="512" cy="647" r="10" fill="#38bdf8" filter="url(#neonGlow)"/>
+
+    <!-- Shoulders / Mechanical Armor Accents -->
+    <path d="M 410 650 L 360 700 L 410 740 Z" fill="url(#dogDark)"/>
+    <path d="M 614 650 L 664 700 L 614 740 Z" fill="url(#dogDark)"/>
+    <circle cx="385" cy="695" r="5" fill="#38bdf8" filter="url(#softGlow)"/>
+    <circle cx="639" cy="695" r="5" fill="#38bdf8" filter="url(#softGlow)"/>
+
+    <!-- Dog Head Shape -->
+    <!-- Left Ear (Back) -->
+    <path d="M 420 380 C 380 320 340 220 380 200 C 410 190 450 280 460 350 Z" fill="url(#dogBase)"/>
+    <!-- Right Ear (Back) -->
+    <path d="M 604 380 C 644 320 684 220 644 200 C 614 190 574 280 564 350 Z" fill="url(#dogBase)"/>
+
+    <!-- Main Head Base -->
+    <path d="M 420 350 C 400 300 450 250 512 250 C 574 250 624 300 604 350 C 630 400 640 480 610 530 C 580 580 444 580 414 530 C 384 480 394 400 420 350 Z" fill="url(#dogBase)"/>
+
+    <!-- Head Shading / Mask -->
+    <path d="M 512 280 C 550 280 580 320 570 400 C 560 480 512 550 512 550 C 512 550 464 480 454 400 C 444 320 474 280 512 280 Z" fill="#ffffff" opacity="0.5"/>
+
+    <!-- Cyber Visor (Eyes area) -->
+    <g filter="url(#neonGlow)">
+      <path d="M 405 385 C 450 365 574 365 619 385 C 635 415 615 450 512 450 C 409 450 389 415 405 385 Z" fill="url(#visorGlass)" stroke="url(#visorRim)" stroke-width="4"/>
+      <!-- Visor Grid Lines -->
+      <path d="M 430 388 Q 512 425 594 388" stroke="#38bdf8" stroke-width="1.5" fill="none" opacity="0.6"/>
+      <path d="M 445 405 Q 512 438 579 405" stroke="#38bdf8" stroke-width="1" fill="none" opacity="0.4"/>
+      <!-- Glowing Visor Highlight -->
+      <ellipse cx="512" cy="395" rx="70" ry="12" fill="#ffffff" opacity="0.7" filter="url(#softGlow)"/>
+    </g>
+
+    <!-- Dog Muzzle / Nose / Mouth -->
+    <path d="M 470 460 C 480 440 544 440 554 460 C 570 490 560 530 512 540 C 464 530 454 490 470 460 Z" fill="#e2e8f0"/>
+    <!-- Cyber Nose -->
+    <polygon points="492,475 532,475 512,500" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+    <circle cx="512" cy="485" r="3" fill="#38bdf8" filter="url(#neonGlow)"/>
+    <!-- Mouth Line / Smile -->
+    <path d="M 512 500 L 512 525" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 490 518 Q 512 532 534 518" stroke="#334155" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+    <!-- Paws / Front Cyber Limbs -->
+    <!-- Left Paw -->
+    <path d="M 380 750 C 360 800 370 860 390 900 C 410 930 450 930 460 900 C 470 860 450 800 420 750 Z" fill="url(#dogBase)"/>
+    <ellipse cx="425" cy="895" rx="25" ry="15" fill="#334155"/>
+    <circle cx="410" cy="890" r="5" fill="#38bdf8" filter="url(#neonGlow)"/>
+    <circle cx="425" cy="885" r="5" fill="#38bdf8" filter="url(#neonGlow)"/>
+    <circle cx="440" cy="890" r="5" fill="#38bdf8" filter="url(#neonGlow)"/>
+
+    <!-- Right Paw -->
+    <path d="M 644 750 C 664 800 654 860 634 900 C 614 930 574 930 564 900 C 554 860 574 800 604 750 Z" fill="url(#dogBase)"/>
+    <ellipse cx="599" cy="895" rx="25" ry="15" fill="#334155"/>
+    <circle cx="584" cy="890" r="5" fill="#38bdf8" filter="url(#neonGlow)"/>
+    <circle cx="599" cy="885" r="5" fill="#38bdf8" filter="url(#neonGlow)"/>
+    <circle cx="614" cy="890" r="5" fill="#38bdf8" filter="url(#neonGlow)"/>
+
+  </g>
+
+
+  <!-- ==================== WINGS (FRONT/TOP DYNAMIC OVERLAYS) ==================== -->
+  <!-- Floating Energy Tech Rings around wings -->
+  <g filter="url(#neonGlow)" opacity="0.8">
+    <ellipse cx="200" cy="350" rx="40" ry="15" transform="rotate(-30 200 350)" stroke="#38bdf8" stroke-width="2" fill="none"/>
+    <ellipse cx="824" cy="350" rx="40" ry="15" transform="rotate(30 824 350)" stroke="#38bdf8" stroke-width="2" fill="none"/>
+  </g>
+
+  <!-- Wing Energy Circuit Pulses -->
+  <g stroke="#ffffff" stroke-width="1.5" fill="none" opacity="0.8" filter="url(#softGlow)">
+    <path d="M 350 560 Q 220 400 100 250"/>
+    <path d="M 674 560 Q 804 400 924 250"/>
+  </g>
+
+
+  <!-- ==================== FOREGROUND ATMOSPHERE / LIGHT PARTICLES ==================== -->
+  <!-- Glowing Floating Orbs & Magic Dust -->
+  <g filter="url(#neonGlow)">
+    <circle cx="250" cy="600" r="6" fill="#38bdf8"/>
+    <circle cx="780" cy="580" r="8" fill="#c084fc"/>
+    <circle cx="320" cy="780" r="5" fill="#f59e0b"/>
+    <circle cx="700" cy="760" r="7" fill="#38bdf8"/>
+    <circle cx="512" cy="200" r="9" fill="#38bdf8"/>
+    <circle cx="460" cy="150" r="4" fill="#ffffff"/>
+    <circle cx="570" cy="170" r="5" fill="#c084fc"/>
+  </g>
+
+  <!-- Floating Energy Sparks (Cross Stars) -->
+  <g stroke="#38bdf8" stroke-width="2" stroke-linecap="round" filter="url(#neonGlow)">
+    <path d="M 200 480 L 200 500 M 190 490 L 210 490"/>
+    <path d="M 840 480 L 840 500 M 830 490 L 850 490"/>
+    <path d="M 310 280 L 310 296 M 302 288 L 318 288"/>
+    <path d="M 720 280 L 720 296 M 712 288 L 728 288"/>
+  </g>
+
+  <!-- Light Beams / Vignette Overlay for Depth -->
+  <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+    <stop offset="60%" stop-color="#000000" stop-opacity="0"/>
+    <stop offset="100%" stop-color="#020617" stop-opacity="0.6"/>
+  </radialGradient>
+  <rect width="1024" height="1024" fill="url(#vignette)" pointer-events="none"/>
+
+</svg>

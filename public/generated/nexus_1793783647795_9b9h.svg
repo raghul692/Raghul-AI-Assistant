@@ -1,0 +1,261 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+  <defs>
+    <!-- Background & Canvas Gradients -->
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="70%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#141933" />
+      <stop offset="60%" stop-color="#090a16" />
+      <stop offset="100%" stop-color="#020308" />
+    </radialGradient>
+
+    <!-- UI/Frame Glass Gradient -->
+    <linearGradient id="glassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15" />
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.02" />
+    </linearGradient>
+    <linearGradient id="glassBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#7f00ff" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#ff007f" stop-opacity="0.8" />
+    </linearGradient>
+
+    <!-- 3D Extrusion & Shape Gradients -->
+    <linearGradient id="cyanBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="100%" stop-color="#4facfe" />
+    </linearGradient>
+
+    <linearGradient id="pinkPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff0844" />
+      <stop offset="100%" stop-color="#ffb199" />
+    </linearGradient>
+
+    <linearGradient id="violetIndigo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b224ef" />
+      <stop offset="100%" stop-color="#7579ff" />
+    </linearGradient>
+    
+    <linearGradient id="goldYellow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f6d365" />
+      <stop offset="100%" stop-color="#fda085" />
+    </linearGradient>
+
+    <!-- Photo Silhouette Gradients -->
+    <linearGradient id="photoGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2c3e50" />
+      <stop offset="100%" stop-color="#000000" />
+    </linearGradient>
+
+    <!-- Glow & Shadow Filters -->
+    <filter id="neonGlowCyan" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur1" />
+      <feGaussianBlur stdDeviation="20" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur2" />
+        <feMergeNode in="blur1" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="neonGlowPink" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10" result="blur1" />
+      <feGaussianBlur stdDeviation="25" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur2" />
+        <feMergeNode in="blur1" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="dropShadow" x="-20%" y="-20%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.7" />
+    </filter>
+
+    <filter id="hudGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Pattern for Background Grid -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1" />
+    </pattern>
+  </defs>
+
+  <!-- Background Layer -->
+  <rect width="1024" height="1024" fill="url(#bgGlow)" />
+  <rect width="1024" height="1024" fill="url(#grid)" />
+
+  <!-- Ambient Light Orbs -->
+  <circle cx="200" cy="200" r="250" fill="#7f00ff" opacity="0.15" filter="blur(60px)" />
+  <circle cx="850" cy="800" r="300" fill="#00f2fe" opacity="0.1" filter="blur(80px)" />
+  <circle cx="512" cy="512" r="350" fill="#ff007f" opacity="0.08" filter="blur(90px)" />
+
+  <!-- Isometric/3D Perspective Grid Plane (Bottom) -->
+  <g opacity="0.4" transform="translate(0, 150)">
+    <path d="M 1024 700 L 0 700" stroke="url(#cyanBlue)" stroke-width="1.5" opacity="0.5" />
+    <path d="M 1024 750 L 0 750" stroke="url(#cyanBlue)" stroke-width="1" opacity="0.3" />
+    <path d="M 1024 790 L 0 790" stroke="url(#cyanBlue)" stroke-width="0.5" opacity="0.1" />
+    <!-- Perspective convergence lines -->
+    <line x1="512" y1="400" x2="-200" y2="800" stroke="#00f2fe" stroke-width="0.5" opacity="0.3" />
+    <line x1="512" y1="400" x2="100" y2="800" stroke="#00f2fe" stroke-width="0.5" opacity="0.3" />
+    <line x1="512" y1="400" x2="400" y2="800" stroke="#00f2fe" stroke-width="0.5" opacity="0.3" />
+    <line x1="512" y1="400" x2="624" y2="800" stroke="#00f2fe" stroke-width="0.5" opacity="0.3" />
+    <line x1="512" y1="400" x2="924" y2="800" stroke="#00f2fe" stroke-width="0.5" opacity="0.3" />
+    <line x1="512" y1="400" x2="1224" y2="800" stroke="#00f2fe" stroke-width="0.5" opacity="0.3" />
+  </g>
+
+  <!-- Central Composition: The Photo Canvas & 3D Transition -->
+  <g filter="url(#dropShadow)">
+    <!-- Photo Frame / Base Plane -->
+    <rect x="262" y="212" width="500" height="600" rx="24" fill="url(#photoGrad)" stroke="#334155" stroke-width="2" />
+    
+    <!-- THE PHOTO (Stylized Vector Portrait inside clipping area) -->
+    <g clip-path="url(#photoClip)">
+      <clipPath id="photoClip">
+        <rect x="262" y="212" width="500" height="600" rx="24" />
+      </clipPath>
+
+      <!-- Inner Photo Background Elements -->
+      <circle cx="512" cy="450" r="180" fill="#1e293b" opacity="0.5" />
+      
+      <!-- Stylized Subject Silhouette (Person looking majestic/artistic) -->
+      <path d="M 512 650 
+               C 420 650, 360 700, 340 812 
+               L 684 812 
+               C 664 700, 604 650, 512 650 Z" fill="#0f172a" />
+      <!-- Shoulders 3D highlight edge -->
+      <path d="M 340 812 L 684 812" stroke="url(#cyanBlue)" stroke-width="3" filter="url(#hudGlow)" />
+
+      <!-- Neck & Head -->
+      <path d="M 472 550 L 472 660 L 552 660 L 552 550 Z" fill="#1e293b" />
+      <path d="M 512 360 
+               C 460 360, 430 400, 430 460 
+               C 430 520, 460 560, 512 560 
+               C 564 560, 594 520, 594 460 
+               C 594 400, 564 360, 512 360 Z" fill="#1e293b" />
+               
+      <!-- Internal photo vector light accents -->
+      <path d="M 440 440 Q 512 380 584 440" stroke="url(#pinkPurple)" stroke-width="2" fill="none" opacity="0.6" />
+      <path d="M 460 500 Q 512 540 564 500" stroke="url(#cyanBlue)" stroke-width="2" fill="none" opacity="0.6" />
+    </g>
+
+    <!-- Glass UI Overlay (Software Interface framing the photo) -->
+    <rect x="262" y="212" width="500" height="600" rx="24" fill="url(#glassGrad)" stroke="url(#glassBorder)" stroke-width="2" />
+
+    <!-- UI Header bar inside the canvas -->
+    <path d="M 286 250 L 738 250" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1" />
+    <circle cx="286" cy="236" r="4" fill="#ff5f56" />
+    <circle cx="302" cy="236" r="4" fill="#ffbd2e" />
+    <circle cx="318" cy="236" r="4" fill="#27c93f" />
+    <text x="340" y="240" fill="#ffffff" fill-opacity="0.5" font-family="monospace" font-size="12" letter-spacing="1">NEXUS_3D_ENGINE // V.04</text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 3D ART POPPING OUT OF THE PHOTO (THE MAGIC) -->
+  <!-- ========================================== -->
+
+  <!-- Flowing 3D Ribbon 1 (Breaking the frame, wrapping around) -->
+  <g filter="url(#neonGlowPink)">
+    <path d="M 220 300 
+             C 150 400, 300 500, 320 550 
+             C 340 600, 260 700, 380 750 
+             C 450 780, 520 730, 520 730" 
+          fill="none" stroke="url(#pinkPurple)" stroke-width="12" stroke-linecap="round" />
+  </g>
+  <!-- Ribbon 1 Inner Highlight -->
+  <path d="M 220 300 C 150 400, 300 500, 320 550 C 340 600, 260 700, 380 750 C 450 780, 520 730, 520 730" 
+        fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.8" />
+
+  <!-- 3D Geometric Floating Octahedron / Crystal (Top Left) -->
+  <g transform="translate(240, 180)" filter="url(#neonGlowCyan)">
+    <!-- Faces -->
+    <polygon points="0,-40 35,20 0,50" fill="url(#cyanBlue)" opacity="0.8" />
+    <polygon points="0,-40 -35,20 0,50" fill="url(#violetIndigo)" opacity="0.9" />
+    <polygon points="0,-40 35,20 60,-10" fill="url(#pinkPurple)" opacity="0.7" />
+    <polygon points="0,-40 -35,20 -60,-10" fill="url(#cyanBlue)" opacity="0.6" />
+    <!-- Wireframe edges -->
+    <polygon points="0,-40 35,20 0,50 -35,20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.9" />
+    <line x1="0" y1="-40" x2="0" y2="50" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+  </g>
+
+  <!-- 3D Torus / Ring (Middle Right, Bursting out of the frame border) -->
+  <g transform="translate(740, 420) rotate(-25)" filter="url(#neonGlowCyan)">
+    <ellipse cx="0" cy="0" rx="80" ry="30" fill="none" stroke="url(#cyanBlue)" stroke-width="16" />
+    <ellipse cx="0" cy="0" rx="80" ry="30" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.8" />
+  </g>
+
+  <!-- Floating 3D Cube (Bottom Right) -->
+  <g transform="translate(720, 680)" filter="url(#neonGlowPink)">
+    <path d="M 0 -40 L 35 -20 L 35 20 L 0 40 L -35 20 L -35 -20 Z" fill="none" stroke="url(#pinkPurple)" stroke-width="2" />
+    <path d="M 0 0 L 0 40" stroke="url(#pinkPurple)" stroke-width="2" />
+    <path d="M 0 0 L 35 -20" stroke="url(#pinkPurple)" stroke-width="2" />
+    <path d="M 0 0 L -35 -20" stroke="url(#pinkPurple)" stroke-width="2" />
+    <circle cx="0" cy="0" r="6" fill="#ffffff" filter="url(#hudGlow)" />
+  </g>
+
+  <!-- Flowing 3D Ribbon 2 (Erupting from the chest/head area outward) -->
+  <g filter="url(#neonGlowCyan)">
+    <path d="M 512 450 
+             C 600 400, 750 500, 800 350 
+             C 850 200, 650 150, 580 220
+             C 520 280, 600 380, 700 350" 
+          fill="none" stroke="url(#cyanBlue)" stroke-width="16" stroke-linecap="round" />
+  </g>
+  <!-- Ribbon 2 Inner Highlight -->
+  <path d="M 512 450 C 600 400, 750 500, 800 350 C 850 200, 650 150, 580 220 C 520 280, 600 380, 700 350" 
+        fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.9" />
+
+  <!-- Spectacular Energy Burst / 3D Spheres Matrix -->
+  <g>
+    <!-- Orbiting particles / glowing nodes -->
+    <circle cx="780" cy="320" r="12" fill="url(#goldYellow)" filter="url(#neonGlowPink)" />
+    <circle cx="780" cy="320" r="4" fill="#ffffff" />
+
+    <circle cx="280" cy="500" r="8" fill="url(#cyanBlue)" filter="url(#neonGlowCyan)" />
+    <circle cx="280" cy="500" r="3" fill="#ffffff" />
+
+    <circle cx="580" cy="220" r="10" fill="url(#pinkPurple)" filter="url(#neonGlowPink)" />
+    <circle cx="580" cy="220" r="3" fill="#ffffff" />
+    
+    <circle cx="450" cy="750" r="6" fill="url(#cyanBlue)" filter="url(#neonGlowCyan)" />
+  </g>
+
+  <!-- Abstract 3D Wireframe Dodecahedron / Sphere Mesh (Top Center) -->
+  <g transform="translate(512, 160)" filter="url(#hudGlow)" opacity="0.8">
+    <circle cx="0" cy="0" r="45" fill="none" stroke="url(#violetIndigo)" stroke-width="2" />
+    <ellipse cx="0" cy="0" rx="45" ry="18" fill="none" stroke="url(#cyanBlue)" stroke-width="2" transform="rotate(30)" />
+    <ellipse cx="0" cy="0" rx="45" ry="18" fill="none" stroke="url(#pinkPurple)" stroke-width="2" transform="rotate(-30)" />
+    <circle cx="0" cy="0" r="4" fill="#ffffff" />
+  </g>
+
+  <!-- HUD Elements & Technical Vector Overlays -->
+  <g font-family="monospace" font-size="10" fill="#00f2fe" opacity="0.7">
+    <!-- Top-Left Target Bracket -->
+    <path d="M 60 120 L 60 80 L 100 80" fill="none" stroke="#00f2fe" stroke-width="2" />
+    <text x="60" y="140" letter-spacing="2">X: 512.0 Y: 512.0</text>
+    <text x="60" y="155" letter-spacing="2" fill="#ff007f">STATUS: Z-AXIS ACTIVE</text>
+
+    <!-- Bottom-Right Target Bracket -->
+    <path d="M 964 904 L 964 944 L 924 944" fill="none" stroke="#00f2fe" stroke-width="2" />
+    <text x="834" y="890" letter-spacing="2">RENDER_ENGINE: 3D_GEN</text>
+
+    <!-- Connection lines connecting UI to 3D elements -->
+    <path d="M 100 100 L 240 180" stroke="#00f2fe" stroke-width="0.5" stroke-dasharray="4 4" opacity="0.5" />
+    <path d="M 924 924 L 720 680" stroke="#ff007f" stroke-width="0.5" stroke-dasharray="4 4" opacity="0.5" />
+  </g>
+
+  <!-- Additional Glowing Floating Dust Particles -->
+  <g opacity="0.6">
+    <circle cx="350" cy="250" r="2" fill="#ffffff" filter="url(#hudGlow)" />
+    <circle cx="480" cy="180" r="3" fill="#00f2fe" filter="url(#hudGlow)" />
+    <circle cx="680" cy="280" r="2" fill="#ff007f" filter="url(#hudGlow)" />
+    <circle cx="250" cy="600" r="2" fill="#ffffff" filter="url(#hudGlow)" />
+    <circle cx="300" cy="720" r="3" fill="#7579ff" filter="url(#hudGlow)" />
+    <circle cx="750" cy="580" r="2" fill="#ffffff" filter="url(#hudGlow)" />
+    <circle cx="650" cy="780" r="3" fill="#00f2fe" filter="url(#hudGlow)" />
+  </g>
+</svg>

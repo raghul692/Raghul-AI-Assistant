@@ -1,0 +1,2668 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Raghul AI</title>
+  
+  <!-- App Icon & Favicon (Titanium & Glass Circular Medallion) -->
+  <link rel="icon" type="image/png" href="/assets/raghul_ai_app_icon_circle.png">
+  <link rel="apple-touch-icon" href="/assets/raghul_ai_app_icon_circle.png">
+  
+  <!-- Fonts: Inter for UI & JetBrains Mono for Code (ChatGPT Standard) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- High-Performance Markdown Engine -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- VS Code-grade Syntax Highlighter (Highlight.js Atom One Dark) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Collapsible Sidebar -->
+    <aside class="sidebar" id="sidebar">
+            <div class="sidebar-top">
+        <div class="sidebar-brand-row">
+          <div class="sidebar-brand-identity" id="sidebarBrandIdentity" title="Raghul AI (Click to expand sidebar)">
+            <img class="sidebar-brand-icon" src="/assets/raghul_ai_app_icon_circle.png" alt="Raghul AI">
+            <span class="sidebar-brand-name">Raghul AI</span>
+          </div>
+          <div class="sidebar-brand-actions">
+            <button id="sidebarSearchBtn" class="sidebar-icon-btn" title="Search chats (Ctrl+F)" aria-label="Search chats">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </button>
+            <button id="sidebarCollapseBtn" class="sidebar-icon-btn" title="Close sidebar (Ctrl+B)" aria-label="Close sidebar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="9" y1="3" x2="9" y2="21"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Top Navigation Pills (Exact ChatGPT Icons Rail: New Chat, Search, Images, Chats) -->
+        <nav class="sidebar-nav-pills">
+          <button id="navNewChatBtn" class="sidebar-pill-btn active" title="New chat">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+            <span>New chat</span>
+          </button>
+          <button id="navSearchRailBtn" class="sidebar-pill-btn rail-only" title="Search chats (Ctrl+F)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <span>Search</span>
+          </button>
+          <button id="navImagesBtn" class="sidebar-pill-btn" title="Images">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            <span>Images</span>
+          </button>
+          <button id="navHistoryRailBtn" class="sidebar-pill-btn rail-only" title="Recent chats">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>Chats</span>
+          </button>
+        </nav>
+
+        <!-- Search Drawer (toggleable via Search icon or Ctrl+F) -->
+        <div class="sidebar-search-box" id="sidebarSearchBox" style="display:none;">
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="sidebarChatSearchInput" placeholder="Search chats (Ctrl+F)..." autocomplete="off" spellcheck="false">
+          <kbd class="shortcut-key">Ctrl F</kbd>
+        </div>
+        <div class="sidebar-search-results" id="sidebarSearchResults" style="display:none;"></div>
+      </div>
+
+                    <!-- Chat History Section -->
+        <div class="sidebar-section history-section">
+          <div class="chat-history-list" id="chatHistoryList">
+            <!-- Dynamically populated recent chats via app.js -->
+          </div>
+        </div>
+
+      <!-- Sidebar Footer (Developer-Grade User Profile Bar) -->
+      <div class="sidebar-footer">
+        <div class="user-profile-bar" id="sidebarUserProfileBtn" title="Raghul raja • Settings & Profile">
+          <div class="user-avatar-badge" id="sidebarAvatarContainer">
+            <img id="sidebarAvatarImg" class="user-avatar-img" src="/assets/raghul_profile.jpg" alt="Raghul raja" onerror="this.style.display='none'; document.getElementById('sidebarAvatarBadge').style.display='flex';">
+            <div class="user-avatar-initials" id="sidebarAvatarBadge" style="display:none;">RR</div>
+          </div>
+          <div class="user-meta-info">
+            <span class="user-name-text" id="sidebarUserNameText">Raghul raja</span>
+            <span class="user-role-subtitle" id="sidebarUserRoleText">Personal Workspace</span>
+          </div>
+          <button type="button" class="user-settings-gear-btn" id="openSettingsBtn" aria-label="Settings (Ctrl+,)" title="Settings (Ctrl+,)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Chat Surface -->
+    <main class="chat-viewport">
+      <!-- Minimalist Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <button id="toggleSidebarBtn" class="icon-button" aria-label="Toggle Navigation (Ctrl+B)" title="Toggle Sidebar (Ctrl+B)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="9" y1="3" x2="9" y2="21"></line>
+            </svg>
+          </button>
+          
+          <!-- ChatGPT Model Selector Pill -->
+          <div class="chatgpt-model-dropdown-box" id="modelSelectorDropdownWrap">
+            <button type="button" class="chatgpt-model-pill" id="chatgptModelPillBtn" aria-haspopup="true" aria-expanded="false" title="Switch AI Model">
+              <span class="chatgpt-brand-text">Raghul AI</span>
+              <span class="chatgpt-model-tag" id="chatgptCurrentModelName">4o</span>
+              <svg class="chevron-mini" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            
+            <!-- Custom ChatGPT Model Popover Menu -->
+            <div class="chatgpt-model-menu" id="chatgptModelMenu" style="display:none;" role="menu">
+              <div class="menu-model-heading">Model Selection</div>
+              <button type="button" class="menu-model-item active" data-model="gemini-3-flash-preview">
+                <div class="model-item-left">
+                  <span class="model-item-icon">⚡</span>
+                  <div class="model-item-info">
+                    <span class="model-item-title">Gemini 3.8 Flash (Default)</span>
+                    <span class="model-item-desc">High speed reasoning & web grounding</span>
+                  </div>
+                </div>
+                <span class="model-check-icon">✓</span>
+              </button>
+              <button type="button" class="menu-model-item" data-model="qwen/qwen3.8-27b">
+                <div class="model-item-left">
+                  <span class="model-item-icon">🚀</span>
+                  <div class="model-item-info">
+                    <span class="model-item-title">Groq Qwen 3.8 27B</span>
+                    <span class="model-item-desc">Ultra-fast sub-second generation</span>
+                  </div>
+                </div>
+                <span class="model-check-icon">✓</span>
+              </button>
+              <button type="button" class="menu-model-item" data-model="nvidia/nemotron-3.5-lightning:free">
+                <div class="model-item-left">
+                  <span class="model-item-icon">🧠</span>
+                  <div class="model-item-info">
+                    <span class="model-item-title">Nemotron 3.5 Lightning</span>
+                    <span class="model-item-desc">OpenRouter deep instruction following</span>
+                  </div>
+                </div>
+                <span class="model-check-icon">✓</span>
+              </button>
+              <button type="button" class="menu-model-item" data-model="minimaxai/minimax-m3.1-flash">
+                <div class="model-item-left">
+                  <span class="model-item-icon">🏢</span>
+                  <div class="model-item-info">
+                    <span class="model-item-title">MiniMax M3.1 Flash</span>
+                    <span class="model-item-desc">Enterprise grade reasoning</span>
+                  </div>
+                </div>
+                <span class="model-check-icon">✓</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="persona-selector-container" id="personaSelectorContainer">
+            <button type="button" class="active-persona-pill" id="activePersonaPillBtn" aria-haspopup="true" aria-expanded="false" title="Switch AI Persona & Mode">
+              <span class="persona-icon-mini" id="currentPersonaIcon"></span>
+              <span class="persona-name-text" id="currentPersonaName">AI Assistant</span>
+              <svg class="persona-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="persona-dropdown-menu" id="personaDropdownMenu" style="display:none;" role="menu"></div>
+          </div>
+
+          <!-- Frontier AI Workspace Modes (Chat / Deep Research / Work / Code) -->
+          <div class="workspace-modes-segment" id="workspaceModesSegment" role="tablist" aria-label="Workspace Modes">
+            <button type="button" class="mode-segment-btn active" data-mode="chat" title="Chat Mode (Conversational)">
+              <svg class="mode-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>Chat</span>
+            </button>
+            <button type="button" class="mode-segment-btn" data-mode="research" title="Deep Research Mode">
+              <svg class="mode-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <span>Deep Research</span>
+            </button>
+            <button type="button" class="mode-segment-btn" data-mode="work" title="Multi-Agent Swarm & Tasks">
+              <svg class="mode-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
+              </svg>
+              <span>Work</span>
+            </button>
+            <button type="button" class="mode-segment-btn" data-mode="code" title="Code Studio & Canvas">
+              <svg class="mode-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+              <span>Code</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Systems & Status Hubs Popover Menu (ChatGPT Minimalist Hub) -->
+          <div class="header-hubs-dropdown">
+            <button type="button" class="header-icon-pill" id="hubsMenuTriggerBtn" title="Connected Hubs & Live Systems">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+              <span>Hubs</span>
+              <svg class="chevron-mini" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="hubs-popover-menu" id="hubsPopoverMenu" style="display:none;" role="menu">
+              <!-- Preserved Original ID Elements for 100% JS Compatibility -->
+              <button id="headerPortfolioBadgeBtn" class="hub-menu-item" title="Portfolio Intelligence Hub (Click to open)">
+                <span class="status-dot-pulse online"></span>
+                <span id="headerPortfolioStatus">Portfolio: Live</span>
+              </button>
+              <button id="headerGitHubBadgeBtn" class="hub-menu-item" title="Official GitHub Remote MCP Server (Click to open)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                </svg>
+                <span id="headerGitHubStatus">raghul692</span>
+              </button>
+              <button id="headerProviderBadgeBtn" class="hub-menu-item" title="AI Provider Manager (Click to configure)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <span id="headerProviderName">AI Providers Failover</span>
+              </button>
+              <button id="apiKeyStatusBtn" class="hub-menu-item" title="Configure Gemini API Key">
+                <span class="status-dot" id="keyDot"></span>
+                <span id="keyStatusText">API Key</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Hidden native selector retained for 100% JS backward compatibility -->
+          <div class="model-dropdown-container" style="display:none;">
+            <select id="modelSelector" class="model-select-control" aria-label="Select Intelligence Model">
+              <option value="gemini-3-flash-preview">Gemini 3 Flash • Primary</option>
+              <option value="qwen/qwen3.8-27b">Groq Qwen 3.8 27B • 273ms</option>
+              <option value="nvidia/nemotron-3.5-lightning:free">OpenRouter Nemotron • Free</option>
+              <option value="minimaxai/minimax-m3.1-flash">NVIDIA NIM MiniMax • Enterprise</option>
+              <option value="@cf/meta/llama-3.1-8b-instruct">Cloudflare Llama 3.1 • 397ms</option>
+            </select>
+          </div>
+
+          <!-- Temporary Chat Button (Ghost Icon - ChatGPT Standard) -->
+          <button id="temporaryChatBtn" class="icon-button" aria-label="Temporary Chat" title="Temporary Chat (Doesn't save to history)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a8 8 0 0 0-8 8c0 3.31 2.01 6.16 4.9 7.37.2.08.33.27.33.48v1.65c0 .28.22.5.5.5h4.54a.5.5 0 0 0 .5-.5V17.85c0-.21.13-.4.33-.48C17.99 16.16 20 13.31 20 10a8 8 0 0 0-8-8z"></path>
+              <line x1="9" y1="13" x2="9.01" y2="13"></line>
+              <line x1="15" y1="13" x2="15.01" y2="13"></line>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Central Stream Viewport -->
+      <div class="stream-scroll-container" id="streamContainer">
+        <div class="stream-content" id="chatMessages">
+          <!-- Clean Gemini / ChatGPT / Claude Empty State -->
+          <div class="hero-welcome" id="welcomeCard">
+            <div class="hero-brand-mark">
+              <img src="/assets/raghul_ai_app_icon_circle.png" alt="Raghul AI" class="hero-logo-img">
+            </div>
+            <h1 class="hero-headline" id="heroHeadline">How can I help, Raghul?</h1>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Scroll-To-Bottom Indicator -->
+      <button id="scrollToBottomBtn" class="scroll-bottom-fab" aria-label="Scroll to bottom" title="Scroll to latest">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+
+      <!-- Signature Floating Composer (ChatGPT / Claude / Gemini style) -->
+      <div class="composer-container">
+        <div class="composer-shell" id="composerShell">
+          
+                    <!-- Floating Action Menu (+ Popover: Exact 7 Items from ChatGPT Screenshot) -->
+          <div id="composerActionMenu" class="composer-action-menu" style="display:none;" role="menu">
+            <button type="button" class="menu-action-item" id="menuUploadFiles" role="menuitem">
+              <span class="menu-item-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                </svg>
+              </span>
+              <div class="menu-item-meta">
+                <span class="menu-item-title">Add photos & files</span>
+                <span class="menu-item-sub">Upload from computer</span>
+              </div>
+            </button>
+
+            <button type="button" class="menu-action-item" id="menuAddFromLibrary" role="menuitem">
+              <span class="menu-item-icon" style="color: #60a5fa;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+              </span>
+              <div class="menu-item-meta">
+                <span class="menu-item-title">Add from library</span>
+                <span class="menu-item-sub">Browse and search your files</span>
+              </div>
+            </button>
+
+            <button type="button" class="menu-action-item" id="menuCreateImage" role="menuitem">
+              <span class="menu-item-icon" style="color: #38bdf8;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+              </span>
+              <div class="menu-item-meta">
+                <span class="menu-item-title">Create image</span>
+                <span class="menu-item-sub">Visualize anything</span>
+              </div>
+            </button>
+
+            <button type="button" class="menu-action-item" id="menuAddBrowserTabs" role="menuitem">
+              <span class="menu-item-icon" style="color: #34d399;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="3" y1="9" x2="21" y2="9"></line>
+                  <line x1="9" y1="21" x2="9" y2="9"></line>
+                </svg>
+              </span>
+              <div class="menu-item-meta">
+                <span class="menu-item-title">Add browser tabs</span>
+                <span class="menu-item-sub">Install the Chrome extension to ask about your browser</span>
+              </div>
+            </button>
+
+            <button type="button" class="menu-action-item" id="menuToggleWebSearch" role="menuitem">
+              <span class="menu-item-icon" style="color: #38bdf8;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="2" y1="12" x2="22" y2="12"></line>
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+              </span>
+              <div class="menu-item-meta">
+                <span class="menu-item-title">Web search</span>
+                <span class="menu-item-sub">Find real-time news and info</span>
+              </div>
+              <span class="menu-item-check" id="menuCheckWebSearch">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </span>
+            </button>
+
+            <button type="button" class="menu-action-item" id="menuWorkInProject" role="menuitem">
+              <span class="menu-item-icon" style="color: #fbbf24;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+              </span>
+              <div class="menu-item-meta">
+                <span class="menu-item-title">Work in a project</span>
+                <span class="menu-item-sub">Start a chat in a project</span>
+              </div>
+            </button>
+
+            <button type="button" class="menu-action-item" id="menuDeepResearch" role="menuitem">
+              <span class="menu-item-icon" style="color: #a78bfa;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 2a8 8 0 0 0-8 8c0 3.31 2.01 6.16 4.9 7.37.2.08.33.27.33.48v1.65c0 .28.22.5.5.5h4.54a.5.5 0 0 0 .5-.5V17.85c0-.21.13-.4.33-.48C17.99 16.16 20 13.31 20 10a8 8 0 0 0-8-8z"></path>
+                </svg>
+              </span>
+              <div class="menu-item-meta">
+                <span class="menu-item-title">Deep research</span>
+                <span class="menu-item-sub">Get a detailed report</span>
+              </div>
+              <span class="menu-item-check" id="menuCheckDeepResearch">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </span>
+            </button>
+          </div>
+
+          <!-- Quick Autocomplete Menu (@personas & /commands) -->
+          <div id="autocompleteMenu" class="autocomplete-menu" style="display:none;"></div>
+
+          <!-- Attachment Shelf (Images & PDFs Preview) -->
+          <div id="attachmentShelf" class="attachment-shelf" style="display:none;"></div>
+
+                    <form class="composer-form" id="chatForm">
+            <div class="composer-capsule-row">
+              <input type="file" id="fileInput" accept="image/*,audio/*,application/pdf,text/*,.txt,.md,.csv,.json,.js,.ts,.py,.html,.css,.sql,.sh,.docx" style="display:none;" multiple>
+
+              <!-- Modern '+' Button inside circle -->
+              <button type="button" id="plusMenuBtn" class="composer-circle-plus-btn" title="Add tools, files & features (+)" aria-label="Add tools, files & features">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+
+              <!-- Main Input Area (Placeholder: Ask Raghul AI) -->
+              <textarea 
+                id="userInput" 
+                placeholder="Ask Raghul AI" 
+                rows="1"
+                autocomplete="off"
+                spellcheck="false"
+              ></textarea>
+
+              <!-- Hidden native chips preserved for backward compatibility -->
+              <div class="composer-tool-chips" id="composerToolChips" style="display:none;">
+                <button type="button" class="tool-pill active" id="pillWebSearch">Search</button>
+                <button type="button" class="tool-pill" id="pillDeepResearch">Research</button>
+              </div>
+
+              <!-- Right Actions: Think, Mic, Solid Blue Voice Mode Button -->
+              <div class="composer-capsule-right">
+                <!-- Think Toggle Pill -->
+                <button type="button" class="composer-think-pill" id="pillDeepThink" title="Toggle Extended Thinking">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                  </svg>
+                  <span>Think</span>
+                </button>
+
+                <!-- Microphone Button for Dictation -->
+                <button type="button" id="micBtn" class="composer-icon-mic-btn" title="Voice Input (Tamil / English)" aria-label="Voice input">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="22"></line>
+                  </svg>
+                </button>
+
+                <!-- Solid Blue Circular Voice Mode Button (Exact ChatGPT 'ılı' waveform icon) -->
+                <button type="button" id="voiceModeBtn" class="composer-blue-voice-btn" title="Start Real-Time Voice Mode" aria-label="Start Voice Mode">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="5" y="8" width="2.5" height="8" rx="1.25"></rect>
+                    <rect x="10.75" y="4" width="2.5" height="16" rx="1.25"></rect>
+                    <rect x="16.5" y="9" width="2.5" height="6" rx="1.25"></rect>
+                  </svg>
+                </button>
+
+                <!-- Send Message Button -->
+                <button type="submit" id="sendBtn" class="composer-send-btn" style="display:none;" aria-label="Send message">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="19" x2="12" y2="5"></line>
+                    <polyline points="5 12 12 5 19 12"></polyline>
+                  </svg>
+                </button>
+
+                <!-- Stop Generation Button -->
+                <button type="button" id="stopBtn" class="composer-stop-btn" style="display:none;" aria-label="Stop generation">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="composer-footer-text">
+          <span>Raghul AI can make mistakes. Check important info.</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Settings & Preferences Modal (Claude / ChatGPT / Gemini Two-Column Hub) -->
+  <div class="modal-backdrop" id="settingsModal" aria-hidden="true">
+    <div class="settings-modal-dialog">
+      <!-- Modal Header -->
+      <div class="settings-dialog-header">
+        <div class="settings-dialog-title-group">
+          <h2>Settings</h2>
+        </div>
+        <button class="settings-dialog-close-btn" id="closeSettingsBtn" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <!-- Two-Column Body -->
+      <div class="settings-dialog-body">
+        <!-- Left Navigation Sidebar -->
+        <aside class="settings-nav-sidebar">
+          <div class="settings-search-box">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="settingsSearchInput" placeholder="Search settings..." autocomplete="off">
+          </div>
+
+          <div class="settings-nav-group-label">Personal & System</div>
+          <nav class="settings-nav-list" id="settingsNavList">
+            <button type="button" class="settings-nav-btn active" data-tab="tabGeneral">
+              <span class="settings-nav-icon">⚙️</span>
+              <span class="settings-nav-text">General</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-tab="tabProfile">
+              <span class="settings-nav-icon">👤</span>
+              <span class="settings-nav-text">Account & Profile</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-tab="tabProviders">
+              <span class="settings-nav-icon">⚡</span>
+              <span class="settings-nav-text">AI Providers & Failover</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-tab="tabMemories">
+              <span class="settings-nav-icon">🧠</span>
+              <span class="settings-nav-text">Persistent Memory Hub</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-tab="tabProjects">
+              <span class="settings-nav-icon">📁</span>
+              <span class="settings-nav-text">Projects & Knowledge</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-tab="tabPersonalization">
+              <span class="settings-nav-icon">✨</span>
+              <span class="settings-nav-text">Personalization</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-tab="tabAppearance">
+              <span class="settings-nav-icon">🎨</span>
+              <span class="settings-nav-text">Appearance</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-tab="tabCapabilities">
+              <span class="settings-nav-icon">⚙️</span>
+              <span class="settings-nav-text">AI Capabilities</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-tab="tabMcp">
+              <span class="settings-nav-icon">🔌</span>
+              <span class="settings-nav-text">MCP Protocol & Tools</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-tab="tabGitHub">
+              <span class="settings-nav-icon">🐙</span>
+              <span class="settings-nav-text">GitHub MCP & Automations</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-tab="tabPortfolio">
+              <span class="settings-nav-icon">🌐</span>
+              <span class="settings-nav-text">Portfolio Intelligence Hub</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-tab="tabTasks">
+              <span class="settings-nav-icon">📋</span>
+              <span class="settings-nav-text">Autonomous Tasks</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-tab="tabAudit">
+              <span class="settings-nav-icon">🛡️</span>
+              <span class="settings-nav-text">Audit Trail & Governance</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-tab="tabData">
+              <span class="settings-nav-icon">💾</span>
+              <span class="settings-nav-text">Data Controls</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-tab="tabShortcuts">
+              <span class="settings-nav-icon">⌨️</span>
+              <span class="settings-nav-text">Keyboard Shortcuts</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-tab="tabApi">
+              <span class="settings-nav-icon">🔑</span>
+              <span class="settings-nav-text">API & Health</span>
+            </button>
+          </nav>
+        </aside>
+
+        <!-- Right Content Pane (Scrollable) -->
+        <section class="settings-content-pane" id="settingsContentPane">
+          <!-- 0. ChatGPT General Settings Tab (Official Production Clone) -->
+          <div class="settings-tab-pane active" id="tabGeneral">
+            <div class="tab-pane-header">
+              <h3>General</h3>
+              <p>Manage your core preferences, interface appearance, and conversation archives.</p>
+            </div>
+
+            <!-- ChatGPT General Settings Section Rows -->
+            <div class="chatgpt-settings-section">
+              <!-- Row 1: Theme -->
+              <div class="chatgpt-settings-row">
+                <div class="settings-row-label-group">
+                  <span class="settings-row-title">Theme</span>
+                </div>
+                <div class="settings-row-control">
+                  <select id="generalThemeSelect" class="chatgpt-settings-select" aria-label="Theme">
+                    <option value="system">System</option>
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Row 2: Language -->
+              <div class="chatgpt-settings-row">
+                <div class="settings-row-label-group">
+                  <span class="settings-row-title">Language</span>
+                </div>
+                <div class="settings-row-control">
+                  <select id="generalLanguageSelect" class="chatgpt-settings-select" aria-label="Language">
+                    <option value="auto">Auto-detect</option>
+                    <option value="en">English (US)</option>
+                    <option value="tanglish">Tanglish (English alphabet)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Row 3: Always show code -->
+              <div class="chatgpt-settings-row">
+                <div class="settings-row-label-group">
+                  <span class="settings-row-title">Always show code when using data analyst</span>
+                </div>
+                <div class="settings-row-control">
+                  <label class="chatgpt-switch" for="generalAlwaysShowCodeToggle">
+                    <input type="checkbox" id="generalAlwaysShowCodeToggle">
+                    <span class="chatgpt-slider round"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Row 4: Press Enter to send -->
+              <div class="chatgpt-settings-row">
+                <div class="settings-row-label-group">
+                  <span class="settings-row-title">Press Enter to send</span>
+                </div>
+                <div class="settings-row-control">
+                  <label class="chatgpt-switch" for="generalEnterSendsToggle">
+                    <input type="checkbox" id="generalEnterSendsToggle" checked>
+                    <span class="chatgpt-slider round"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Row 5: Sound effects -->
+              <div class="chatgpt-settings-row">
+                <div class="settings-row-label-group">
+                  <span class="settings-row-title">Sound effects</span>
+                </div>
+                <div class="settings-row-control">
+                  <label class="chatgpt-switch" for="generalSoundEffectsToggle">
+                    <input type="checkbox" id="generalSoundEffectsToggle">
+                    <span class="chatgpt-slider round"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Row 6: Archived chats -->
+              <div class="chatgpt-settings-row">
+                <div class="settings-row-label-group">
+                  <span class="settings-row-title">Archived chats</span>
+                </div>
+                <div class="settings-row-control">
+                  <button type="button" class="chatgpt-btn-secondary" id="generalManageArchivedBtn">
+                    Manage
+                  </button>
+                </div>
+              </div>
+
+              <!-- Row 7: Archive all chats -->
+              <div class="chatgpt-settings-row">
+                <div class="settings-row-label-group">
+                  <span class="settings-row-title">Archive all chats</span>
+                </div>
+                <div class="settings-row-control">
+                  <button type="button" class="chatgpt-btn-secondary" id="generalArchiveAllBtn">
+                    Archive all
+                  </button>
+                </div>
+              </div>
+
+              <!-- Row 8: Delete all chats -->
+              <div class="chatgpt-settings-row">
+                <div class="settings-row-label-group">
+                  <span class="settings-row-title">Delete all chats</span>
+                </div>
+                <div class="settings-row-control">
+                  <button type="button" class="chatgpt-btn-danger" id="generalDeleteAllBtn">
+                    Delete all
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Save Feedback Status Bar -->
+            <div class="chatgpt-settings-status" id="generalSettingsStatus" style="display:none;">
+              <span class="status-icon">✓</span>
+              <span class="status-text">Saved</span>
+            </div>
+          </div>
+
+          <!-- 1. Profile & Account Tab -->
+          <div class="settings-tab-pane" id="tabProfile">
+            <div class="tab-pane-header">
+              <h3>Profile & Account</h3>
+              <p>Manage your identity, AI greeting name, and active workspace.</p>
+            </div>
+
+            <!-- Premium Profile Hero Card (Claude / Linear / GitHub Style) -->
+            <div class="profile-hero-card">
+              <div class="profile-avatar-master-wrapper" id="profileAvatarWrapper" title="Click to change photo">
+                <img id="settingsAvatarImg" class="profile-avatar-master-img" src="/assets/raghul_profile.jpg" alt="Raghul raja">
+                <div class="profile-avatar-master-fallback" id="settingsAvatarBadge" style="display:none;">RR</div>
+                <div class="avatar-camera-pill" title="Click to upload photo">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                  </svg>
+                </div>
+              </div>
+              <div class="profile-hero-info">
+                <div class="profile-hero-title-row">
+                  <h4 class="profile-hero-name" id="profileHeroName">Raghul raja</h4>
+                  <span class="user-status-pill">Active</span>
+                </div>
+                <p class="profile-hero-role" id="profileHeroRole">Full-Stack Software Engineer</p>
+                <div class="profile-hero-actions">
+                  <input type="file" id="avatarFileInput" accept="image/png,image/jpeg,image/webp,image/jpg" style="display:none;">
+                  <button type="button" class="btn btn-secondary btn-sm" id="uploadAvatarBtn">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    <span>Upload Photo</span>
+                  </button>
+                  <button type="button" class="btn btn-ghost btn-sm btn-reset-photo" id="removeAvatarBtn" title="Reset to default photo">
+                    <span>Reset</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="profileFullName">Full name</label>
+              <input type="text" id="profileFullName" value="Raghul raja" autocomplete="name">
+            </div>
+
+            <div class="form-field">
+              <label for="profileNickname">What should AI call you?</label>
+              <input type="text" id="profileNickname" value="Raghul" autocomplete="nickname">
+              <span class="field-hint">Nexus will naturally use this name when conversing with you.</span>
+            </div>
+
+            <div class="form-field">
+              <label for="profileRole">What best describes your work?</label>
+              <select id="profileRole">
+                <option value="Full-Stack Software Engineer" selected>Full-Stack Software Engineer</option>
+                <option value="AI & Machine Learning Engineer">AI & Machine Learning Engineer</option>
+                <option value="Staff Systems Architect">Staff Systems Architect</option>
+                <option value="Frontend UI/UX Specialist">Frontend UI/UX Specialist</option>
+                <option value="Student & Tech Explorer">Student & Tech Explorer</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 2. Personalization Tab (ChatGPT & Claude Style) -->
+          <div class="settings-tab-pane" id="tabPersonalization">
+            <div class="tab-pane-header">
+              <h3>Personalization & Memory</h3>
+              <p>Tailor how Nexus AI understands you and calibrates every response.</p>
+            </div>
+
+            <div class="form-field">
+              <label for="customAboutInput">What should Nexus AI know about you to provide better responses?</label>
+              <textarea 
+                id="customAboutInput" 
+                rows="4" 
+                placeholder="Where you are based, what you do, your favorite tools, technologies, and projects..."
+              >I am Raghul, a Full-Stack Software Engineer and AI researcher based in Chennai. I build robust web apps, distributed systems, and modern AI pipelines. I prefer production-ready code with clean typing and zero placeholders.</textarea>
+              <span class="field-hint">Shared across all chats to keep responses deeply relevant to your work.</span>
+            </div>
+
+            <div class="form-field">
+              <label for="customInstructionsInput">How would you like Nexus AI to respond?</label>
+              <textarea 
+                id="customInstructionsInput" 
+                rows="4" 
+                placeholder="Tone, code detail, formatting preferences, language preferences..."
+              >Be direct, intelligent, and friendly. When speaking Tamil/Tanglish, converse warmly like a close buddy. Always write 100% complete runnable code without placeholders. Offer architectural tradeoffs.</textarea>
+              <span class="field-hint">Defines default demeanor, bilingual tone, and engineering rigour.</span>
+            </div>
+
+            <div class="toggle-card">
+              <div class="toggle-meta">
+                <strong>Long-Term Conversation Memory</strong>
+                <span class="field-hint">Allows Nexus to recall key facts and user context across separate chat threads.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="memoryEnabledToggle" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 3. Appearance Tab -->
+          <div class="settings-tab-pane" id="tabAppearance">
+            <div class="tab-pane-header">
+              <h3>Appearance & Interface</h3>
+              <p>Customize your visual theme, typography, and density.</p>
+            </div>
+
+            <div class="theme-picker-group">
+              <label class="row-label">Theme</label>
+              <div class="theme-card-grid">
+                <button type="button" class="theme-card active" data-theme-choice="dark">
+                  <div class="theme-swatch dark-swatch">
+                    <div class="swatch-header"></div>
+                    <div class="swatch-body"></div>
+                  </div>
+                  <span class="theme-card-name">🌙 Dark OLED</span>
+                  <span class="theme-card-sub">Pitch Black (Claude Style)</span>
+                </button>
+
+                <button type="button" class="theme-card" data-theme-choice="light">
+                  <div class="theme-swatch light-swatch">
+                    <div class="swatch-header"></div>
+                    <div class="swatch-body"></div>
+                  </div>
+                  <span class="theme-card-name">☀️ Studio Light</span>
+                  <span class="theme-card-sub">Crisp White & Slate</span>
+                </button>
+
+                <button type="button" class="theme-card" data-theme-choice="cyberpunk">
+                  <div class="theme-swatch cyberpunk-swatch">
+                    <div class="swatch-header"></div>
+                    <div class="swatch-body"></div>
+                  </div>
+                  <span class="theme-card-name">⚡ Cyberpunk</span>
+                  <span class="theme-card-sub">Deep Violet & Neon</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-field" style="margin-top: 18px;">
+              <label for="codeFontSelector">Code Font Family</label>
+              <select id="codeFontSelector">
+                <option value="'JetBrains Mono', monospace" selected>JetBrains Mono (Recommended)</option>
+                <option value="'Fira Code', monospace">Fira Code (with ligatures)</option>
+                <option value="'Cascadia Code', monospace">Cascadia Code</option>
+                <option value="ui-monospace, monospace">System Monospace</option>
+              </select>
+            </div>
+
+            <div class="toggle-card">
+              <div class="toggle-meta">
+                <strong>Compact Chat Spacing</strong>
+                <span class="field-hint">Reduces padding between chat bubbles to fit more conversation on screen.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="compactSpacingToggle">
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 4. AI Capabilities Tab -->
+          <div class="settings-tab-pane" id="tabCapabilities">
+            <div class="tab-pane-header">
+              <h3>AI Capabilities & Intelligence</h3>
+              <p>Configure model defaults, reasoning depth, and search grounding.</p>
+            </div>
+
+            <div class="form-field">
+              <label for="settingsDefaultModel">Default Model Engine</label>
+              <select id="settingsDefaultModel">
+                <option value="gemini-3.5-flash-lite" selected>Gemini 3.5 Flash-Lite • Ultra-Fast (150+ tok/s)</option>
+                <option value="gemini-3.8-flash">Gemini 3.8 Flash • High Reasoning & Agentic Planning</option>
+              </select>
+              <span class="field-hint">Choose which intelligence engine powers new chats by default.</span>
+            </div>
+
+            <div class="slider-field">
+              <div class="slider-header">
+                <label for="temperatureSlider">Creativity / Temperature</label>
+                <span class="slider-badge" id="temperatureVal">0.70 • Balanced</span>
+              </div>
+              <input type="range" id="temperatureSlider" min="0" max="1" step="0.05" value="0.7">
+              <div class="slider-ticks">
+                <span>0.0 (Precise / Code)</span>
+                <span>0.5 (Standard)</span>
+                <span>1.0 (Creative / Brainstorming)</span>
+              </div>
+            </div>
+
+            <div class="toggle-card">
+              <div class="toggle-meta">
+                <strong>Default Web Search Grounding</strong>
+                <span class="field-hint">Automatically query live search engines to ground factual responses with citations.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="settingsWebSearchToggle" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="toggle-card">
+              <div class="toggle-meta">
+                <strong>Default Deep Thinking (Extended Reasoning)</strong>
+                <span class="field-hint">Generate an expandable step-by-step cognitive reasoning trace before final output.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="settingsDeepThinkingToggle">
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="slider-field" style="margin-top: 14px;">
+              <div class="slider-header">
+                <label for="memoryTurnsSlider">Context Window History Depth</label>
+                <span class="slider-badge" id="memoryTurnsVal">14 turns</span>
+              </div>
+              <input type="range" id="memoryTurnsSlider" min="6" max="30" step="2" value="14">
+              <span class="field-hint">Number of recent user & AI messages sent in sliding context.</span>
+            </div>
+          </div>
+
+          <!-- MCP Protocol & Tools Tab -->
+          <div class="settings-tab-pane" id="tabMcp">
+            <div class="tab-pane-header">
+              <h3>Model Context Protocol (MCP)</h3>
+              <p>Connect your local workspace files, databases, and external tools directly to Nexus AI via the open MCP standard.</p>
+            </div>
+
+            <div class="callout-card" style="margin-bottom: 14px;">
+              <div class="callout-icon">🔌</div>
+              <div class="callout-text">
+                Active MCP Client Engine connects stdio & in-process tools directly to Gemini function calling.
+              </div>
+            </div>
+
+            <h4 style="font-size: 0.85rem; margin-top: 10px; color: var(--text-secondary);">Active MCP Servers</h4>
+            <div class="mcp-servers-grid" id="mcpServersGrid">
+              <!-- Dynamically populated via app.js -->
+            </div>
+
+            <h4 style="font-size: 0.85rem; margin-top: 20px; color: var(--text-secondary);">Discovered Tools</h4>
+            <div id="mcpToolsGrid" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
+              <!-- Dynamically populated via app.js -->
+            </div>
+          </div>
+
+          <!-- Official GitHub MCP Platform & Automation Hub Tab -->
+          <div class="settings-tab-pane" id="tabGitHub">
+            <div class="tab-pane-header">
+              <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div>
+                  <h3>GitHub Management & MCP Platform</h3>
+                  <p>Enterprise GitHub repository management, 46 MCP tools, and autonomous automation engine.</p>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" id="openFullGitHubHubBtn" style="display: inline-flex; align-items: center; gap: 6px;">
+                  <span>🐙 Launch GitHub Hub</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Identity & MCP Connection Status Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 16px;">
+              <div class="card" id="githubIdentityCard" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <img id="ghSettingAvatar" src="/assets/raghul_profile.jpg" alt="GitHub Avatar" style="width: 44px; height: 44px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.15);">
+                  <div>
+                    <strong id="ghSettingName" style="color: var(--text-primary); font-size: 0.95rem;">RAGHUL RAJA M</strong>
+                    <div id="ghSettingLogin" style="color: var(--text-secondary); font-size: 0.8rem;">@raghul692</div>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px;">Connected & Verified</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
+                <div style="font-size: 0.78rem; color: var(--text-tertiary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Official GitHub Remote MCP</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 6px;">
+                  <span style="font-size: 0.88rem; color: var(--text-primary); font-weight: 600;">Streamable HTTP / JSON-RPC 2.0</span>
+                  <span class="badge" id="ghMcpSessionBadge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-size: 0.72rem; padding: 2px 6px; border-radius: 4px;">46 Live Tools</span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; word-break: break-all;" id="ghMcpEndpointText">https://api.githubcopilot.com/mcp/</div>
+              </div>
+            </div>
+
+            <!-- Quick Repositories List -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; margin-bottom: 8px;">
+              <h4 style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">Accessible Repositories (<span id="ghQuickRepoCount">...</span>)</h4>
+              <button type="button" class="btn-refresh" id="refreshGhSettingsBtn" title="Sync Repositories">
+                <svg class="refresh-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+                </svg>
+                <span>Sync</span>
+              </button>
+            </div>
+            <div id="ghSettingsReposList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; max-height: 240px; overflow-y: auto;">
+              <!-- Populated via app.js -->
+            </div>
+
+            <!-- 15 Automations Quick Status -->
+            <h4 style="font-size: 0.85rem; margin-top: 20px; margin-bottom: 8px; color: var(--text-secondary);">Autonomous Workflows (15 Active)</h4>
+            <div id="ghSettingsAutomationsList" style="display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto;">
+              <!-- Populated via app.js -->
+            </div>
+          </div>
+
+          <!-- Portfolio Intelligence Hub & Systems Tab -->
+          <div class="settings-tab-pane" id="tabPortfolio">
+            <div class="tab-pane-header">
+              <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div>
+                  <h3>Portfolio Intelligence Hub & Live Systems</h3>
+                  <p>Production management for raghulraja.is-a.dev, GitHub sync, Vercel/Render deployments & Supabase data.</p>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" id="openFullPortfolioHubBtn" style="display: inline-flex; align-items: center; gap: 6px;">
+                  <span>🌐 Launch Portfolio Hub</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Portfolio Status Cards Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 16px;">
+              <div class="card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                  <strong style="color: var(--text-primary); font-size: 0.88rem;">Live Portfolio Site</strong>
+                  <span class="status-dot online"></span>
+                </div>
+                <div style="font-size: 0.82rem; color: #38bdf8; font-family: monospace;">
+                  <a href="https://raghulraja.is-a.dev/" target="_blank" rel="noopener" style="color:#38bdf8; text-decoration:none;">raghulraja.is-a.dev ↗</a>
+                </div>
+                <div style="font-size: 0.74rem; color: var(--text-secondary); margin-top: 4px;">Frontend: Vercel CDN • HTTP 200</div>
+              </div>
+
+              <div class="card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                  <strong style="color: var(--text-primary); font-size: 0.88rem;">Portfolio Codebase</strong>
+                  <span class="status-dot online"></span>
+                </div>
+                <div style="font-size: 0.82rem; color: #a78bfa; font-family: monospace;">
+                  <a href="https://github.com/raghul692/raghulraja_portfolio" target="_blank" rel="noopener" style="color:#a78bfa; text-decoration:none;">raghul692/raghulraja_portfolio ↗</a>
+                </div>
+                <div style="font-size: 0.74rem; color: var(--text-secondary); margin-top: 4px;">Backend: Render API • Branch: main</div>
+              </div>
+
+              <div class="card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                  <strong style="color: var(--text-primary); font-size: 0.88rem;">Supabase PostgreSQL 17</strong>
+                  <span class="status-dot online"></span>
+                </div>
+                <div style="font-size: 0.82rem; color: #34d399; font-weight: 500;">pgvector Active</div>
+                <div style="font-size: 0.74rem; color: var(--text-secondary); margin-top: 4px;">4 live tables • RLS & Embeddings</div>
+              </div>
+
+              <div class="card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                  <strong style="color: var(--text-primary); font-size: 0.88rem;">Portfolio MCP & Workflows</strong>
+                  <span class="status-dot online"></span>
+                </div>
+                <div style="font-size: 0.82rem; color: #fbbf24; font-weight: 500;">24 Tools • 8 Automations</div>
+                <div style="font-size: 0.74rem; color: var(--text-secondary); margin-top: 4px;">Continuous health, sync & reporting</div>
+              </div>
+            </div>
+
+            <!-- Quick Drafts & Automations Overview in Settings -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px;">
+              <div>
+                <h4 style="font-size: 0.85rem; margin-bottom: 8px; color: var(--text-secondary);">Recent Content & Project Drafts</h4>
+                <div id="portSettingsDraftsList" style="display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto;">
+                  <!-- Populated via app.js -->
+                </div>
+              </div>
+              <div>
+                <h4 style="font-size: 0.85rem; margin-bottom: 8px; color: var(--text-secondary);">Portfolio Autonomous Workflows</h4>
+                <div id="portSettingsAutomationsList" style="display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto;">
+                  <!-- Populated via app.js -->
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Autonomous Tasks Tab -->
+          <div class="settings-tab-pane" id="tabTasks">
+            <div class="tab-pane-header">
+              <h3>Autonomous Tasks & Goal DAGs</h3>
+              <p>Monitor autonomous multi-step execution plans, state machines, and task progress.</p>
+            </div>
+            <div id="tasksListContainer" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+              <!-- Populated via app.js -->
+            </div>
+          </div>
+
+          <!-- Governance & Audit Trail Tab -->
+          <div class="settings-tab-pane" id="tabAudit">
+            <div class="tab-pane-header">
+              <h3>Immutable Audit Trail & Governance</h3>
+              <p>Traceable ledger of all autonomous agent actions, tool invocations, security risk ratings, and human-in-the-loop approvals.</p>
+            </div>
+            <div style="margin-bottom: 12px;" id="pendingApprovalsBox">
+              <!-- Pending approvals rendered here -->
+            </div>
+            <div class="audit-table-wrapper" style="max-height: 400px; overflow-y: auto; padding: 12px;" id="auditLogsTableBox">
+              <!-- Audit logs rendered here -->
+            </div>
+          </div>
+
+          <div class="settings-tab-pane" id="tabData">
+            <div class="tab-pane-header">
+              <h3>Data Controls & Backup</h3>
+              <p>Export your full chat history, import backups, or manage stored tokens.</p>
+            </div>
+
+            <div class="backup-actions-card">
+              <div class="backup-info">
+                <strong>Export & Import Conversations</strong>
+                <span class="field-hint">Download your entire chat history as a JSON backup or restore from a previously exported file.</span>
+              </div>
+              <div class="backup-btn-group">
+                <button type="button" class="btn btn-secondary" id="exportAllChatsBtn">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  <span>Export Chats (JSON)</span>
+                </button>
+                <input type="file" id="importChatsFileInput" accept=".json" style="display:none;">
+                <button type="button" class="btn btn-secondary" id="importChatsBtn">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  <span>Import Chats</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="storage-stats-grid">
+              <div class="stat-card">
+                <span class="stat-title">Saved Chats</span>
+                <span class="stat-value" id="statsTotalChats">0</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-title">Total Messages</span>
+                <span class="stat-value" id="statsTotalMessages">0</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-title">Local Storage</span>
+                <span class="stat-value" id="statsStorageUsage">~12 KB</span>
+              </div>
+            </div>
+
+            <div class="danger-zone-card">
+              <div class="danger-info">
+                <div class="danger-title-row">
+                  <span class="danger-badge">CRITICAL</span>
+                  <strong class="danger-title">Delete All Conversation History</strong>
+                </div>
+                <span class="field-hint">Permanently wipe all chats and messages from both local browser storage and server database.</span>
+              </div>
+              <button type="button" class="btn-danger-action" id="clearAllHistoryBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+                <span>Clear All Chats</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 6. Keyboard Shortcuts Tab -->
+          <div class="settings-tab-pane" id="tabShortcuts">
+            <div class="tab-pane-header">
+              <h3>Keyboard Shortcuts</h3>
+              <p>Supercharge your productivity with swift keyboard navigation.</p>
+            </div>
+
+            <div class="shortcuts-table-wrapper">
+              <table class="shortcuts-table">
+                <thead>
+                  <tr>
+                    <th>Action</th>
+                    <th>Shortcut</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>New Conversation</td>
+                    <td><kbd>Ctrl</kbd> + <kbd>K</kbd></td>
+                  </tr>
+                  <tr>
+                    <td>Toggle Navigation Sidebar</td>
+                    <td><kbd>Ctrl</kbd> + <kbd>B</kbd></td>
+                  </tr>
+                  <tr>
+                    <td>Open Settings Hub</td>
+                    <td><kbd>Ctrl</kbd> + <kbd>,</kbd></td>
+                  </tr>
+                  <tr>
+                    <td>Send Message</td>
+                    <td><kbd>Enter</kbd></td>
+                  </tr>
+                  <tr>
+                    <td>Insert Newline in Input</td>
+                    <td><kbd>Shift</kbd> + <kbd>Enter</kbd></td>
+                  </tr>
+                  <tr>
+                    <td>Persona Autocomplete Menu</td>
+                    <td>Type <kbd>@</kbd></td>
+                  </tr>
+                  <tr>
+                    <td>Command Autocomplete Menu</td>
+                    <td>Type <kbd>/</kbd></td>
+                  </tr>
+                  <tr>
+                    <td>Close Popups, Menus & Modals</td>
+                    <td><kbd>Esc</kbd></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Multi-Provider AI Orchestration & Failover Dashboard Tab -->
+          <div class="settings-tab-pane" id="tabProviders">
+            <div class="tab-pane-header">
+              <h3>⚡ AI Multi-Provider Orchestration & Failover</h3>
+              <p>Real-time health, automatic failover, priority routing, and circuit breakers across all 5 AI engines.</p>
+            </div>
+
+            <!-- Global Orchestration Controls -->
+            <div class="provider-controls-bar" style="margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <label for="primaryProviderSelect" style="font-weight: 600; font-size: 13px;">Primary Provider:</label>
+                <select id="primaryProviderSelect" class="settings-select" style="width: auto; min-width: 190px;">
+                  <option value="gemini">Google Gemini (Default)</option>
+                  <option value="groq">Groq Cloud</option>
+                  <option value="openrouter">OpenRouter</option>
+                  <option value="nvidia">NVIDIA NIM</option>
+                  <option value="cloudflare">Cloudflare Workers AI</option>
+                </select>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 16px;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+                  <input type="checkbox" id="autoFailoverToggle" checked>
+                  <span>Auto-Failover</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+                  <input type="checkbox" id="autoRecoveryToggle" checked>
+                  <span>Auto-Recovery</span>
+                </label>
+                <button type="button" class="btn-refresh" id="refreshProvidersBtn" title="Refresh Live Provider Status">
+                  <svg class="refresh-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                  </svg>
+                  <span>Refresh</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Provider Cards Container -->
+            <div id="providerCardsContainer" style="display: flex; flex-direction: column; gap: 12px;">
+              <!-- Populated dynamically via app.js -->
+            </div>
+
+            <!-- Fallback History Section -->
+            <div style="margin-top: 20px;">
+              <h4 style="font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                <span>📜 Failover & Switch Audit Log</span>
+              </h4>
+              <div id="providerFallbackLogsBox" class="terminal-log-box" style="max-height: 160px; overflow-y: auto;">
+                <span style="color: var(--text-muted);">No provider switches recorded in this session.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Persistent Memory Hub Tab -->
+          <div class="settings-tab-pane" id="tabMemories">
+            <div class="tab-pane-header">
+              <h3>🧠 Persistent Memory Hub</h3>
+              <p>Provider-independent long-term memory, user preferences, projects, and verified facts.</p>
+            </div>
+
+            <!-- Add Memory Box -->
+            <div class="settings-card" style="margin-bottom: 16px;">
+              <h4 style="font-size: 13px; margin-bottom: 10px; color: var(--text-primary); font-weight: 600;">➕ Add Long-Term Memory Fact</h4>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <select id="memoryCategorySelect" class="settings-select" style="width: 140px;">
+                  <option value="preference">Preference</option>
+                  <option value="instruction">Instruction</option>
+                  <option value="project">Project</option>
+                  <option value="fact">Fact</option>
+                </select>
+                <input type="text" id="memoryContentInput" class="settings-input" placeholder="e.g. User prefers Python FastAPI over Flask..." style="flex: 1; min-width: 200px;">
+                <button type="button" class="btn btn-primary btn-sm" id="addMemoryBtn">Save Fact</button>
+              </div>
+            </div>
+
+            <!-- Memory List Container -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <h4 style="font-size: 13px; color: var(--text-secondary); font-weight: 600;">Stored User Memories (<span id="memoryCountBadge">0</span>)</h4>
+              <button type="button" class="btn-refresh" id="refreshMemoriesBtn" title="Refresh Stored Memories">
+                <svg class="refresh-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                </svg>
+                <span>Refresh</span>
+              </button>
+            </div>
+            <div id="memoriesListContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;">
+              <!-- Populated via app.js -->
+            </div>
+          </div>
+
+          <!-- Projects & Knowledge Workspace (Claude Projects / ChatGPT Projects Standard) -->
+          <div class="settings-tab-pane" id="tabProjects">
+            <div class="tab-pane-header">
+              <h3>📁 Projects & Knowledge Workspaces</h3>
+              <p>Create isolated project workspaces with dedicated custom instructions and persistent knowledge files.</p>
+            </div>
+
+            <!-- Active Project Indicator -->
+            <div class="active-project-banner">
+              <div>
+                <span style="font-size: 11px; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px;">Active Project Grounding:</span>
+                <div style="font-weight: 600; font-size: 14px; margin-top: 2px;" id="activeProjectBadge">No Active Project (Global Mode)</div>
+              </div>
+              <button type="button" class="btn btn-ghost btn-sm" id="clearActiveProjectBtn" style="display:none;">Clear Active Project</button>
+            </div>
+
+            <!-- Create Project Box -->
+            <div class="settings-card" style="margin-bottom: 16px;">
+              <h4 style="font-size: 13px; margin-bottom: 10px; color: var(--text-primary); font-weight: 600;">➕ Create New Project Workspace</h4>
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <input type="text" id="newProjectNameInput" class="settings-input" placeholder="Project Name (e.g. Distributed Queue System)...">
+                <input type="text" id="newProjectDescInput" class="settings-input" placeholder="Project Description & Goals...">
+                <textarea id="newProjectInstructionsInput" class="settings-textarea" rows="2" placeholder="Project-Specific Directives (e.g. Strictly use Go 1.22, mTLS, Clean Architecture)..."></textarea>
+                <button type="button" class="btn btn-primary btn-sm" id="createProjectBtn" style="align-self: flex-start;">Create Project</button>
+              </div>
+            </div>
+
+            <!-- Projects List -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <h4 style="font-size: 13px; color: var(--text-secondary); font-weight: 600;">Your Project Workspaces (<span id="projectCountBadge">0</span>)</h4>
+              <button type="button" class="btn-refresh" id="refreshProjectsBtn" title="Refresh Project Workspaces">
+                <svg class="refresh-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                </svg>
+                <span>Refresh</span>
+              </button>
+            </div>
+            <div id="projectsListContainer" style="display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto;">
+              <!-- Populated dynamically via app.js -->
+            </div>
+          </div>
+
+          <!-- 7. API Credentials & Connection Health Tab -->
+          <div class="settings-tab-pane" id="tabApi">
+            <div class="tab-pane-header">
+              <h3>API Credentials & Connection Health</h3>
+              <p>Configure your Google AI Studio key and verify live server latency.</p>
+            </div>
+
+            <div class="form-field">
+              <label for="apiKeyInput">Google Gemini API Key</label>
+              <div class="api-key-input-wrapper">
+                <input 
+                  type="password" 
+                  id="apiKeyInput" 
+                  placeholder="AIzaSy... or AQ..." 
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+                <button type="button" class="btn-toggle-eye" id="toggleApiKeyVisibility" title="Show/Hide Key">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
+              </div>
+              <span class="field-hint">
+                Get a free API key at <a href="https://aistudio.google.com/" target="_blank" rel="noopener">Google AI Studio</a>. Key is securely stored in your local browser cache.
+              </span>
+            </div>
+
+            <div class="callout-card">
+              <div class="callout-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+              </div>
+              <div class="callout-text">
+                Server <code>.env</code> key is used as automatic fallback if this input is kept empty.
+              </div>
+            </div>
+
+            <div class="api-health-section" style="margin-top: 18px;">
+              <div class="health-header">
+                <strong>Live Connection Verification</strong>
+                <button type="button" class="btn btn-primary" id="testApiConnBtn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                  <span>Test Connection Now</span>
+                </button>
+              </div>
+              <div class="api-test-box" id="apiTestResult">
+                <span class="status-indicator-idle">Ready to verify live connection to Google Gemini API.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="settings-dialog-footer">
+        <span class="settings-save-hint" id="settingsSaveHint">Changes saved automatically</span>
+        <button type="button" id="saveSettingsBtn" class="btn btn-primary">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ChatGPT Archived Chats Management Modal -->
+  <div class="modal-backdrop" id="archivedChatsModal" aria-hidden="true" style="display:none; z-index: 10000;">
+    <div class="archived-chats-dialog">
+      <div class="modal-card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <h3 style="margin: 0; font-size: 1.15rem; color: #ececec;">Archived chats</h3>
+          <span id="archivedChatsCountBadge" style="background: rgba(255,255,255,0.08); color: #8e8e93; font-size: 0.78rem; font-weight: 500; padding: 2px 8px; border-radius: 10px;">0</span>
+        </div>
+        <button class="modal-close-icon" id="closeArchivedChatsBtn" style="background: none; border: none; color: #8e8e93; font-size: 1.6rem; cursor: pointer; line-height: 1; padding: 0 4px;" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="archived-chats-list" id="archivedChatsListContainer">
+        <div style="padding: 40px 20px; text-align: center; color: #8e8e93;">No archived chats.</div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.08);">
+        <button type="button" class="btn btn-secondary btn-sm" id="doneArchivedChatsBtn">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nexus Modern Confirmation Modal (Claude / ChatGPT / Gemini Standard) -->
+  <div class="confirm-modal-backdrop" id="nexusConfirmModal" aria-hidden="true" style="display:none;">
+    <div class="confirm-modal-card">
+      <div class="confirm-modal-badge" id="confirmModalBadge">
+        <svg id="confirmModalIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <line x1="10" y1="11" x2="10" y2="17"></line>
+          <line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+      </div>
+      <div class="confirm-modal-content">
+        <h3 class="confirm-modal-title" id="confirmModalTitle">Delete Item?</h3>
+        <p class="confirm-modal-message" id="confirmModalMessage">This action is permanent and cannot be undone.</p>
+      </div>
+      <div class="confirm-modal-actions">
+        <button type="button" class="btn-confirm-cancel" id="confirmModalCancelBtn">Cancel</button>
+        <button type="button" class="btn-confirm-danger" id="confirmModalConfirmBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          <span id="confirmModalConfirmText">Delete</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nexus Canvas Studio V2: Tier-1 Developer-Grade IDE & Multi-File Workspace -->
+  <div class="artifact-modal-backdrop canvas-studio-backdrop" id="artifactModal" aria-hidden="true">
+    <div class="canvas-studio-dialog" id="canvasStudioDialog">
+      <!-- Studio Header Bar -->
+      <div class="canvas-studio-header">
+        <div class="studio-header-left">
+          <button type="button" class="studio-btn studio-btn-icon" id="btnStudioToggleSidebar" title="Toggle File Tree Explorer (Ctrl+B)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="9" y1="3" x2="9" y2="21"></line>
+            </svg>
+          </button>
+          <div class="studio-brand-pill">
+            <svg class="studio-brand-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+            <span class="studio-brand-name">STUDIO</span>
+          </div>
+          <div class="studio-project-meta">
+            <span class="studio-project-title" id="artifactTitle">Nexus Interactive Project</span>
+            <span class="studio-status-badge">
+              <span class="status-dot-pulse online"></span>
+              <span id="studioEngineStatus">Engine Ready</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Center: Developer View Mode Switcher -->
+        <div class="studio-view-modes" role="tablist" aria-label="Studio View Modes">
+          <button type="button" class="studio-view-btn active" data-view="editor" id="btnViewEditor" title="Code Editor View">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            <span>Editor</span>
+          </button>
+          <button type="button" class="studio-view-btn" data-view="preview" id="btnViewPreview" title="Live Web Preview View">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path></svg>
+            <span>Preview</span>
+          </button>
+          <button type="button" class="studio-view-btn" data-view="console" id="btnViewConsole" title="Terminal Output Console">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+            <span>Terminal</span>
+            <span class="console-count-badge" id="consoleCountBadge" style="display:none;">0</span>
+          </button>
+          <button type="button" class="studio-view-btn" data-view="split" id="btnViewSplit" title="Side-by-side Editor & Output">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="3" x2="12" y2="21"></line></svg>
+            <span>Split</span>
+          </button>
+        </div>
+
+        <!-- Right: Developer Actions -->
+        <div class="studio-header-right">
+          <button type="button" class="studio-btn studio-btn-run" id="btnStudioRunCode" title="Execute Code (Ctrl + Enter)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <span>Run</span>
+            <kbd class="studio-kbd">Ctrl ↵</kbd>
+          </button>
+          <button type="button" class="studio-btn" id="btnStudioFormat" title="Format Code">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="7" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="7" y2="18"></line></svg>
+            <span>Format</span>
+          </button>
+          <button type="button" class="studio-btn" id="btnStudioExport" title="Export Project Package">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Export</span>
+          </button>
+          <button type="button" class="studio-btn studio-btn-icon" id="closeArtifactBtn" title="Close Studio (Esc)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Studio AI Transformation & Autonomous Copilot Bar -->
+      <div class="canvas-studio-ai-bar">
+        <div class="studio-ai-row-primary">
+          <div class="studio-ai-actions">
+            <button type="button" class="studio-ai-pill" id="canvasActionRefactor" title="Refactor code for Clean Code & SOLID principles">
+              <span class="studio-ai-icon">🪄</span>
+              <span>Refactor</span>
+            </button>
+            <button type="button" class="studio-ai-pill" id="canvasActionFix" title="Detect & fix bugs, memory leaks, and edge-cases">
+              <span class="studio-ai-icon">🐞</span>
+              <span>Fix Bugs</span>
+            </button>
+            <button type="button" class="studio-ai-pill" id="canvasActionComments" title="Add clean docstrings and explanatory comments">
+              <span class="studio-ai-icon">💬</span>
+              <span>Add Docs</span>
+            </button>
+            <button type="button" class="studio-ai-pill" id="canvasActionTranslate" title="Explain code and architecture in Tamil">
+              <span class="studio-ai-icon">🌐</span>
+              <span>Tamil Explain</span>
+            </button>
+          </div>
+
+          <!-- Autonomous Studio Copilot Prompt Box -->
+          <div class="studio-copilot-box">
+            <span class="copilot-sparkle-badge">✨ COPILOT</span>
+            <input type="text" id="studioAiCopilotInput" class="studio-copilot-input" placeholder="Copilot: e.g. 'Build modern login page with glassmorphism, tabs and validation'..." autocomplete="off">
+            <button type="button" class="studio-copilot-btn" id="btnStudioAiGenerate" title="Generate / Modify Project (Enter)">
+              <span>Generate</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+          </div>
+
+          <div class="studio-ai-feedback" id="canvasActionStatus" style="display:none;">
+            <span class="studio-ai-spinner" id="studioAiSpinner"></span>
+            <span id="studioAiFeedbackText">AI Copilot generating...</span>
+          </div>
+        </div>
+
+        <!-- Quick Copilot Prompt Suggestions -->
+        <div class="studio-copilot-quick-strip" id="studioCopilotQuickStrip">
+          <span class="quick-strip-label">⚡ QUICK:</span>
+          <button type="button" class="copilot-quick-chip" data-prompt="Create modern glassmorphism login & register card with animated tab switching, input icons, and validation">🎨 Modern Login Page</button>
+          <button type="button" class="copilot-quick-chip" data-prompt="Add responsive dark/light mode toggle with smooth CSS variable transition and localStorage persistence">🌓 Dark/Light Mode</button>
+          <button type="button" class="copilot-quick-chip" data-prompt="Create sound.js using Web Audio API for interactive click, hover, and success audio effects">🔊 Sound Effects</button>
+          <button type="button" class="copilot-quick-chip" data-prompt="Add live canvas particle background with interactive mouse magnetic effect">✨ Particle FX</button>
+        </div>
+      </div>
+
+      <!-- Main IDE Workspace Grid -->
+      <div class="canvas-studio-workspace" id="canvasStudioWorkspace">
+        <!-- 1. Left Collapsible File Tree Explorer -->
+        <aside class="studio-explorer-pane" id="studioExplorerPane">
+          <div class="explorer-header">
+            <span class="explorer-label">PROJECT FILES</span>
+            <div class="explorer-actions">
+              <button type="button" class="explorer-icon-btn" id="btnStudioNewFile" title="New File">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+              <button type="button" class="explorer-icon-btn" id="btnToggleFileTree" title="Toggle Sidebar">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+              </button>
+            </div>
+          </div>
+          <div class="explorer-tree-list" id="studioFileTreeList">
+            <!-- Dynamically populated files -->
+          </div>
+        </aside>
+
+        <!-- 2. Center/Main Editor Area -->
+        <main class="studio-editor-area" id="studioEditorArea">
+          <!-- Editor Tabs Row -->
+          <div class="studio-tabs-bar" id="studioTabsBar">
+            <button type="button" class="studio-rail-toggle-btn" id="btnUncollapseSidebarRail" title="Show File Tree Explorer (Ctrl+B)" style="display:none;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+              <span>Files</span>
+            </button>
+            <div class="studio-dynamic-tabs" id="studioDynamicTabs"></div>
+          </div>
+
+          <!-- Line-Numbered Code Editor Container -->
+          <div class="studio-code-canvas-box" id="canvasEditorContainer">
+            <div class="studio-gutter" id="studioEditorGutter">1</div>
+            <textarea id="canvasCodeTextarea" class="studio-textarea" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="// Write or edit code here..."></textarea>
+          </div>
+
+          <!-- Editor Footer Status Bar -->
+          <div class="studio-editor-statusbar">
+            <div class="statusbar-left">
+              <span class="statusbar-item" id="studioLangBadge">JAVASCRIPT</span>
+              <span class="statusbar-item" id="studioCharCount">0 chars</span>
+            </div>
+            <div class="statusbar-right">
+              <span class="statusbar-item" id="studioCursorPos">Ln 1, Col 1</span>
+              <span class="statusbar-item">UTF-8</span>
+            </div>
+          </div>
+        </main>
+
+        <!-- 3. Output Pane (Live Preview & Terminal Console) -->
+        <section class="studio-output-area" id="studioOutputArea">
+          <div class="output-pane-header">
+            <div class="output-pane-tabs">
+              <button type="button" class="output-tab-btn active" id="tabOutputPreview" data-subview="preview">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+                <span>Live Viewport</span>
+              </button>
+              <button type="button" class="output-tab-btn" id="tabOutputTerminal" data-subview="terminal">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                <span>Console & Logs</span>
+              </button>
+            </div>
+            <div class="output-pane-actions">
+              <button type="button" class="output-action-icon-btn" id="btnArtifactReload" title="Reload Viewport">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+              </button>
+              <button type="button" class="output-action-icon-btn" id="btnClearTerminalConsole" title="Clear Console Logs">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Subview 1: Sandboxed Web Iframe Viewport -->
+          <div class="studio-viewport-box" id="artifactBodyWrapper">
+            <iframe id="artifactSandboxIframe" class="studio-sandbox-iframe" sandbox="allow-scripts allow-modals allow-forms allow-popups" src="about:blank"></iframe>
+          </div>
+
+          <!-- Subview 2: Developer Terminal Console Output -->
+          <div class="studio-terminal-box" id="studioTerminalBox" style="display:none;">
+            <div class="terminal-meta-bar">
+              <div class="terminal-filters">
+                <button type="button" class="terminal-filter-pill active" data-filter="all">All</button>
+                <button type="button" class="terminal-filter-pill" data-filter="stdout">Stdout</button>
+                <button type="button" class="terminal-filter-pill" data-filter="error">Errors</button>
+              </div>
+              <span class="terminal-duration-badge" id="terminalDurationBadge">Ready</span>
+            </div>
+            <div class="terminal-stream-log" id="studioTerminalLogs">
+              <div class="terminal-log-row info">
+                <span class="log-prefix">$</span>
+                <span class="log-msg">Nexus Developer Studio Ready. Press <strong>Run (Ctrl+Enter)</strong> to execute code or launch Live Viewport.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10-Agent Swarm & Autonomous Execution Drawer (Upgrade 02 & Upgrade 10) -->
+  <div class="artifact-modal-backdrop" id="agentActivityModal" aria-hidden="true" style="display:none;">
+    <div class="artifact-modal-dialog" style="max-width: 900px;">
+      <div class="artifact-modal-header">
+        <div class="artifact-header-left">
+          <div class="artifact-badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4);">🤖 10-Agent Swarm Activity</div>
+          <span class="artifact-title" id="swarmTitle">Multi-Agent DAG Execution Monitor</span>
+        </div>
+        <div class="artifact-header-right">
+          <button type="button" class="btn-artifact-icon" id="closeAgentActivityBtn" title="Close Monitor (Esc)">✕</button>
+        </div>
+      </div>
+      <div class="swarm-modal-body" style="padding: 20px; overflow-y: auto; max-height: calc(85vh - 70px);">
+        <div class="swarm-input-group" style="display: flex; gap: 10px; margin-bottom: 20px;">
+          <input type="text" id="swarmProblemInput" placeholder="Enter high-level problem or architectural goal..." style="flex: 1; padding: 10px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 0.9rem;">
+          <button type="button" id="startSwarmBtn" style="padding: 10px 20px; background: #6366f1; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Launch Swarm</button>
+        </div>
+        <div class="swarm-status-bar" id="swarmStatusBar" style="display: none; padding: 12px; background: rgba(99, 102, 241, 0.1); border-radius: 8px; margin-bottom: 20px; font-size: 0.85rem; color: #a5b4fc;"></div>
+        <div class="agent-grid" id="agentGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 20px;">
+          <!-- Dynamically populated 10 agent cards -->
+        </div>
+        <div class="swarm-synthesis-card" id="swarmSynthesisCard" style="display: none; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px;">
+          <h3 style="margin-top: 0; color: #f8fafc; font-size: 1rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">Consensus Solution & Verification</h3>
+          <div id="swarmSynthesisContent" style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6; white-space: pre-wrap;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- GitHub Management, MCP Server & Autonomous Automation Hub (Full Enterprise Modal) -->
+  <!-- ========================================================================= -->
+  <div class="artifact-modal-backdrop" id="githubHubModal" aria-hidden="true" style="display:none;">
+    <div class="artifact-modal-dialog github-hub-dialog">
+      <!-- Hub Top Header -->
+      <div class="artifact-modal-header github-hub-header">
+        <div class="artifact-header-left">
+          <div class="github-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            <span>GitHub MCP Platform</span>
+          </div>
+          <span class="artifact-title" id="githubHubTitle">GitHub Management & Autonomous Automation Hub</span>
+          <span class="github-conn-indicator" id="githubHubConnBadge">
+            <span class="status-dot online"></span>
+            <span id="githubHubUserTag">@raghul692 (46 Tools)</span>
+          </span>
+        </div>
+        <div class="artifact-header-right">
+          <button type="button" class="btn-refresh" id="refreshGitHubHubBtn" title="Sync Live Data with GitHub">
+            <svg class="refresh-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+            </svg>
+            <span>Refresh</span>
+          </button>
+          <button type="button" class="btn-artifact-icon" id="closeGitHubHubBtn" title="Close Hub (Esc)">&times;</button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs Bar -->
+      <div class="github-hub-nav-bar">
+        <button type="button" class="gh-nav-tab active" data-ghtab="ghOverview">Overview</button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghRepos">Repositories & Files</button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghBranches">Branches & Commits</button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghIssues">Issues & PRs</button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghActions">Actions CI/CD</button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghSecurity">Security Center</button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghAutomations">Automations (15)</button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghApprovals">
+          <span>Approvals</span>
+          <span class="gh-tab-badge" id="ghPendingApprovalsCount">0</span>
+        </button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghSwarm">10-Agent Swarm</button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghTools">MCP Tools (46)</button>
+      </div>
+
+      <!-- Hub Content Panes -->
+      <div class="github-hub-body">
+        <!-- 1. OVERVIEW PANE -->
+        <div class="gh-pane active" id="ghPaneOverview">
+          <div class="gh-user-banner">
+            <div class="gh-user-profile">
+              <img id="ghUserAvatar" class="gh-avatar-large" src="/assets/raghul_profile.jpg" alt="Avatar">
+              <div class="gh-user-info">
+                <h3 id="ghUserFullName">RAGHUL RAJA M</h3>
+                <div class="gh-user-sub">
+                  <a id="ghUserProfileLink" href="https://github.com/raghul692" target="_blank" rel="noopener">@raghul692</a>
+                  <span>&bull;</span>
+                  <span id="ghUserBio">Full Stack Developer | AI/ML Enthusiast | UI/UX Designer</span>
+                </div>
+              </div>
+            </div>
+            <div class="gh-metrics-row">
+              <div class="gh-metric-chip">
+                <span class="gh-metric-val" id="ghStatPublicRepos">26</span>
+                <span class="gh-metric-label">Repositories</span>
+              </div>
+              <div class="gh-metric-chip">
+                <span class="gh-metric-val" id="ghStatMcpTools">46</span>
+                <span class="gh-metric-label">MCP Tools</span>
+              </div>
+              <div class="gh-metric-chip">
+                <span class="gh-metric-val" id="ghStatAutomations">15</span>
+                <span class="gh-metric-label">Automations</span>
+              </div>
+              <div class="gh-metric-chip">
+                <span class="gh-metric-val" id="ghStatPendingApprovals">0</span>
+                <span class="gh-metric-label">Approvals</span>
+              </div>
+            </div>
+          </div>
+
+          <h4 class="gh-section-title">Accessible GitHub Repositories</h4>
+          <div class="gh-overview-repos-grid" id="ghOverviewReposGrid">
+            <!-- Dynamically populated repo cards -->
+          </div>
+        </div>
+
+        <!-- 2. REPOSITORIES & FILES PANE -->
+        <div class="gh-pane" id="ghPaneRepos">
+          <div class="gh-repos-split-layout">
+            <!-- Left: Repos List -->
+            <div class="gh-repos-sidebar">
+              <div class="gh-search-filter">
+                <input type="text" id="ghRepoSearchInput" placeholder="Filter repositories..." autocomplete="off">
+              </div>
+              <div class="gh-repos-list" id="ghReposList">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            <!-- Right: Repo Viewer & Files -->
+            <div class="gh-repo-detail-panel" id="ghRepoDetailPanel">
+              <div class="gh-detail-empty" id="ghRepoDetailEmpty">
+                <p>Select a repository from the left panel to inspect its README, file tree, commits, and metadata.</p>
+              </div>
+              <div class="gh-detail-content" id="ghRepoDetailContent" style="display:none;">
+                <div class="gh-repo-header-bar">
+                  <div>
+                    <h3 id="ghSelectedRepoTitle">owner/repo</h3>
+                    <p id="ghSelectedRepoDesc" style="font-size:0.82rem; color:var(--text-secondary); margin:2px 0;"></p>
+                    <div style="font-size:0.75rem; color:var(--text-tertiary); display:flex; gap:12px; margin-top:4px;">
+                      <span id="ghSelectedRepoBranch">main</span>
+                      <span id="ghSelectedRepoLang">JavaScript</span>
+                      <span id="ghSelectedRepoUpdated">Updated recently</span>
+                    </div>
+                  </div>
+                  <div class="gh-repo-actions-bar">
+                    <button type="button" class="btn btn-sm btn-outline" id="ghBtnAnalyzeWithSwarm">Analyze with Swarm</button>
+                    <button type="button" class="btn btn-sm btn-primary" id="ghBtnRunRepoAudit">Run Health Audit</button>
+                  </div>
+                </div>
+
+                <div class="gh-subtab-bar">
+                  <button type="button" class="gh-subtab-btn active" data-subtab="subReadme">README.md</button>
+                  <button type="button" class="gh-subtab-btn" data-subtab="subFiles">File Tree Browser</button>
+                  <button type="button" class="gh-subtab-btn" data-subtab="subCommits">Recent Commits</button>
+                </div>
+
+                <div class="gh-subtab-content" id="ghSubContent">
+                  <!-- Readme Viewer -->
+                  <div class="gh-subpane active" id="subReadme">
+                    <div class="gh-markdown-viewer" id="ghReadmeViewer">
+                      <!-- Rendered Markdown -->
+                    </div>
+                  </div>
+
+                  <!-- File Tree Browser -->
+                  <div class="gh-subpane" id="subFiles" style="display:none;">
+                    <div class="gh-file-breadcrumb" id="ghFileBreadcrumb">/</div>
+                    <div class="gh-files-container">
+                      <div class="gh-files-list" id="ghFilesList"></div>
+                      <div class="gh-file-viewer" id="ghFileViewer">
+                        <div class="gh-file-viewer-header" id="ghFileViewerHeader">Select a file to view source</div>
+                        <pre class="gh-code-block"><code id="ghFileCodeContent">// No file selected</code></pre>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Commits Timeline -->
+                  <div class="gh-subpane" id="subCommits" style="display:none;">
+                    <div class="gh-commits-timeline" id="ghCommitsTimeline"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. BRANCHES & COMMITS PANE -->
+        <div class="gh-pane" id="ghPaneBranches">
+          <div class="gh-pane-header">
+            <h4>Branches & Version History</h4>
+            <p>Inspect branch topologies, compare revisions, and track commit histories across branches.</p>
+          </div>
+          <div class="gh-branches-grid" id="ghBranchesGrid"></div>
+        </div>
+
+        <!-- 4. ISSUES & PULL REQUESTS PANE -->
+        <div class="gh-pane" id="ghPaneIssues">
+          <div class="gh-pane-header">
+            <h4>Issues & Pull Requests Manager</h4>
+            <p>Autonomous issue classification, triage, and automated AI pull request reviews with diff analysis.</p>
+          </div>
+          <div class="gh-issues-split">
+            <div class="gh-issues-column">
+              <div class="gh-col-header">
+                <h5>Open Issues (<span id="ghIssuesCount">0</span>)</h5>
+              </div>
+              <div class="gh-issues-list" id="ghIssuesList"></div>
+            </div>
+            <div class="gh-pulls-column">
+              <div class="gh-col-header">
+                <h5>Pull Requests (<span id="ghPullsCount">0</span>)</h5>
+              </div>
+              <div class="gh-pulls-list" id="ghPullsList"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. CI/CD ACTIONS PANE -->
+        <div class="gh-pane" id="ghPaneActions">
+          <div class="gh-pane-header">
+            <h4>GitHub Actions CI/CD & Pipeline Debugger</h4>
+            <p>Monitor workflow runs, inspect step statuses, and run root-cause analysis on failed builds.</p>
+          </div>
+          <div class="gh-actions-runs-list" id="ghActionsRunsList"></div>
+        </div>
+
+        <!-- 6. SECURITY CENTER PANE -->
+        <div class="gh-pane" id="ghPaneSecurity">
+          <div class="gh-pane-header">
+            <h4>Security & Vulnerability Center</h4>
+            <p>Continuous monitoring of Dependabot alerts, secret scanning exposures, and code scanning alerts.</p>
+          </div>
+          <div class="gh-security-cards-grid" id="ghSecurityCardsGrid"></div>
+        </div>
+
+        <!-- 7. AUTOMATIONS (15) PANE -->
+        <div class="gh-pane" id="ghPaneAutomations">
+          <div class="gh-pane-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <div>
+                <h4>Nexus GitHub Autonomous Automation Engine</h4>
+                <p>15 production-grade workflows for continuous repository governance, reviews, and monitoring.</p>
+              </div>
+              <div class="gh-engine-status-pill">
+                <span class="status-dot online"></span>
+                <span>Persistent Queue Active (SQLite WAL)</span>
+              </div>
+            </div>
+          </div>
+          <div class="gh-automations-grid" id="ghAutomationsGrid">
+            <!-- 15 Built-in automation cards populated via app.js -->
+          </div>
+        </div>
+
+        <!-- 8. APPROVALS QUEUE PANE -->
+        <div class="gh-pane" id="ghPaneApprovals">
+          <div class="gh-pane-header">
+            <h4>Confidence-Gated Human Approval Queue</h4>
+            <p>All mutating actions, branch creations, code patches, and pull request merges require explicit human confirmation.</p>
+          </div>
+          <div class="gh-approvals-list" id="ghApprovalsList">
+            <!-- Populated via app.js -->
+          </div>
+        </div>
+
+        <!-- 9. 10-AGENT SWARM PANE -->
+        <div class="gh-pane" id="ghPaneSwarm">
+          <div class="gh-pane-header">
+            <h4>10-Agent GitHub Swarm Orchestrator</h4>
+            <p>Dispatch complex repository goals across the 10 specialist agents with DAG coordination and real-time SSE streaming.</p>
+          </div>
+          <div class="gh-swarm-input-box">
+            <input type="text" id="ghSwarmGoalInput" placeholder="E.g., Audit code quality, detect dead code & suggest performance fixes in active repo...">
+            <button type="button" class="btn btn-primary" id="ghLaunchSwarmBtn">Execute Goal</button>
+          </div>
+          <div class="gh-swarm-progress-bar" id="ghSwarmProgressBar" style="display:none;"></div>
+          <div class="gh-swarm-agents-grid" id="ghSwarmAgentsGrid">
+            <!-- 10 agent cards populated via app.js -->
+          </div>
+          <div class="gh-swarm-result-card" id="ghSwarmResultCard" style="display:none;">
+            <h5>Swarm Consensus Findings & Recommendations</h5>
+            <div class="gh-swarm-result-body" id="ghSwarmResultBody"></div>
+          </div>
+        </div>
+
+        <!-- 10. MCP TOOLS REGISTRY PANE -->
+        <div class="gh-pane" id="ghPaneTools">
+          <div class="gh-pane-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <div>
+                <h4>Dynamic Official GitHub MCP Tools Registry</h4>
+                <p>Discovered dynamically from the official GitHub Model Context Protocol server.</p>
+              </div>
+              <span class="badge" style="background:rgba(59,130,246,0.15); color:#60a5fa; padding:4px 8px; border-radius:4px; font-size:0.8rem;">46 Discovered Tools</span>
+            </div>
+          </div>
+          <div class="gh-tools-filter-box">
+            <input type="text" id="ghToolsFilterInput" placeholder="Filter MCP tools by name, category, or risk level...">
+          </div>
+          <div class="gh-tools-catalog-grid" id="ghToolsCatalogGrid">
+            <!-- 46 tool cards populated via app.js -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- PORTFOLIO INTELLIGENCE & AUTONOMOUS MANAGEMENT HUB (ENTERPRISE MODAL) -->
+  <!-- ========================================================================= -->
+  <div class="artifact-modal-backdrop" id="portfolioDashboardModal" aria-hidden="true" style="display:none;">
+    <div class="artifact-modal-dialog portfolio-hub-dialog">
+      <!-- Hub Top Header -->
+      <div class="artifact-modal-header portfolio-hub-header">
+        <div class="artifact-header-left">
+          <div class="portfolio-badge">
+            <span style="font-size: 1.1rem;">🌐</span>
+            <span>Portfolio Intelligence Hub</span>
+          </div>
+          <span class="artifact-title" id="portfolioHubTitle">raghulraja.is-a.dev • Systems & Automation</span>
+          <span class="portfolio-conn-indicator" id="portfolioHubConnBadge">
+            <span class="status-dot online"></span>
+            <span id="portfolioHubStatusTag">Vercel & Render Live (24 MCP Tools)</span>
+          </span>
+        </div>
+        <div class="artifact-header-right">
+          <a href="https://raghulraja.is-a.dev/" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 5px; text-decoration: none; color: var(--text-primary); padding: 5px 10px; font-size: 0.8rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px;">
+            <span>Visit Site ↗</span>
+          </a>
+          <button type="button" class="btn-refresh" id="refreshPortfolioHubBtn" title="Sync Live Portfolio Data">
+            <svg class="refresh-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+            </svg>
+            <span>Refresh</span>
+          </button>
+          <button type="button" class="btn-artifact-icon" id="closePortfolioHubBtn" title="Close Portfolio Hub (Esc)">&times;</button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs Bar (14 Specialized Panes) -->
+      <div class="portfolio-hub-nav-bar">
+        <button type="button" class="port-nav-tab active" data-porttab="portOverview">Overview & Health</button>
+        <button type="button" class="port-nav-tab" data-porttab="portWebsite">Pages & SEO</button>
+        <button type="button" class="port-nav-tab" data-porttab="portDrafts">
+          <span>Content & Drafts</span>
+          <span class="port-tab-badge" id="portDraftsCount">1</span>
+        </button>
+        <button type="button" class="port-nav-tab" data-porttab="portProjects">Projects Manager</button>
+        <button type="button" class="port-nav-tab" data-porttab="portGithub">GitHub Sync</button>
+        <button type="button" class="port-nav-tab" data-porttab="portDeployments">Deployment Center</button>
+        <button type="button" class="port-nav-tab" data-porttab="portAnalytics">Visitor Analytics</button>
+        <button type="button" class="port-nav-tab" data-porttab="portContacts">
+          <span>Contact Submissions</span>
+          <span class="port-tab-badge" id="portContactsCount">3</span>
+        </button>
+        <button type="button" class="port-nav-tab" data-porttab="portKnowledge">Knowledge Engine</button>
+        <button type="button" class="port-nav-tab" data-porttab="portAutomations">Automations (8)</button>
+        <button type="button" class="port-nav-tab" data-porttab="portDatabase">Supabase & Data</button>
+        <button type="button" class="port-nav-tab" data-porttab="portPerformance">Performance Lab</button>
+        <button type="button" class="port-nav-tab" data-porttab="portSecurity">Security & Audits</button>
+        <button type="button" class="port-nav-tab" data-porttab="portTools">MCP Tools (24)</button>
+      </div>
+
+      <!-- Hub Content Panes Body -->
+      <div class="portfolio-hub-body">
+
+        <!-- 1. OVERVIEW & HEALTH PANE -->
+        <div class="port-pane active" id="portPaneOverview">
+          <div class="port-hero-banner">
+            <div class="port-hero-info">
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: #fff; margin: 0;">RAGHUL RAJA M — Portfolio Operations</h3>
+                <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.76rem; padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3);">All Systems Nominal</span>
+              </div>
+              <p style="font-size: 0.84rem; color: #94a3b8; margin: 0; line-height: 1.5;">
+                Central command for <code style="color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 2px 6px; border-radius: 4px;">https://raghulraja.is-a.dev/</code> with automated GitHub synchronization, continuous health monitoring, intelligent content drafting, and Supabase integration.
+              </p>
+            </div>
+            <div class="port-hero-actions">
+              <button type="button" class="btn btn-primary btn-sm" id="btnQuickNewProject" style="display: inline-flex; align-items: center; gap: 6px;">
+                <span>✨ Analyze GitHub Repo</span>
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnQuickDeploy" style="display: inline-flex; align-items: center; gap: 6px;">
+                <span>🚀 Redeploy</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Key Metrics Grid -->
+          <div class="port-metrics-grid">
+            <div class="port-metric-card">
+              <div class="port-metric-header">
+                <span class="port-metric-title">Frontend Status</span>
+                <span class="status-dot online"></span>
+              </div>
+              <div class="port-metric-val" style="color: #34d399;">200 OK</div>
+              <div class="port-metric-sub">Vercel Edge CDN • 142ms latency</div>
+            </div>
+            <div class="port-metric-card">
+              <div class="port-metric-header">
+                <span class="port-metric-title">Backend API</span>
+                <span class="status-dot online"></span>
+              </div>
+              <div class="port-metric-val" style="color: #38bdf8;">Render API</div>
+              <div class="port-metric-sub">FastAPI • Production Ready</div>
+            </div>
+            <div class="port-metric-card">
+              <div class="port-metric-header">
+                <span class="port-metric-title">Supabase Database</span>
+                <span class="status-dot online"></span>
+              </div>
+              <div class="port-metric-val" style="color: #a78bfa;">PG 17 Vector</div>
+              <div class="port-metric-sub">4 active tables • Contact & Analytics</div>
+            </div>
+            <div class="port-metric-card">
+              <div class="port-metric-header">
+                <span class="port-metric-title">Continuous Workflows</span>
+                <span class="status-dot online"></span>
+              </div>
+              <div class="port-metric-val" style="color: #fbbf24;">8 Active</div>
+              <div class="port-metric-sub">Auto health, sync & reporting</div>
+            </div>
+          </div>
+
+          <!-- Quick System Diagnostic & Activity -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px;">
+            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px;">
+              <h4 style="font-size: 0.9rem; color: #fff; margin: 0 0 10px 0; display: flex; align-items: center; justify-content: space-between;">
+                <span>Live Component Diagnostics</span>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnRunHealthCheck" style="font-size: 0.75rem; padding: 3px 8px;">Run Health</button>
+              </h4>
+              <div id="portHealthCheckResults" style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; padding: 6px 10px; background: rgba(0,0,0,0.25); border-radius: 6px;">
+                  <span style="color: var(--text-primary);">Frontend (raghulraja.is-a.dev)</span>
+                  <span style="color: #34d399; font-weight: 600;">Healthy (200 OK)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; padding: 6px 10px; background: rgba(0,0,0,0.25); border-radius: 6px;">
+                  <span style="color: var(--text-primary);">Backend (Render FastAPI)</span>
+                  <span style="color: #34d399; font-weight: 600;">Healthy</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; padding: 6px 10px; background: rgba(0,0,0,0.25); border-radius: 6px;">
+                  <span style="color: var(--text-primary);">Supabase PostgreSQL 17</span>
+                  <span style="color: #34d399; font-weight: 600;">Connected (pgvector enabled)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; padding: 6px 10px; background: rgba(0,0,0,0.25); border-radius: 6px;">
+                  <span style="color: var(--text-primary);">Portfolio MCP Gateway</span>
+                  <span style="color: #34d399; font-weight: 600;">24/24 Tools Ready</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px;">
+              <h4 style="font-size: 0.9rem; color: #fff; margin: 0 0 10px 0;">Portfolio Quick Information</h4>
+              <div style="font-size: 0.8rem; color: #94a3b8; display: flex; flex-direction: column; gap: 6px;">
+                <div><strong>Owner:</strong> RAGHUL RAJA M (@raghul692)</div>
+                <div><strong>Email:</strong> raghulraja2006@gmail.com</div>
+                <div><strong>Target Repo:</strong> raghul692/raghulraja_portfolio</div>
+                <div><strong>Stack:</strong> React / Vite / FastAPI / Supabase PostgreSQL / Tailwind</div>
+                <div><strong>Deployment:</strong> Vercel (Frontend) + Render (API)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. WEBSITE & PAGES PANE -->
+        <div class="port-pane" id="portPaneWebsite">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Portfolio Website Structure & Sections</h4>
+              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Inspect, verify, and update sections on raghulraja.is-a.dev.</p>
+            </div>
+            <a href="https://raghulraja.is-a.dev/" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="text-decoration: none;">View Live Site ↗</a>
+          </div>
+          <div class="port-sections-grid" id="portSectionsGrid">
+            <!-- Populated via app.js -->
+          </div>
+        </div>
+
+        <!-- 3. CONTENT & DRAFTS STUDIO PANE -->
+        <div class="port-pane" id="portPaneDrafts">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Content Drafts & Approval Staging</h4>
+              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Draft content updates before safe publishing to GitHub.</p>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" id="btnCreateNewDraftManual">
+              <span>+ New Content Draft</span>
+            </button>
+          </div>
+
+          <!-- Drafts List -->
+          <div id="portDraftsListContainer" style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- Populated via app.js -->
+          </div>
+        </div>
+
+        <!-- 4. PROJECTS MANAGER PANE -->
+        <div class="port-pane" id="portPaneProjects">
+          <div class="card" style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+            <h4 style="font-size: 0.95rem; color: #60a5fa; margin: 0 0 6px 0;">⚡ Autonomous GitHub Project Analyzer & Importer</h4>
+            <p style="font-size: 0.82rem; color: #94a3b8; margin: 0 0 12px 0;">
+              Enter any GitHub repository name (e.g. <code style="color: #a5f3fc;">raghul692/LinkedIn-AI-Growth-Operating-System</code>) to inspect its README, commit history, and tech stack, then automatically generate a high-converting showcase card draft.
+            </p>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="inputAnalyzeRepoName" class="port-input" placeholder="e.g. raghul692/LinkedIn-AI-Growth-Operating-System" style="flex: 1; padding: 8px 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; font-size: 0.84rem;">
+              <button type="button" class="btn btn-primary" id="btnAnalyzeRepoSubmit" style="white-space: nowrap; padding: 8px 16px; font-size: 0.84rem;">
+                <span>Analyze & Generate Showcase</span>
+              </button>
+            </div>
+            <div id="repoAnalysisProgress" style="display: none; margin-top: 10px; font-size: 0.82rem; color: #fbbf24;"></div>
+          </div>
+
+          <h4 style="font-size: 0.9rem; color: #fff; margin: 16px 0 10px 0;">Featured Portfolio Projects</h4>
+          <div class="port-projects-grid" id="portProjectsGrid">
+            <!-- Populated via app.js -->
+          </div>
+        </div>
+
+        <!-- 5. GITHUB SYNC PANE -->
+        <div class="port-pane" id="portPaneGithub">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Synchronized Repository: raghul692/raghulraja_portfolio</h4>
+              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Connected via Official GitHub MCP Server with write permissions.</p>
+            </div>
+            <a href="https://github.com/raghul692/raghulraja_portfolio" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="text-decoration: none;">Open on GitHub ↗</a>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.84rem; margin-bottom: 8px;">
+              <span style="color: var(--text-secondary);">Default Branch:</span>
+              <strong style="color: #38bdf8; font-family: monospace;">main</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.84rem; margin-bottom: 8px;">
+              <span style="color: var(--text-secondary);">Last Sync Check:</span>
+              <span style="color: #34d399;" id="ghLastSyncTime">Just now</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.84rem;">
+              <span style="color: var(--text-secondary);">Repo Status:</span>
+              <span style="color: #34d399; font-weight: 600;">Active & Synchronized</span>
+            </div>
+          </div>
+
+          <h5 style="font-size: 0.85rem; color: #fff; margin: 12px 0 8px 0;">Recent Portfolio Commits</h5>
+          <div id="portGithubCommitsList" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Populated via app.js -->
+          </div>
+        </div>
+
+        <!-- 6. DEPLOYMENT CENTER PANE -->
+        <div class="port-pane" id="portPaneDeployments">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Multi-Cloud Deployment Pipeline</h4>
+              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Manage Vercel Frontend and Render Backend deployments.</p>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" id="btnTriggerRedeployAction">
+              <span>🚀 Trigger Production Redeploy</span>
+            </button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong style="color: #fff; font-size: 0.9rem;">Vercel Production Edge</strong>
+                <span class="status-dot online"></span>
+              </div>
+              <div style="font-size: 0.8rem; color: #38bdf8; font-family: monospace;">raghulraja.is-a.dev</div>
+              <div style="font-size: 0.74rem; color: #94a3b8; margin-top: 4px;">Branch: main • Framework: React Vite • Status: READY</div>
+            </div>
+            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong style="color: #fff; font-size: 0.9rem;">Render Web Service API</strong>
+                <span class="status-dot online"></span>
+              </div>
+              <div style="font-size: 0.8rem; color: #a78bfa; font-family: monospace;">raghulraja-portfolio.onrender.com</div>
+              <div style="font-size: 0.74rem; color: #94a3b8; margin-top: 4px;">Environment: Python FastAPI • Status: LIVE</div>
+            </div>
+          </div>
+
+          <h5 style="font-size: 0.85rem; color: #fff; margin: 12px 0 8px 0;">Deployment History</h5>
+          <div id="portDeploymentsTable" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Populated via app.js -->
+          </div>
+        </div>
+
+        <!-- 7. VISITOR ANALYTICS PANE -->
+        <div class="port-pane" id="portPaneAnalytics">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Portfolio Visitor Analytics & Insights</h4>
+              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Grounded traffic metrics from Supabase <code style="color: #38bdf8;">visitor_analytics</code>.</p>
+            </div>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.78rem; padding: 3px 8px; border-radius: 4px;">Telemetry Active</span>
+          </div>
+
+          <div class="port-metrics-grid">
+            <div class="port-metric-card">
+              <span class="port-metric-title">Unique Visitors</span>
+              <div class="port-metric-val" id="valAnalyticVisitors" style="color: #38bdf8;">1,420</div>
+              <div class="port-metric-sub">+18.4% this month</div>
+            </div>
+            <div class="port-metric-card">
+              <span class="port-metric-title">Total Pageviews</span>
+              <div class="port-metric-val" id="valAnalyticViews" style="color: #34d399;">4,890</div>
+              <div class="port-metric-sub">3.44 views / session</div>
+            </div>
+            <div class="port-metric-card">
+              <span class="port-metric-title">Avg Duration</span>
+              <div class="port-metric-val" style="color: #fbbf24;">2m 45s</div>
+              <div class="port-metric-sub">High engagement</div>
+            </div>
+            <div class="port-metric-card">
+              <span class="port-metric-title">Inquiries Submitted</span>
+              <div class="port-metric-val" id="valAnalyticContacts" style="color: #f472b6;">14</div>
+              <div class="port-metric-sub">Lead conversion: 0.98%</div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px;">
+            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
+              <h5 style="font-size: 0.85rem; color: #fff; margin: 0 0 10px 0;">Top Traffic Sources</h5>
+              <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem;">
+                <div style="display: flex; justify-content: space-between;"><span>GitHub Profile / Repos</span><strong style="color: #38bdf8;">48%</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span>LinkedIn / Direct</span><strong style="color: #38bdf8;">32%</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span>Google Search</span><strong style="color: #38bdf8;">14%</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span>Other Referral</span><strong style="color: #38bdf8;">6%</strong></div>
+              </div>
+            </div>
+            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
+              <h5 style="font-size: 0.85rem; color: #fff; margin: 0 0 10px 0;">Most Viewed Sections</h5>
+              <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem;">
+                <div style="display: flex; justify-content: space-between;"><span>#projects (AI Operating System, Chatbot)</span><strong style="color: #34d399;">44%</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span>#hero (Landing Intro)</span><strong style="color: #34d399;">26%</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span>#experience & skills</span><strong style="color: #34d399;">18%</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span>#contact form</span><strong style="color: #34d399;">12%</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. CONTACT SUBMISSIONS PANE -->
+        <div class="port-pane" id="portPaneContacts">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Portfolio Inquiries & Contact Submissions</h4>
+              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Stored securely in Supabase <code style="color: #38bdf8;">contact_submissions</code> table.</p>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" id="btnRefreshContacts">
+              <span>↻ Refresh Inquiries</span>
+            </button>
+          </div>
+
+          <div id="portContactsListContainer" style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- Populated via app.js -->
+          </div>
+        </div>
+
+        <!-- 9. KNOWLEDGE ENGINE PANE -->
+        <div class="port-pane" id="portPaneKnowledge">
+          <div class="card" style="background: rgba(167, 139, 250, 0.05); border: 1px solid rgba(167, 139, 250, 0.2); border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+            <h4 style="font-size: 0.95rem; color: #c4b5fd; margin: 0 0 6px 0;">🧠 Grounded Portfolio RAG & Knowledge Engine</h4>
+            <p style="font-size: 0.82rem; color: #94a3b8; margin: 0 0 12px 0;">
+              Ask any question about Raghul's projects, technical skills, architecture patterns, or contact info. Answers are strictly grounded in repository markdown, commit logs, and database schemas.
+            </p>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="inputKnowledgeQuestion" class="port-input" placeholder="e.g. What is Raghul's architecture for the AI growth system and what are his top skills?" style="flex: 1; padding: 8px 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; font-size: 0.84rem;">
+              <button type="button" class="btn btn-primary" id="btnAskKnowledgeSubmit" style="white-space: nowrap; padding: 8px 16px; font-size: 0.84rem;">
+                <span>Ask Portfolio AI</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="knowledgeAnswerCard" class="card" style="display: none; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <strong style="color: #a78bfa; font-size: 0.88rem;">Grounded AI Answer</strong>
+              <span id="knowledgeAnswerConfidence" class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.74rem; padding: 2px 6px; border-radius: 4px;">High Confidence</span>
+            </div>
+            <div id="knowledgeAnswerText" style="font-size: 0.85rem; color: var(--text-primary); line-height: 1.6; white-space: pre-wrap;"></div>
+            <div id="knowledgeCitationsBox" style="margin-top: 10px; font-size: 0.76rem; color: var(--text-secondary); border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;"></div>
+          </div>
+
+          <h5 style="font-size: 0.85rem; color: #fff; margin: 12px 0 8px 0;">Indexed Portfolio Documents</h5>
+          <div id="portKnowledgeDocsList" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Populated via app.js -->
+          </div>
+        </div>
+
+        <!-- 10. AUTOMATIONS PANE -->
+        <div class="port-pane" id="portPaneAutomations">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Portfolio Autonomous Workflows (8 Continuous Engines)</h4>
+              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Autonomous background monitoring, GitHub sync, project discovery, and reporting.</p>
+            </div>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.78rem; padding: 3px 8px; border-radius: 4px;">8 Active</span>
+          </div>
+
+          <div id="portAutomationsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 12px;">
+            <!-- Populated via app.js -->
+          </div>
+        </div>
+
+        <!-- 11. SUPABASE & DATABASE PANE -->
+        <div class="port-pane" id="portPaneDatabase">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Supabase PostgreSQL 17 Database</h4>
+              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Schema and data store powering raghulraja.is-a.dev.</p>
+            </div>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.78rem; padding: 3px 8px; border-radius: 4px;">pgvector Enabled</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 16px;">
+            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+              <strong style="color: #38bdf8; font-family: monospace; font-size: 0.85rem;">contact_submissions</strong>
+              <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 4px;">Stores user messages, email, status, timestamp.</div>
+              <div style="margin-top: 6px; font-size: 0.78rem; color: #34d399;">RLS Protected • Auto-encrypted</div>
+            </div>
+            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+              <strong style="color: #38bdf8; font-family: monospace; font-size: 0.85rem;">visitor_analytics</strong>
+              <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 4px;">Logs visitor sessions, page views, and referrers.</div>
+              <div style="margin-top: 6px; font-size: 0.78rem; color: #34d399;">Time-series indexed</div>
+            </div>
+            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+              <strong style="color: #38bdf8; font-family: monospace; font-size: 0.85rem;">portfolio_documents</strong>
+              <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 4px;">Source knowledge documents and markdown.</div>
+              <div style="margin-top: 6px; font-size: 0.78rem; color: #a78bfa;">Metadata indexed</div>
+            </div>
+            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+              <strong style="color: #38bdf8; font-family: monospace; font-size: 0.85rem;">document_chunks</strong>
+              <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 4px;">Chunks with 768-dim embeddings for vector search.</div>
+              <div style="margin-top: 6px; font-size: 0.78rem; color: #a78bfa;">HNSW cosine index</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 12. PERFORMANCE LAB PANE -->
+        <div class="port-pane" id="portPanePerformance">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Performance, SEO & Core Web Vitals</h4>
+              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Lighthouse & PageSpeed metrics for raghulraja.is-a.dev.</p>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" id="btnRunSeoAudit">Run SEO Audit</button>
+          </div>
+
+          <div class="port-metrics-grid">
+            <div class="port-metric-card">
+              <span class="port-metric-title">Performance Score</span>
+              <div class="port-metric-val" style="color: #34d399;">98 / 100</div>
+              <div class="port-metric-sub">Fast Vercel Edge response</div>
+            </div>
+            <div class="port-metric-card">
+              <span class="port-metric-title">SEO Score</span>
+              <div class="port-metric-val" style="color: #34d399;">100 / 100</div>
+              <div class="port-metric-sub">OpenGraph & Meta complete</div>
+            </div>
+            <div class="port-metric-card">
+              <span class="port-metric-title">Largest Contentful Paint (LCP)</span>
+              <div class="port-metric-val" style="color: #38bdf8;">0.8s</div>
+              <div class="port-metric-sub">Good (&lt; 2.5s)</div>
+            </div>
+            <div class="port-metric-card">
+              <span class="port-metric-title">Cumulative Layout Shift (CLS)</span>
+              <div class="port-metric-val" style="color: #34d399;">0.002</div>
+              <div class="port-metric-sub">Zero visual drift</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 13. SECURITY & AUDITS PANE -->
+        <div class="port-pane" id="portPaneSecurity">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Security Posture & Human-in-the-Loop Governance</h4>
+              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Guaranteed boundary protections and immutable audit trails.</p>
+            </div>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.78rem; padding: 3px 8px; border-radius: 4px;">Protected</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+              <strong style="color: #34d399; font-size: 0.85rem;">🛡️ Zero Client Secret Leaks</strong>
+              <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px;">All Vercel tokens, Render keys, and Supabase service roles stay isolated in server environment. Responses redact sensitive keys.</div>
+            </div>
+            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+              <strong style="color: #38bdf8; font-size: 0.85rem;">🔒 Human-in-the-Loop Approval Boundary</strong>
+              <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px;">Direct commits to <code style="color: #a5f3fc;">raghulraja_portfolio</code> main branch or live deployment triggers require explicit user confirmation.</div>
+            </div>
+            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+              <strong style="color: #a78bfa; font-size: 0.85rem;">📝 Immutable Audit Trail</strong>
+              <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px;">All draft creations, publications, and deployment events are logged in SQLite table <code style="color: #cbd5e1;">audit_logs</code>.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 14. PORTFOLIO MCP TOOLS PANE -->
+        <div class="port-pane" id="portPaneTools">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Portfolio MCP Tools Registry</h4>
+              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">24 standardized tools powering autonomous portfolio workflows.</p>
+            </div>
+            <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-size: 0.8rem; padding: 3px 8px; border-radius: 4px;">24 Active Tools</span>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <input type="text" id="portToolsFilterInput" placeholder="Filter portfolio tools by name or description..." style="width: 100%; padding: 8px 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; font-size: 0.84rem;">
+          </div>
+          <div class="gh-tools-catalog-grid" id="portToolsCatalogGrid">
+            <!-- Populated via app.js -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Portfolio Human-in-the-Loop Confirmation Modal -->
+  <div class="confirm-modal-backdrop" id="portfolioApprovalModal" aria-hidden="true" style="display:none;">
+    <div class="confirm-modal-card" style="max-width: 620px; width: 92%;">
+      <div class="confirm-modal-badge" id="portApprovalModalBadge" style="background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.28);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+      <h3 class="confirm-modal-title" id="portApprovalModalTitle">Confirm Portfolio Action</h3>
+      <p class="confirm-modal-message" id="portApprovalModalMsg">This action modifies portfolio state.</p>
+      
+      <div class="gh-diff-box" id="portApprovalDiffBox" style="margin: 14px 0; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; max-height: 200px; overflow-y: auto;">
+        <pre style="margin:0; font-family: monospace; font-size: 0.8rem; color: #a5f3fc; white-space: pre-wrap;"><code id="portApprovalDiffCode"></code></pre>
+      </div>
+
+      <div class="confirm-modal-actions">
+        <button type="button" class="btn-confirm-cancel" id="portApprovalModalCancelBtn">Cancel</button>
+        <button type="button" class="btn-confirm-danger" id="portApprovalModalConfirmBtn" style="background: #10b981; border-color: #059669; color: #fff;">
+          <span id="portApprovalConfirmBtnText">Approve & Execute</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Human-in-the-Loop Approval Decision Modal -->
+  <div class="confirm-modal-backdrop" id="githubApprovalModal" aria-hidden="true" style="display:none;">
+    <div class="confirm-modal-card" style="max-width: 640px; width: 92%;">
+      <div class="confirm-modal-badge" id="ghApprovalModalBadge" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.28);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </div>
+      <h3 class="confirm-modal-title" id="ghApprovalModalTitle">Confirm High-Risk GitHub Action</h3>
+      <p class="confirm-modal-message" id="ghApprovalModalMsg">This operation alters repository state.</p>
+      
+      <div class="gh-diff-box" id="ghApprovalDiffBox" style="margin: 14px 0; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; max-height: 200px; overflow-y: auto;">
+        <pre style="margin:0; font-family: monospace; font-size: 0.8rem; color: #a5f3fc; white-space: pre-wrap;"><code id="ghApprovalDiffCode"></code></pre>
+      </div>
+
+      <div class="confirm-modal-actions">
+        <button type="button" class="btn-confirm-cancel" id="ghApprovalModalCancelBtn">Reject Action</button>
+        <button type="button" class="btn-confirm-danger" id="ghApprovalModalConfirmBtn">
+          <span>Approve & Execute</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <!-- Real-Time Voice Mode Overlay (ChatGPT Style) -->
+  <div class="voice-mode-overlay" id="voiceModeOverlay" style="display:none;" aria-hidden="true">
+    <div class="voice-mode-container">
+      <button class="voice-mode-close-btn" id="closeVoiceModeBtn" aria-label="Exit Voice Mode">&times;</button>
+      <div class="voice-mode-orb-container">
+        <div class="voice-orb-glow"></div>
+        <div class="voice-orb-ring ring-1"></div>
+        <div class="voice-orb-ring ring-2"></div>
+        <div class="voice-orb-ring ring-3"></div>
+        <div class="voice-orb-center">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="5" y="8" width="2.5" height="8" rx="1.25"></rect>
+            <rect x="10.75" y="4" width="2.5" height="16" rx="1.25"></rect>
+            <rect x="16.5" y="9" width="2.5" height="6" rx="1.25"></rect>
+          </svg>
+        </div>
+      </div>
+      <div class="voice-mode-status" id="voiceModeStatusText">Listening to Raghul...</div>
+      <div class="voice-mode-transcript" id="voiceModeTranscriptText">Say anything in Tamil or English to converse live.</div>
+      <div class="voice-mode-controls">
+        <button type="button" class="voice-ctrl-btn" id="voiceMuteToggleBtn" title="Mute/Unmute">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+        </button>
+        <button type="button" class="voice-ctrl-btn end-call" id="voiceEndCallBtn" title="End Voice Session">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+    <!-- Dedicated Modal: AI Images Gallery & Studio -->
+  <div class="modal-backdrop" id="imagesGalleryModal" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog-card modal-lg" style="max-width: 940px; width: 92vw; max-height: 88vh; display: flex; flex-direction: column; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;">
+      <div class="modal-card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <h3 style="margin: 0; font-size: 1.15rem; color: #ececec; display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.25rem;">🖼️</span> <span>AI Assistant Generated Images</span>
+          </h3>
+          <span id="galleryCountBadge" style="background: rgba(255,255,255,0.08); color: #d1d5db; font-size: 0.78rem; font-weight: 500; padding: 3px 10px; border-radius: 12px;">0 Images</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button type="button" class="btn btn-primary btn-sm" id="galleryCreateNewBtn" style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; padding: 7px 14px; border-radius: 8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>Generate New Image</span>
+          </button>
+          <button class="modal-close-icon" id="closeImagesGalleryBtn" style="background: none; border: none; color: #9ca3af; font-size: 1.7rem; cursor: pointer; line-height: 1; padding: 0 4px;">&times;</button>
+        </div>
+      </div>
+      <div class="modal-card-body" id="imagesGalleryContainer" style="flex: 1; overflow-y: auto; padding: 22px;">
+        <div class="gallery-grid" id="galleryGrid">
+          <p style="color: var(--text-tertiary); text-align: center; padding: 30px;">Loading AI generated images...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Lightbox Modal for Full View -->
+  <div class="modal-backdrop" id="imageLightboxModal" aria-hidden="true" style="display:none; z-index: 10000;">
+    <div class="lightbox-dialog" style="max-width: 90vw; max-height: 92vh; background: #181818; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 14px; position: relative; box-shadow: 0 24px 60px rgba(0,0,0,0.8);">
+      <button class="modal-close-icon" id="closeLightboxBtn" style="position: absolute; top: 14px; right: 16px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 36px; height: 36px; border-radius: 50%; font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10;">&times;</button>
+      <div style="display: flex; align-items: center; justify-content: center; max-height: 72vh; max-width: 82vw; overflow: hidden; border-radius: 12px; background: #000;">
+        <img id="lightboxImg" src="" alt="AI Generated Artwork" style="max-width: 100%; max-height: 72vh; object-fit: contain; display: block;">
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 4px 6px;">
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <span id="lightboxInfoText" style="color: #ececec; font-size: 0.9rem; font-weight: 500;"></span>
+          <span id="lightboxSubInfo" style="color: #8e8e93; font-size: 0.76rem;">Generated by Raghul AI Engine</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <a id="lightboxDownloadLink" href="" download target="_blank" class="btn btn-secondary btn-sm" style="text-decoration: none; padding: 7px 14px;">Download Full Quality</a>
+          <button id="lightboxUsePromptBtn" class="btn btn-primary btn-sm" style="padding: 7px 14px;">Generate Similar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Dedicated Modal: Scheduled Tasks & Calendar -->
+  <div class="modal-backdrop" id="scheduledModal" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog-card modal-lg">
+      <div class="modal-card-header">
+        <h3>🕒 Scheduled Tasks & Reminders</h3>
+        <button class="modal-close-icon" id="closeScheduledBtn">&times;</button>
+      </div>
+      <div class="modal-card-body" id="scheduledModalContainer">
+        <p style="color: var(--text-tertiary); text-align: center; padding: 30px;">Loading schedule...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dedicated Modal: Library Document Vault -->
+  <div class="modal-backdrop" id="libraryModal" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog-card modal-lg">
+      <div class="modal-card-header">
+        <h3>📚 Document & Knowledge Library</h3>
+        <button class="modal-close-icon" id="closeLibraryBtn">&times;</button>
+      </div>
+      <div class="modal-card-body" id="libraryModalContainer">
+        <p style="color: var(--text-tertiary); text-align: center; padding: 30px;">Loading library documents...</p>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

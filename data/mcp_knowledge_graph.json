@@ -1,0 +1,50 @@
+{
+  "updatedAt": "2026-11-06T03:39:12.840Z",
+  "entities": [
+    {
+      "name": "Raghul Raja",
+      "entityType": "User / Software Engineer",
+      "observations": [
+        "Full-Stack Software Engineer & Student at SKP Engineering College",
+        "Owner of 26 GitHub repositories under @raghul692",
+        "Portfolio live at https://raghulraja.is-a.dev/"
+      ]
+    },
+    {
+      "name": "Nexus AI",
+      "entityType": "Autonomous AI Assistant",
+      "observations": [
+        "High-intelligence AI companion operating at ChatGPT-4o & Claude 3.7 tier",
+        "Equipped with 5-Tier Model Context Protocol (MCP) tool suites"
+      ]
+    },
+    {
+      "name": "Redis Microservice",
+      "entityType": "Service",
+      "observations": [
+        "Cluster port 6379",
+        "Used for rate limiting"
+      ]
+    },
+    {
+      "name": "Express API Server",
+      "entityType": "Backend",
+      "observations": [
+        "Runs on port 3000",
+        "Handles JWT auth"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "from": "Nexus AI",
+      "to": "Raghul Raja",
+      "relationType": "ASSISTS_AND_PAIRS_WITH"
+    },
+    {
+      "from": "Express API Server",
+      "to": "Redis Microservice",
+      "relationType": "CONNECTS_TO"
+    }
+  ]
+}

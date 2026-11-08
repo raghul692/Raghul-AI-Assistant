@@ -1,0 +1,14 @@
+{
+  "servers": {
+    "filesystem": {
+      "enabled": true,
+      "description": "Secure workspace file operations",
+      "type": "builtin"
+    },
+    "system-metrics": {
+      "enabled": true,
+      "description": "Host OS & hardware observability metrics",
+      "type": "builtin"
+    }
+  }
+}

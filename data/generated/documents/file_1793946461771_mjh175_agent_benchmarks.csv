@@ -1,0 +1,3 @@
+Model,Tokens/sec,Accuracy,CostPerM
+Nexus-Agent,185,98.4%,$0.15
+GPT-4o,110,88.2%,$2.50

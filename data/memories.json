@@ -1,0 +1,31 @@
+[
+  {
+    "id": "mem_1",
+    "category": "profile",
+    "key": "user_name",
+    "value": "Raghul (Raghul raja)",
+    "createdAt": 1793786670624
+  },
+  {
+    "id": "mem_2",
+    "category": "profile",
+    "key": "user_role",
+    "value": "Full-Stack Software Engineer & AI System Architect",
+    "createdAt": 1793786670624
+  },
+  {
+    "id": "mem_1793853494720_9sm",
+    "category": "preference",
+    "key": "tech_stack",
+    "value": "for this project",
+    "createdAt": 1793786670624,
+    "updatedAt": 1793853494720
+  },
+  {
+    "id": "mem_4",
+    "category": "preference",
+    "key": "communication_style",
+    "value": "Warm, direct, friendly Tamil & Tanglish conversational tone with production-grade engineering rigor",
+    "createdAt": 1793786670624
+  }
+]
