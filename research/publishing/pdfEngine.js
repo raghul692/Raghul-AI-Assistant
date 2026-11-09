@@ -14,6 +14,51 @@ const REPORTS_DIR = path.join(__dirname, '..', '..', 'data', 'generated', 'resea
 fs.mkdirSync(REPORTS_DIR, { recursive: true });
 
 /**
+ * Parse Markdown Tables into semantic HTML <table>
+ */
+function parseMarkdownTables(text) {
+  const lines = text.split('\n');
+  let inTable = false;
+  let tableHtml = '';
+  const resultLines = [];
+  let isHeader = true;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.startsWith('|') && line.endsWith('|')) {
+      const cells = line.split('|').slice(1, -1).map(c => c.trim());
+      if (cells.every(c => /^:?-+:?$/.test(c))) {
+        continue;
+      }
+      if (!inTable) {
+        inTable = true;
+        isHeader = true;
+        tableHtml = '<table class="data-table"><thead>';
+      }
+      if (isHeader) {
+        tableHtml += '<tr>' + cells.map(c => `<th>${c}</th>`).join('') + '</tr></thead><tbody>';
+        isHeader = false;
+      } else {
+        tableHtml += '<tr>' + cells.map(c => `<td>${c}</td>`).join('') + '</tr>';
+      }
+    } else {
+      if (inTable) {
+        tableHtml += '</tbody></table>';
+        resultLines.push(tableHtml);
+        inTable = false;
+        tableHtml = '';
+      }
+      resultLines.push(lines[i]);
+    }
+  }
+  if (inTable) {
+    tableHtml += '</tbody></table>';
+    resultLines.push(tableHtml);
+  }
+  return resultLines.join('\n');
+}
+
+/**
  * Convert Markdown text to semantic publication HTML with print CSS
  */
 export function convertMarkdownToPrintHtml(markdownText, metadata = {}) {
@@ -23,12 +68,16 @@ export function convertMarkdownToPrintHtml(markdownText, metadata = {}) {
   const sourcesCount = metadata.sourcesCount || 0;
   const citationsCount = metadata.citationsCount || 0;
 
+  // Process code blocks first
+  let processed = markdownText.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+    return `<pre class="code-block"><code class="lang-${lang}">${code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>`;
+  });
+
+  // Process tables
+  processed = parseMarkdownTables(processed);
+
   // Simple, robust Markdown-to-HTML parser for publication formatting
-  let bodyHtml = markdownText
-    // Escape HTML
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+  let bodyHtml = processed
     // Headings
     .replace(/^### (.*$)/gim, '<h3>$1</h3>')
     .replace(/^## (.*$)/gim, '<h2>$1</h2>')

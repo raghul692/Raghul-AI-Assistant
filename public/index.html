@@ -246,6 +246,10 @@
             </button>
             <div class="hubs-popover-menu" id="hubsPopoverMenu" style="display:none;" role="menu">
               <!-- Preserved Original ID Elements for 100% JS Compatibility -->
+              <button id="headerResearchHubBtn" class="hub-menu-item" title="Deep Research Workspace (Click to open)">
+                <span style="font-size: 14px;">🔬</span>
+                <span id="headerResearchStatus">Deep Research Hub</span>
+              </button>
               <button id="headerPortfolioBadgeBtn" class="hub-menu-item" title="Portfolio Intelligence Hub (Click to open)">
                 <span class="status-dot-pulse online"></span>
                 <span id="headerPortfolioStatus">Portfolio: Live</span>
@@ -2636,6 +2640,211 @@
       </div>
     </div>
   </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- DEEP RESEARCH INTELLIGENCE WORKSPACE (ENTERPRISE MODAL)                   -->
+  <!-- ========================================================================= -->
+  <div class="artifact-modal-backdrop" id="deepResearchWorkspaceModal" aria-hidden="true" style="display:none; z-index: 10001;">
+    <div class="artifact-modal-dialog research-workspace-dialog" style="max-width: 1100px; width: 94vw; max-height: 90vh; display: flex; flex-direction: column; background: #121316; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,0.6);">
+      
+      <!-- Top Header -->
+      <div class="artifact-modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); background: #18191e;">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <div style="background: rgba(99,102,241,0.18); color: #818cf8; padding: 5px 12px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+            <span>🔬</span>
+            <span>DEEP RESEARCH WORKSPACE</span>
+          </div>
+          <span style="color: #f1f5f9; font-weight: 600; font-size: 0.95rem;">Tier-1 Autonomous Multi-Agent Intelligence Engine</span>
+          <span style="font-size: 0.75rem; color: #10b981; background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); padding: 2px 8px; border-radius: 12px;" id="drEngineStatusBadge">● Evidence Ledger Active</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" class="btn btn-secondary btn-sm" id="refreshResearchJobsBtn" title="Sync Recent Jobs" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #e2e8f0; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;">
+            🔄 Refresh
+          </button>
+          <button type="button" class="modal-close-icon" id="closeDeepResearchModalBtn" style="background: none; border: none; color: #94a3b8; font-size: 1.6rem; cursor: pointer; padding: 0 4px; line-height: 1;" title="Close">&times;</button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="research-nav-bar" style="display: flex; gap: 4px; padding: 8px 16px; background: #15161b; border-bottom: 1px solid rgba(255,255,255,0.06); overflow-x: auto;">
+        <button type="button" class="dr-nav-tab active" data-drtab="drTabLaunch" style="background: rgba(99,102,241,0.18); color: #818cf8; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">🚀 Launch & Monitor</button>
+        <button type="button" class="dr-nav-tab" data-drtab="drTabSources" style="background: transparent; color: #94a3b8; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">🌐 Sources Explorer (<span id="drSourcesCount">0</span>)</button>
+        <button type="button" class="dr-nav-tab" data-drtab="drTabClaims" style="background: transparent; color: #94a3b8; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">🧬 Claims & Verification (<span id="drClaimsCount">0</span>)</button>
+        <button type="button" class="dr-nav-tab" data-drtab="drTabContradictions" style="background: transparent; color: #94a3b8; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">⚖️ Contradictions (<span id="drContradictionsCount">0</span>)</button>
+        <button type="button" class="dr-nav-tab" data-drtab="drTabDossier" style="background: transparent; color: #94a3b8; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">📑 Report & PDF Dossier</button>
+        <button type="button" class="dr-nav-tab" data-drtab="drTabHistory" style="background: transparent; color: #94a3b8; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">🕒 Past Jobs</button>
+      </div>
+
+      <!-- Tab Content Area -->
+      <div class="research-modal-body" style="flex: 1; overflow-y: auto; padding: 20px; background: #0f1013;">
+        
+        <!-- Tab 1: Launch & Live Monitor -->
+        <div class="dr-tab-pane" id="drTabLaunch" style="display: block;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <!-- Left: Launch Parameters -->
+            <div style="background: #18191e; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 18px;">
+              <h4 style="margin: 0 0 12px 0; color: #f8fafc; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+                <span>🎯</span> Launch New Research Investigation
+              </h4>
+              <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 0.78rem; color: #94a3b8; margin-bottom: 6px; font-weight: 600;">RESEARCH TOPIC OR HYPOTHESIS</label>
+                <textarea id="drQueryInput" rows="3" placeholder="e.g., Comparative analysis of WebAssembly Component Model vs Docker containers in edge computing 2026..." style="width: 100%; box-sizing: border-box; background: #0d0e11; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #f1f5f9; padding: 10px; font-size: 0.85rem; resize: vertical;"></textarea>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                <div>
+                  <label style="display: block; font-size: 0.78rem; color: #94a3b8; margin-bottom: 6px; font-weight: 600;">SEARCH DEPTH</label>
+                  <select id="drModeSelect" style="width: 100%; background: #0d0e11; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #f1f5f9; padding: 8px; font-size: 0.82rem;">
+                    <option value="deep" selected>Deep Research (15+ Sources, Standard)</option>
+                    <option value="quick">Quick Investigation (5+ Sources)</option>
+                    <option value="exhaustive">Exhaustive Literature (25+ Sources)</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.78rem; color: #94a3b8; margin-bottom: 6px; font-weight: 600;">DOMAIN SPECIALIZATION</label>
+                  <select id="drDomainSelect" style="width: 100%; background: #0d0e11; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #f1f5f9; padding: 8px; font-size: 0.82rem;">
+                    <option value="ai_systems" selected>AI & Distributed Systems</option>
+                    <option value="cybersecurity">Cybersecurity & AppSec</option>
+                    <option value="systems_engineering">Systems & Cloud Architecture</option>
+                    <option value="life_sciences">Biomedical & Life Sciences</option>
+                    <option value="general">General Cross-Domain</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 0.78rem; color: #94a3b8; margin-bottom: 6px; font-weight: 600;">REPORT FORMAT SPECIFICATION</label>
+                <select id="drReportTypeSelect" style="width: 100%; background: #0d0e11; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #f1f5f9; padding: 8px; font-size: 0.82rem;">
+                  <option value="technical" selected>Technical Systems Architecture Report</option>
+                  <option value="executive">Executive Decision Briefing</option>
+                  <option value="academic">Academic Literature Review</option>
+                  <option value="comparative">Comparative Benchmark Matrix</option>
+                  <option value="security">Security Threat & CVE Analysis</option>
+                </select>
+              </div>
+
+              <button type="button" id="drLaunchBtn" style="width: 100%; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; border: none; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span>🚀</span> Launch Autonomous Multi-Agent Research
+              </button>
+            </div>
+
+            <!-- Right: Real-Time Execution Monitor -->
+            <div style="background: #18191e; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 18px; display: flex; flex-direction: column;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="margin: 0; color: #f8fafc; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+                  <span>📡</span> Live Execution State
+                </h4>
+                <span id="drLiveJobIdTag" style="font-size: 0.75rem; color: #94a3b8; font-family: monospace;">No Active Job</span>
+              </div>
+
+              <!-- Progress Bar -->
+              <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; margin-bottom: 12px;">
+                <div id="drProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #6366f1, #10b981); transition: width 0.4s ease;"></div>
+              </div>
+
+              <!-- Current Stage Banner -->
+              <div id="drCurrentStageBanner" style="padding: 10px 14px; background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); border-radius: 8px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px;">
+                <span class="status-dot-pulse online" style="width: 8px; height: 8px; background: #818cf8; border-radius: 50%;"></span>
+                <span id="drCurrentStageText" style="font-size: 0.82rem; color: #cbd5e1; font-weight: 500;">Ready to initialize research workflow...</span>
+              </div>
+
+              <!-- Metric Badges Grid -->
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px;">
+                <div style="background: #0d0e11; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); text-align: center;">
+                  <div id="drMetricSources" style="font-size: 1.25rem; font-weight: 700; color: #38bdf8;">0</div>
+                  <div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase;">Sources</div>
+                </div>
+                <div style="background: #0d0e11; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); text-align: center;">
+                  <div id="drMetricClaims" style="font-size: 1.25rem; font-weight: 700; color: #818cf8;">0</div>
+                  <div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase;">Claims</div>
+                </div>
+                <div style="background: #0d0e11; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); text-align: center;">
+                  <div id="drMetricVerified" style="font-size: 1.25rem; font-weight: 700; color: #10b981;">0</div>
+                  <div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase;">Verified</div>
+                </div>
+              </div>
+
+              <!-- Live Execution Event Stream -->
+              <div id="drLiveLogContainer" style="flex: 1; min-height: 140px; max-height: 200px; background: #0a0b0d; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 10px; overflow-y: auto; font-family: monospace; font-size: 0.75rem; color: #94a3b8;">
+                <div style="color: #64748b;">[System] Standing by for research prompt...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Sources Explorer -->
+        <div class="dr-tab-pane" id="drTabSources" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <h4 style="margin: 0; color: #f8fafc; font-size: 0.95rem;">🌐 Discovered & Extracted Evidence Sources</h4>
+            <span style="font-size: 0.8rem; color: #94a3b8;">Multi-source authority ranking</span>
+          </div>
+          <div id="drSourcesListContainer" style="display: grid; grid-template-columns: 1fr; gap: 10px;">
+            <p style="color: #64748b; text-align: center; padding: 30px;">No sources discovered yet. Launch an investigation to inspect sources.</p>
+          </div>
+        </div>
+
+        <!-- Tab 3: Claims & Verification Matrix -->
+        <div class="dr-tab-pane" id="drTabClaims" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+            <h4 style="margin: 0; color: #f8fafc; font-size: 0.95rem;">🧬 Forensic Atomic Claims & Verification Ledger</h4>
+            <div style="display: flex; gap: 6px;">
+              <button type="button" class="dr-claim-filter-btn active" data-claimfilter="ALL" style="background: rgba(255,255,255,0.1); color: #fff; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">All</button>
+              <button type="button" class="dr-claim-filter-btn" data-claimfilter="SUPPORTED" style="background: transparent; color: #10b981; border: 1px solid rgba(16,185,129,0.3); padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Supported</button>
+              <button type="button" class="dr-claim-filter-btn" data-claimfilter="DISPUTED" style="background: transparent; color: #f43f5e; border: 1px solid rgba(244,63,94,0.3); padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Disputed</button>
+              <button type="button" class="dr-claim-filter-btn" data-claimfilter="UNVERIFIED" style="background: transparent; color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Unverified</button>
+            </div>
+          </div>
+          <div id="drClaimsTableContainer" style="overflow-x: auto; background: #14151a; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+            <p style="color: #64748b; text-align: center; padding: 30px;">No atomic claims extracted yet.</p>
+          </div>
+        </div>
+
+        <!-- Tab 4: Contradictions -->
+        <div class="dr-tab-pane" id="drTabContradictions" style="display: none;">
+          <div style="margin-bottom: 14px;">
+            <h4 style="margin: 0; color: #f8fafc; font-size: 0.95rem;">⚖️ Cross-Source Contradictions & Divergences</h4>
+            <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Incompatible assertions detected across independent documentation sources.</p>
+          </div>
+          <div id="drContradictionsContainer">
+            <p style="color: #64748b; text-align: center; padding: 30px;">Zero unresolved contradictions recorded.</p>
+          </div>
+        </div>
+
+        <!-- Tab 5: Report & PDF Dossier -->
+        <div class="dr-tab-pane" id="drTabDossier" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <h4 id="drDossierTitle" style="margin: 0; color: #f8fafc; font-size: 1.05rem;">Research Dossier</h4>
+              <span id="drDossierMeta" style="font-size: 0.78rem; color: #94a3b8;">Publication Preview</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <a id="drDownloadPdfBtn" href="#" download class="btn btn-primary btn-sm" style="display: none; align-items: center; gap: 6px; text-decoration: none; padding: 6px 14px; background: #6366f1; color: #fff; border-radius: 6px; font-weight: 600; font-size: 0.82rem;">
+                📥 Download A4 PDF
+              </a>
+              <button type="button" id="drCopyMarkdownBtn" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #e2e8f0; padding: 6px 12px; border-radius: 6px; font-size: 0.82rem; cursor: pointer;">
+                📋 Copy Markdown
+              </button>
+            </div>
+          </div>
+          <div id="drDossierContent" style="background: #14151a; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 22px; max-height: 55vh; overflow-y: auto; color: #e2e8f0; line-height: 1.6; font-size: 0.9rem;">
+            <p style="color: #64748b; text-align: center; padding: 30px;">No research dossier generated yet. Run an investigation to produce publication deliverables.</p>
+          </div>
+        </div>
+
+        <!-- Tab 6: Past Jobs -->
+        <div class="dr-tab-pane" id="drTabHistory" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <h4 style="margin: 0; color: #f8fafc; font-size: 0.95rem;">🕒 Past Research Investigations</h4>
+            <span style="font-size: 0.8rem; color: #94a3b8;">Persistent SQLite audit records</span>
+          </div>
+          <div id="drHistoryContainer">
+            <p style="color: #64748b; text-align: center; padding: 30px;">Loading research jobs history...</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
 
   <!-- Dedicated Modal: Scheduled Tasks & Calendar -->

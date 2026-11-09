@@ -32,12 +32,13 @@ export class ResearchRepository {
     return stmt.all(limit).map(j => ({ ...j, require_approval: Boolean(j.require_approval) }));
   }
 
-  static updateJobProgress(id, { stage, progress, status, error = null }) {
+  static updateJobProgress(id, { stage, currentStage, progress, status, error = null }) {
     const now = Date.now();
     const updates = ['updated_at = ?'];
     const params = [now];
 
-    if (stage !== undefined) { updates.push('current_stage = ?'); params.push(stage); }
+    const effectiveStage = stage !== undefined ? stage : currentStage;
+    if (effectiveStage !== undefined) { updates.push('current_stage = ?'); params.push(effectiveStage); }
     if (progress !== undefined) { updates.push('progress = ?'); params.push(progress); }
     if (status !== undefined) { updates.push('status = ?'); params.push(status); }
     if (error !== undefined) { updates.push('error_message = ?'); params.push(error); }
@@ -489,7 +490,7 @@ export class ResearchRepository {
     const runId = `run_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
     db.prepare(`
       INSERT INTO research_runs (
-        id, job_id, agent_role, provider, model, stepName, prompt_tokens,
+        id, job_id, agent_role, provider, model, step_name, prompt_tokens,
         completion_tokens, cost_usd, duration_ms, status, created_at
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
@@ -498,6 +499,10 @@ export class ResearchRepository {
     );
     this.updateJobCounts(jobId, { spentUsd: costUsd, tokens: promptTokens + completionTokens });
     return runId;
+  }
+
+  static getRunsByJobId(jobId) {
+    return db.prepare('SELECT * FROM research_runs WHERE job_id = ? ORDER BY created_at ASC').all(jobId);
   }
 }
 
@@ -540,5 +545,6 @@ export const researchRepository = {
   getQualityCheckByJobId: (jobId) => ResearchRepository.getQualityCheckByJobId(jobId),
   saveArtifact: (args) => ResearchRepository.saveArtifact(args),
   getArtifacts: (jobId) => ResearchRepository.getArtifactsByJobId(jobId),
-  recordRun: (args) => ResearchRepository.recordRun(args)
+  recordRun: (args) => ResearchRepository.recordRun(args),
+  getRunsByJobId: (jobId) => ResearchRepository.getRunsByJobId(jobId)
 };

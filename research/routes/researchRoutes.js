@@ -173,6 +173,32 @@ researchRouter.get('/jobs/:id', (req, res) => {
   });
 });
 
+// 5b. Get Canonical Structured Report Preview
+researchRouter.get('/jobs/:id/preview', (req, res) => {
+  const jobId = req.params.id;
+  const job = researchRepository.getJob(jobId);
+  if (!job) return res.status(404).json({ error: 'Job not found' });
+
+  const sources = researchRepository.getSources(jobId);
+  const claims = researchRepository.getClaims(jobId);
+  const sections = researchRepository.getSections(jobId);
+  const contradictions = researchRepository.getContradictionsByJobId(jobId);
+  const quality = researchRepository.getQualityCheckByJobId(jobId);
+
+  res.json({
+    success: true,
+    jobId,
+    title: job.title,
+    status: job.status,
+    finalReportMarkdown: job.final_report_markdown || '',
+    sections,
+    sourcesCount: sources.length,
+    claimsCount: claims.length,
+    contradictionsCount: contradictions.length,
+    qualityCheck: quality
+  });
+});
+
 // 6. Generate & Validate PDF Report On-Demand
 researchRouter.post('/jobs/:id/export/pdf', async (req, res) => {
   const jobId = req.params.id;

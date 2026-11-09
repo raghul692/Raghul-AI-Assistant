@@ -3326,6 +3326,12 @@ function setupEventListeners() {
         userInput.placeholder = 'Enter deep research topic or hypothesis...';
         updateComposerState();
         userInput.focus();
+        const drModal = document.getElementById('deepResearchWorkspaceModal');
+        if (drModal && drModal.style.display === 'none') {
+          drModal.style.display = 'flex';
+          drModal.setAttribute('aria-hidden', 'false');
+          if (typeof loadResearchHistory === 'function') loadResearchHistory();
+        }
       } else if (mode === 'work') {
         selectPersona('coordinator');
         state.isDeepResearch = false;
@@ -7685,3 +7691,328 @@ async function handleVoiceQuery(queryText) {
     if (transcriptText) transcriptText.textContent = 'Error processing voice: ' + err.message;
   }
 }
+
+// =========================================================================
+// DEEP RESEARCH INTELLIGENCE WORKSPACE CONTROLLER
+// =========================================================================
+let activeResearchEventSource = null;
+let currentResearchJobId = null;
+
+function initDeepResearchWorkspace() {
+  const modal = document.getElementById('deepResearchWorkspaceModal');
+  const openHubBtn = document.getElementById('headerResearchHubBtn');
+  const closeBtn = document.getElementById('closeDeepResearchModalBtn');
+  const refreshBtn = document.getElementById('refreshResearchJobsBtn');
+  const launchBtn = document.getElementById('drLaunchBtn');
+  const tabs = document.querySelectorAll('.dr-nav-tab');
+
+  if (!modal) return;
+
+  function openModal() {
+    modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden', 'false');
+    loadResearchHistory();
+  }
+
+  function closeModal() {
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  if (openHubBtn) openHubBtn.addEventListener('click', openModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+  // Close on backdrop click or Escape
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.style.display !== 'none') closeModal();
+  });
+
+  // Tab Switching
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => {
+        t.classList.remove('active');
+        t.style.background = 'transparent';
+        t.style.color = '#94a3b8';
+      });
+      tab.classList.add('active');
+      tab.style.background = 'rgba(99,102,241,0.18)';
+      tab.style.color = '#818cf8';
+
+      const targetId = tab.dataset.drtab;
+      document.querySelectorAll('.dr-tab-pane').forEach(p => p.style.display = 'none');
+      const targetPane = document.getElementById(targetId);
+      if (targetPane) targetPane.style.display = 'block';
+
+      if (targetId === 'drTabHistory') loadResearchHistory();
+    });
+  });
+
+  // Launch Button Handler
+  if (launchBtn) {
+    launchBtn.addEventListener('click', async () => {
+      const queryInput = document.getElementById('drQueryInput');
+      const modeSelect = document.getElementById('drModeSelect');
+      const domainSelect = document.getElementById('drDomainSelect');
+      const reportTypeSelect = document.getElementById('drReportTypeSelect');
+
+      const query = queryInput ? queryInput.value.trim() : '';
+      if (!query) {
+        alert('Please enter a research topic or hypothesis.');
+        return;
+      }
+
+      const mode = modeSelect ? modeSelect.value : 'deep';
+      const domain = domainSelect ? domainSelect.value : 'ai_systems';
+      const reportType = reportTypeSelect ? reportTypeSelect.value : 'technical';
+
+      launchBtn.disabled = true;
+      launchBtn.innerHTML = '<span>⏳</span> Initializing Research...';
+
+      try {
+        const res = await fetch('/api/research/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, mode, domain, reportType, requirePlanApproval: false })
+        });
+        const data = await res.json();
+        if (data.jobId) {
+          currentResearchJobId = data.jobId;
+          connectResearchStream(data.jobId);
+        }
+      } catch (err) {
+        alert('Failed to launch research job: ' + err.message);
+      } finally {
+        launchBtn.disabled = false;
+        launchBtn.innerHTML = '<span>🚀</span> Launch Autonomous Multi-Agent Research';
+      }
+    });
+  }
+
+  if (refreshBtn) refreshBtn.addEventListener('click', loadResearchHistory);
+
+  // Copy Markdown
+  const copyMdBtn = document.getElementById('drCopyMarkdownBtn');
+  if (copyMdBtn) {
+    copyMdBtn.addEventListener('click', () => {
+      const content = document.getElementById('drDossierContent');
+      if (content) {
+        navigator.clipboard.writeText(content.innerText);
+        copyMdBtn.textContent = '✅ Copied!';
+        setTimeout(() => copyMdBtn.textContent = '📋 Copy Markdown', 2000);
+      }
+    });
+  }
+}
+
+function connectResearchStream(jobId) {
+  if (activeResearchEventSource) {
+    activeResearchEventSource.close();
+  }
+
+  const logContainer = document.getElementById('drLiveLogContainer');
+  const stageBanner = document.getElementById('drCurrentStageText');
+  const progressBar = document.getElementById('drProgressBar');
+  const jobIdTag = document.getElementById('drLiveJobIdTag');
+
+  if (jobIdTag) jobIdTag.textContent = `Job: ${jobId}`;
+  if (logContainer) logContainer.innerHTML = `<div style="color: #818cf8;">[Stream] Connected to live SSE research stream for ${jobId}</div>`;
+
+  activeResearchEventSource = new EventSource(`/api/research/jobs/${jobId}/stream`);
+
+  activeResearchEventSource.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      if (data.type === 'connected') return;
+
+      // Update progress
+      if (typeof data.progress === 'number' && progressBar) {
+        progressBar.style.width = `${data.progress}%`;
+      }
+
+      // Update stage text
+      if (data.message && stageBanner) {
+        stageBanner.textContent = `[${data.step || 'RUNNING'}] ${data.message}`;
+      }
+
+      // Append log entry
+      if (logContainer && (data.message || data.step)) {
+        const row = document.createElement('div');
+        row.style.marginBottom = '4px';
+        const badge = data.badge || data.step || 'EVENT';
+        row.innerHTML = `<span style="color: #818cf8; font-weight: 600;">${escapeHtml(badge)}:</span> ${escapeHtml(data.message || '')}`;
+        logContainer.appendChild(row);
+        logContainer.scrollTop = logContainer.scrollHeight;
+      }
+
+      // Update counters
+      if (data.sourcesCount !== undefined) {
+        const el = document.getElementById('drMetricSources');
+        const tabEl = document.getElementById('drSourcesCount');
+        if (el) el.textContent = data.sourcesCount;
+        if (tabEl) tabEl.textContent = data.sourcesCount;
+      }
+      if (data.claimsCount !== undefined) {
+        const el = document.getElementById('drMetricClaims');
+        const tabEl = document.getElementById('drClaimsCount');
+        if (el) el.textContent = data.claimsCount;
+        if (tabEl) tabEl.textContent = data.claimsCount;
+      }
+      if (data.verifiedClaimsCount !== undefined) {
+        const el = document.getElementById('drMetricVerified');
+        if (el) el.textContent = data.verifiedClaimsCount;
+      }
+
+      // If PDF ready or job completed
+      if (data.step === 'completed' || data.step === 'pdf_ready') {
+        const downloadBtn = document.getElementById('drDownloadPdfBtn');
+        if (downloadBtn && data.pdfUrl) {
+          downloadBtn.href = data.pdfUrl;
+          downloadBtn.style.display = 'inline-flex';
+        }
+        loadJobDetailsIntoWorkspace(jobId);
+      }
+    } catch (_) {}
+  };
+
+  activeResearchEventSource.onerror = () => {
+    if (activeResearchEventSource) activeResearchEventSource.close();
+  };
+}
+
+async function loadJobDetailsIntoWorkspace(jobId) {
+  try {
+    const res = await fetch(`/api/research/jobs/${jobId}`);
+    if (!res.ok) return;
+    const data = await res.json();
+
+    // Populate Sources
+    const sourcesContainer = document.getElementById('drSourcesListContainer');
+    if (sourcesContainer && Array.isArray(data.sources)) {
+      if (data.sources.length === 0) {
+        sourcesContainer.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px;">No sources recorded.</p>';
+      } else {
+        sourcesContainer.innerHTML = data.sources.map(s => `
+          <div style="background: #18191e; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-weight: 600; color: #f1f5f9; font-size: 0.88rem;">${escapeHtml(s.title || s.domain)}</div>
+              <div style="font-size: 0.76rem; color: #94a3b8; display: flex; gap: 8px; margin-top: 4px;">
+                <span>${escapeHtml(s.domain)}</span> • 
+                <span>${escapeHtml(s.published_date || 'n.d.')}</span>
+                ${s.is_primary_source ? '<span style="color: #818cf8; font-weight: 600;">Primary Source</span>' : ''}
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <span style="background: rgba(16,185,129,0.15); color: #10b981; font-weight: 700; font-size: 0.75rem; padding: 3px 8px; border-radius: 4px;">
+                ${Math.round((s.credibility_score || 0.5) * 100)}% Authority
+              </span>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Populate Claims Table
+    const claimsContainer = document.getElementById('drClaimsTableContainer');
+    if (claimsContainer && Array.isArray(data.claims)) {
+      if (data.claims.length === 0) {
+        claimsContainer.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px;">No claims recorded.</p>';
+      } else {
+        let tableHtml = `
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem; text-align: left;">
+            <thead>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); color: #cbd5e1;">
+                <th style="padding: 10px 12px;">Assertion Statement</th>
+                <th style="padding: 10px 12px;">Category</th>
+                <th style="padding: 10px 12px;">Verification Status</th>
+                <th style="padding: 10px 12px;">Confidence</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+        data.claims.forEach(c => {
+          const statusColor = c.verification_status === 'SUPPORTED' ? '#10b981' : (c.verification_status === 'DISPUTED' ? '#f43f5e' : '#94a3b8');
+          tableHtml += `
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+              <td style="padding: 10px 12px; color: #f1f5f9; font-weight: 500;">${escapeHtml(c.statement)}</td>
+              <td style="padding: 10px 12px; color: #94a3b8;">${escapeHtml(c.category)}</td>
+              <td style="padding: 10px 12px;"><span style="color: ${statusColor}; font-weight: 700;">${escapeHtml(c.verification_status)}</span></td>
+              <td style="padding: 10px 12px; color: #cbd5e1;">${Math.round((c.confidence_score || 0.5) * 100)}%</td>
+            </tr>
+          `;
+        });
+        tableHtml += '</tbody></table>';
+        claimsContainer.innerHTML = tableHtml;
+      }
+    }
+
+    // Populate Dossier
+    const dossierContent = document.getElementById('drDossierContent');
+    const dossierTitle = document.getElementById('drDossierTitle');
+    if (dossierTitle && data.job?.title) dossierTitle.textContent = data.job.title;
+    if (dossierContent && data.job?.final_report_markdown) {
+      dossierContent.innerHTML = parseMarkdown(data.job.final_report_markdown);
+    }
+  } catch (e) {
+    console.warn('Failed to load job details into workspace:', e);
+  }
+}
+
+async function loadResearchHistory() {
+  const container = document.getElementById('drHistoryContainer');
+  if (!container) return;
+
+  container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px;">Fetching research history...</p>';
+
+  try {
+    const res = await fetch('/api/research/jobs');
+    if (!res.ok) throw new Error('API returned ' + res.status);
+    const data = await res.json();
+    const jobs = data.jobs || [];
+
+    if (jobs.length === 0) {
+      container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 30px;">No research jobs recorded yet.</p>';
+      return;
+    }
+
+    container.innerHTML = `
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        ${jobs.map(j => {
+          const dateStr = new Date(j.created_at).toLocaleString();
+          const statusBadgeColor = j.status === 'COMPLETED' ? '#10b981' : (j.status === 'FAILED' ? '#f43f5e' : '#818cf8');
+          return `
+            <div style="background: #18191e; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-weight: 600; color: #f1f5f9; font-size: 0.9rem;">${escapeHtml(j.user_query || j.title || 'Untitled Research')}</div>
+                <div style="font-size: 0.75rem; color: #94a3b8; display: flex; gap: 8px; margin-top: 4px;">
+                  <span>Mode: <strong>${escapeHtml(j.mode)}</strong></span> • 
+                  <span>Claims: <strong>${j.claims_count}</strong></span> • 
+                  <span>${dateStr}</span>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 0.75rem; font-weight: 700; color: ${statusBadgeColor};">${escapeHtml(j.status)}</span>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="loadJobDetailsIntoWorkspace('${j.id}')" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 0.78rem; cursor: pointer;">
+                  Open Dossier
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  } catch (err) {
+    container.innerHTML = `<p style="color: #f43f5e; text-align: center; padding: 20px;">Failed to load history: ${escapeHtml(err.message)}</p>`;
+  }
+}
+
+// Auto-initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initDeepResearchWorkspace);
+} else {
+  initDeepResearchWorkspace();
+}
+
