@@ -548,7 +548,8 @@ export class GitHubMCPGateway {
    */
   async resolveRepoName(inputName, owner = 'raghul692') {
     if (!inputName) return null;
-    const clean = inputName.trim().toLowerCase().replace(/^raghul692\//, '').replace(/\.git$/, '');
+    const rawTrimmed = inputName.trim().replace(/^raghul692\//i, '').replace(/\.git$/i, '');
+    const clean = rawTrimmed.toLowerCase();
     
     // Direct check first
     try {
@@ -570,17 +571,20 @@ export class GitHubMCPGateway {
         const exact = repos.find(r => r.name.toLowerCase() === clean);
         if (exact) return exact.name;
 
-        // 2. Substring or keyword match
-        const keywords = clean.split(/[-_\s]+/).filter(k => k.length > 2);
-        const matched = repos.find(r => {
-          const rLower = r.name.toLowerCase();
-          return keywords.some(k => rLower.includes(k));
-        });
-        if (matched) return matched.name;
+        // 2. High-confidence significant keyword match (avoids stop-word hijacking like 'app' or 'project')
+        const stopWords = ['the', 'my', 'app', 'application', 'project', 'new', 'repo', 'repository', 'system'];
+        const significantKeywords = clean.split(/[-_\s]+/).filter(k => k.length > 2 && !stopWords.includes(k));
+        if (significantKeywords.length > 0) {
+          const matched = repos.find(r => {
+            const rWords = r.name.toLowerCase().split(/[-_\s]+/);
+            return significantKeywords.every(k => rWords.some(rw => rw === k || rw.startsWith(k)));
+          });
+          if (matched) return matched.name;
+        }
       }
     } catch (e) {}
 
-    return clean;
+    return rawTrimmed;
   }
 
   /**

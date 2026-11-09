@@ -1069,10 +1069,13 @@ You have authenticated access to @raghul692's repositories.`;
     // 0. Priority Intent: Autonomous Deep Research Mode (Tier-1 Multi-Source Investigative Engine)
     const isExplicitDeepResearch = Boolean(req.body.isDeepResearch) || /^\/(?:research|deepresearch)\b/i.test(sanitizedMessage);
     const isPersonaDeepResearcher = (personaKey === 'researcher' || chat.persona === 'researcher');
-    const hasResearchKeywords = /(?:\bdeep\s*research\b|\bieee\s*(?:pdf|report|paper)\b|\bresearch\s*(?:report|paper|dossier)\b|\bpdf\s*report\b)/i.test(sanitizedMessage);
+    const hasResearchKeywords = /(?:\bdeep\s*research\b|\bexhaustive\s*research\b|\bcomprehensive\s*research\b|\bieee\s*(?:pdf|report|paper)\b|\bresearch\s*(?:report|paper|dossier|investigation)\b|\bpdf\s*(?:research\s*)?report\b)/i.test(sanitizedMessage);
 
     const isDeepResearch = isExplicitDeepResearch || isPersonaDeepResearcher || hasResearchKeywords;
-    const researchQuery = sanitizedMessage.replace(/^\/(?:research|deepresearch)\s*/i, '').trim();
+    const researchQuery = sanitizedMessage
+      .replace(/^\/(?:research|deepresearch)\s*/i, '')
+      .replace(/^(?:please\s+)?(?:do|conduct|run|perform)\s+(?:a\s+)?(?:deep\s*research|comprehensive\s*research|exhaustive\s*research)\s+(?:on|about|into)?\s*/i, '')
+      .trim();
 
     if (isDeepResearch && researchQuery) {
       sendSSE({ type: 'status', text: '🔬 Nexus Deep Research Engine: Launching multi-vector autonomous investigation...' });

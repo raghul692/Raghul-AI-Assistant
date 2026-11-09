@@ -52,6 +52,13 @@ export class GitHubAgent {
       return false;
     }
 
+    // Conceptual / educational questions about Git or software concepts without operational action
+    const isConceptQuestion = /(?:what\s+is|what\s+are|how\s+(?:does|do|to)|explain|difference\s+between|compare)\b/i.test(lower);
+    const hasExplicitTarget = /(?:my\s+repos|in\s+repo|from\s+repo|raghul692|\.github\/workflows)/i.test(lower);
+    if (isConceptQuestion && !hasOperationalGitAction && !hasExplicitTarget) {
+      return false;
+    }
+
     // 1. Explicit keywords with strict word boundaries to avoid matching "report" as "repo"
     const gitWordBoundaryRegex = /\b(repo|repository|repositories|commit|commits|branch|branches|pull request|issue|issues|clone|fork|git push|git clone)\b/i;
     const phraseKeywords = [
@@ -141,39 +148,72 @@ export class GitHubAgent {
    * Helper to extract candidate repo name from message
    */
   async extractRepoName(message = '') {
-    if (!message) return null;
-    const lower = message.toLowerCase();
+    if (!message || typeof message !== 'string') return null;
+    const cleanMsg = message.trim();
 
-    // 1. Direct match against user's actual repositories (exact substring check)
+    // 1. Explicit GitHub URL extraction (Priority 1)
+    const urlMatch = cleanMsg.match(/(?:https?:\/\/)?(?:www\.)?github\.com\/([a-zA-Z0-9_\-\.]+)\/([a-zA-Z0-9_\-\.]+)/i);
+    if (urlMatch && urlMatch[2]) {
+      const repo = urlMatch[2].replace(/\.git$/i, '').replace(/["'`>)!,;:]+$/, '');
+      const reserved = ['repositories', 'stars', 'settings', 'pulls', 'issues', 'notifications', 'orgs'];
+      if (!reserved.includes(repo.toLowerCase()) && repo.length >= 2) {
+        return repo;
+      }
+    }
+
+    // 2. Explicit Keyword Pattern (Priority 2)
+    const explicitMatch = 
+      // 2a. Colon or equals syntax: repo: name, repository: name, repo=name
+      cleanMsg.match(/(?:^|[^\w])(?:repo|repository)\s*[:=]\s*["'`]?([a-zA-Z0-9_\-\.]+(?:\/[a-zA-Z0-9_\-\.]+)?)(?:\.git)?["'`]?(?=[^\w\-\/]|$)/i) ||
+      // 2b. Named/called syntax: repo named name, repository called name
+      cleanMsg.match(/(?:^|[^\w])(?:repo|repository)\s+(?:named|name|called|is|for)\s*[:=\s]+["'`]?([a-zA-Z0-9_\-\.]+(?:\/[a-zA-Z0-9_\-\.]+)?)(?:\.git)?["'`]?(?=[^\w\-\/]|$)/i) ||
+      // 2c. Quoted name: repo "name", repository 'name', repo `name`
+      cleanMsg.match(/(?:^|[^\w])(?:repo|repository)\s*["'`]+([a-zA-Z0-9_\-\.]+(?:\/[a-zA-Z0-9_\-\.]+)?)(?:\.git)?["'`]+(?=[^\w\-\/]|$)/i) ||
+      // 2d. Preposition syntax: in repo name, from repository name, to the repo owner/name
+      cleanMsg.match(/(?:in|from|to|on)\s+(?:the\s+)?(?:repo|repository)\s*[:=\s]+["'`]?([a-zA-Z0-9_\-\.]+(?:\/[a-zA-Z0-9_\-\.]+)?)(?:\.git)?["'`]?(?=[^\w\-\/]|$)/i) ||
+      // 2e. Short prefix 'repo <ident>'
+      cleanMsg.match(/(?:^|[^\w])repo\s+["'`]?([a-zA-Z0-9_\-\.]+(?:\/[a-zA-Z0-9_\-\.]+)?)(?:\.git)?["'`]?(?=[^\w\-\/]|$)/i);
+
+    if (explicitMatch && explicitMatch[1]) {
+      let raw = explicitMatch[1].trim().replace(/^["'`]+|["'`]+$/g, '').replace(/[)!,;:]+$/, '');
+      if (raw.includes('/')) {
+        const parts = raw.split('/');
+        raw = parts[parts.length - 1];
+      }
+      const cand = raw.toLowerCase();
+      const genericWords = [
+        'the', 'my', 'a', 'an', 'new', 'this', 'that', 'recent', 'latest', 'all', 'any',
+        'structures', 'pattern', 'patterns', 'design', 'architecture', 'guidelines',
+        'workflow', 'workflows', 'actions', 'management', 'strategy', 'strategies', 'lifecycle'
+      ];
+      if (!genericWords.includes(cand) && cand.length >= 2) {
+        return await githubMcpGateway.resolveRepoName(raw);
+      }
+    }
+
+    // 3. Direct Match against User's Actual Repositories (Priority 3)
     try {
       const repos = await githubMcpGateway.listRepositories({ perPage: 100 });
       if (Array.isArray(repos)) {
-        // Sort longest name first to avoid prefix collisions
         const sorted = [...repos].sort((a, b) => b.name.length - a.name.length);
+        const lower = cleanMsg.toLowerCase();
         for (const r of sorted) {
           const rLower = r.name.toLowerCase();
-          if (lower.includes(rLower)) {
+          if (rLower.length < 3) continue;
+          const escaped = rLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const tokenRegex = new RegExp(`(?:^|[^a-zA-Z0-9_\\-])${escaped}(?:[^a-zA-Z0-9_\\-]|$)`, 'i');
+          if (tokenRegex.test(lower)) {
             return r.name;
           }
         }
       }
     } catch (e) {}
 
-    // 2. Check for explicit repo name patterns like repo: "name" or repo name (must require 'repo' or 'repository' keyword)
-    const explicitMatch = message.match(/(?:repo|repository)\s+(?:named|name|called|is|for)?\s*[:\s]*([a-zA-Z0-9_\-]+)/i) ||
-                          message.match(/(?:in|from|to|on)\s+(?:the\s+)?(?:repo|repository)\s*[:\s]*([a-zA-Z0-9_\-]+)/i);
-    if (explicitMatch && explicitMatch[1]) {
-      const cand = explicitMatch[1].toLowerCase();
-      if (!['the', 'my', 'a', 'an', 'new', 'this', 'that', 'recent', 'latest'].includes(cand)) {
-        return await githubMcpGateway.resolveRepoName(explicitMatch[1]);
-      }
-    }
-
-    // 3. Fallback: match known keywords
-    if (/modern-saas|saas-landing|landing/i.test(message)) {
+    // 4. Fallback: match known project aliases with strict boundaries
+    if (/\b(?:modern[-_]saas|saas[-_]landing)\b/i.test(cleanMsg)) {
       return 'modern-saas-landing-page';
     }
-    if (/portfolio/i.test(message)) {
+    if (/\bportfolio\s*(?:repo|code|repository)?\b/i.test(cleanMsg) && /\b(?:repo|repository|code|github)\b/i.test(cleanMsg)) {
       return 'raghulraja_portfolio';
     }
 

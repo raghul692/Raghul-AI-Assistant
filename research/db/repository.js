@@ -74,10 +74,21 @@ export class ResearchRepository {
   }
 
   // --- Plans ---
-  static savePlan({ jobId, title, domain, timeSensitivity, targetEntities, constraints, subtopics, primaryQuestions, searchStrategy, approved = 0 }) {
+  static savePlan({ jobId, title, domain, timeSensitivity, targetEntities, constraints, subtopics, primaryQuestions, searchStrategy, planData, approved = 0, status }) {
+    let parsedPlan = {};
+    if (planData) {
+      try { parsedPlan = typeof planData === 'string' ? JSON.parse(planData) : planData; } catch (e) {}
+    }
+    const effectiveSubtopics = subtopics || parsedPlan.subtopics || [];
+    const effectivePrimaryQuestions = primaryQuestions || parsedPlan.primaryQuestions || [];
+    const effectiveTargetEntities = targetEntities || parsedPlan.targetEntities || [];
+    const effectiveConstraints = constraints || parsedPlan.constraints || [];
+    const effectiveSearchStrategy = searchStrategy || parsedPlan.searchStrategy || {};
+
     const planId = `rplan_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
     const effectiveTitle = title || 'Autonomous Research Investigation Plan';
     const now = Date.now();
+    const isApproved = approved ? 1 : (status === 'approved' ? 1 : 0);
     const stmt = db.prepare(`
       INSERT INTO research_plans (
         id, job_id, title, domain, time_sensitivity, target_entities, constraints,
@@ -85,10 +96,10 @@ export class ResearchRepository {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     stmt.run(
-      planId, jobId, effectiveTitle, domain || 'technology', timeSensitivity || 'current',
-      JSON.stringify(targetEntities || []), JSON.stringify(constraints || []),
-      JSON.stringify(subtopics || []), JSON.stringify(primaryQuestions || []),
-      JSON.stringify(searchStrategy || {}), approved ? 1 : 0, now, now
+      planId, jobId, effectiveTitle, domain || parsedPlan.domain || 'technology', timeSensitivity || 'current',
+      JSON.stringify(effectiveTargetEntities), JSON.stringify(effectiveConstraints),
+      JSON.stringify(effectiveSubtopics), JSON.stringify(effectivePrimaryQuestions),
+      JSON.stringify(effectiveSearchStrategy), isApproved, now, now
     );
     return this.getPlanByJobId(jobId);
   }
@@ -520,6 +531,8 @@ export const researchRepository = {
   approvePlan: (jobId, feedback) => ResearchRepository.approvePlan(jobId, feedback),
   addQuery: (args) => ResearchRepository.addQuery(args),
   saveQuery: (args) => ResearchRepository.addQuery({ ...args, query: args.queryText || args.query }),
+  getQueries: (jobId) => db.prepare('SELECT * FROM research_queries WHERE job_id = ?').all(jobId),
+  getQueriesByJobId: (jobId) => db.prepare('SELECT * FROM research_queries WHERE job_id = ?').all(jobId),
   addSource: (args) => ResearchRepository.addSource(args),
   saveSource: (args) => ResearchRepository.addSource({ ...args, category: args.sourceType || 'web', credibilityScore: args.confidenceScore || 0.7, isPrimarySource: Boolean(args.isPrimary) }),
   getSources: (jobId) => ResearchRepository.getSourcesByJobId(jobId),
