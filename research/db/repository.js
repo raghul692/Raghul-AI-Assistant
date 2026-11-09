@@ -142,8 +142,8 @@ export class ResearchRepository {
   }
 
   // --- Sources ---
-  static addSource({ jobId, url, canonicalUrl, domain, publisher, title, author, publishedDate, category = 'web', credibilityScore = 0.5, credibilityReasons = [], isPrimarySource = false }) {
-    const sourceId = `src_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
+  static addSource({ id, jobId, url, canonicalUrl, domain, publisher, title, author, publishedDate, category = 'web', credibilityScore = 0.5, credibilityReasons = [], isPrimarySource = false }) {
+    const sourceId = id || `src_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
     let effectiveDomain = domain || publisher || 'web';
     try {
       if (url && !domain) effectiveDomain = new URL(url).hostname.replace('www.', '');
@@ -196,14 +196,42 @@ export class ResearchRepository {
   }
 
   // --- Evidence Items ---
-  static addEvidenceItem({ jobId, sourceId, snippet, relevanceScore = 0.5, supportsSubtopic = null, isCounterEvidence = false }) {
-    const evidenceId = `ev_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
+  static addEvidenceItem({ id, jobId, sourceId, snippet, relevanceScore = 0.5, supportsSubtopic = null, isCounterEvidence = false, charCount = null, passageIndex = null, contentHash = null }) {
+    const evidenceId = id || `ev_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
     db.prepare(`
       INSERT INTO evidence_items (
-        id, job_id, source_id, snippet, relevance_score, supports_subtopic, is_counter_evidence, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(evidenceId, jobId, sourceId, snippet, relevanceScore, supportsSubtopic, isCounterEvidence ? 1 : 0, Date.now());
+        id, job_id, source_id, snippet, relevance_score, supports_subtopic, is_counter_evidence, char_count, passage_index, content_hash, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      evidenceId, jobId, sourceId, snippet, relevanceScore, supportsSubtopic,
+      isCounterEvidence ? 1 : 0, charCount || snippet?.length || 0,
+      passageIndex !== null ? passageIndex : 0, contentHash || '', Date.now()
+    );
     return evidenceId;
+  }
+
+  static saveEvidenceBatch(jobId, evidenceItems = []) {
+    if (!evidenceItems.length) return [];
+    const insert = db.prepare(`
+      INSERT INTO evidence_items (
+        id, job_id, source_id, snippet, relevance_score, supports_subtopic, is_counter_evidence, char_count, passage_index, content_hash, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const ids = [];
+    db.transaction(() => {
+      for (const ev of evidenceItems) {
+        const id = ev.id || `ev_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
+        insert.run(
+          id, jobId, ev.sourceId, ev.snippet, ev.relevanceScore || 0.7,
+          ev.supportsSubtopic || null, ev.isCounterEvidence ? 1 : 0,
+          ev.charCount || ev.snippet?.length || 0, ev.passageIndex || 0,
+          ev.contentHash || '', Date.now()
+        );
+        ids.push(id);
+      }
+    })();
+    return ids;
   }
 
   static getEvidenceByJobId(jobId) {
@@ -217,14 +245,65 @@ export class ResearchRepository {
   }
 
   // --- Claims ---
-  static addClaim({ jobId, statement, category = 'fact', verificationStatus = 'UNVERIFIED', confidenceScore = 0.5, verificationNotes = null, isCritical = false }) {
-    const claimId = `clm_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
+  static addClaim({
+    id,
+    jobId,
+    statement,
+    category = 'fact',
+    verificationStatus = 'UNVERIFIED',
+    confidenceScore = 0.5,
+    verificationNotes = null,
+    isCritical = false,
+    exactQuote = null,
+    primarySourceId = null,
+    verifiedAt = null
+  }) {
+    const claimId = id || `clm_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
     db.prepare(`
       INSERT INTO research_claims (
-        id, job_id, statement, category, verification_status, confidence_score, verification_notes, is_critical, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(claimId, jobId, statement, category, verificationStatus, confidenceScore, verificationNotes, isCritical ? 1 : 0, Date.now());
+        id, job_id, statement, category, verification_status, confidence_score, verification_notes, is_critical, exact_quote, primary_source_id, verified_at, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      claimId, jobId, statement, category, verificationStatus, confidenceScore,
+      verificationNotes, isCritical ? 1 : 0, exactQuote || null, primarySourceId || null,
+      verifiedAt || null, Date.now()
+    );
     return claimId;
+  }
+
+  static saveClaimsBatch(jobId, claims = []) {
+    if (!claims.length) return [];
+    const insert = db.prepare(`
+      INSERT INTO research_claims (
+        id, job_id, statement, category, verification_status, confidence_score, verification_notes, is_critical, exact_quote, primary_source_id, verified_at, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const ids = [];
+    db.transaction(() => {
+      for (const c of claims) {
+        const id = c.id || `clm_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
+        insert.run(
+          id, jobId, c.statement || c.claimText, c.category || c.claimType || 'fact',
+          c.verificationStatus || 'UNVERIFIED', c.confidenceScore || 0.5,
+          c.verificationNotes || null, c.isCritical ? 1 : 0,
+          c.exactQuote || null, c.primarySourceId || null, c.verifiedAt || null, Date.now()
+        );
+        ids.push(id);
+      }
+    })();
+    return ids;
+  }
+
+  static updateClaimVerification(claimId, { verificationStatus, confidenceScore, verificationNotes, verifiedAt = Date.now() }) {
+    db.prepare(`
+      UPDATE research_claims
+      SET verification_status = ?,
+          confidence_score = COALESCE(?, confidence_score),
+          verification_notes = COALESCE(?, verification_notes),
+          verified_at = ?
+      WHERE id = ?
+    `).run(verificationStatus, confidenceScore, verificationNotes, verifiedAt, claimId);
   }
 
   static linkClaimEvidence(claimId, evidenceId, relationship = 'supports') {
@@ -232,6 +311,19 @@ export class ResearchRepository {
       INSERT OR REPLACE INTO claim_evidence (claim_id, evidence_id, relationship)
       VALUES (?, ?, ?)
     `).run(claimId, evidenceId, relationship);
+  }
+
+  static linkClaimEvidenceBatch(links = []) {
+    if (!links.length) return;
+    const stmt = db.prepare(`
+      INSERT OR REPLACE INTO claim_evidence (claim_id, evidence_id, relationship)
+      VALUES (?, ?, ?)
+    `);
+    db.transaction(() => {
+      for (const l of links) {
+        stmt.run(l.claimId, l.evidenceId, l.relationship || 'supports');
+      }
+    })();
   }
 
   static getClaimsByJobId(jobId) {
@@ -246,10 +338,54 @@ export class ResearchRepository {
       `).all(c.id);
       return {
         ...c,
+        claimText: c.statement,
+        claimType: c.category,
         is_critical: Boolean(c.is_critical),
         evidence: linkedEvidence
       };
     });
+  }
+
+  // --- Contradictions ---
+  static addContradiction({ id, jobId, claimId = null, sourceAId, sourceBId, disputedTopic, sourceAAssertion, sourceBAssertion, resolutionStrategy = 'disputed_in_report', finalDisposition = '' }) {
+    const cntId = id || `cnt_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
+    db.prepare(`
+      INSERT INTO research_contradictions (
+        id, job_id, claim_id, source_a_id, source_b_id, disputed_topic, source_a_assertion, source_b_assertion, resolution_strategy, final_disposition, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      cntId, jobId, claimId, sourceAId, sourceBId, disputedTopic,
+      sourceAAssertion, sourceBAssertion, resolutionStrategy, finalDisposition, Date.now()
+    );
+    return cntId;
+  }
+
+  static getContradictionsByJobId(jobId) {
+    return db.prepare('SELECT * FROM research_contradictions WHERE job_id = ? ORDER BY created_at ASC').all(jobId);
+  }
+
+  // --- Verification Summary ---
+  static getVerificationSummary(jobId) {
+    const claims = db.prepare('SELECT * FROM research_claims WHERE job_id = ?').all(jobId);
+    const totalClaims = claims.length;
+    const verifiedClaims = claims.filter(c => c.verification_status === 'SUPPORTED' || c.verification_status === 'VERIFIED').length;
+    const partiallySupported = claims.filter(c => c.verification_status === 'PARTIALLY_SUPPORTED').length;
+    const contradictedClaims = claims.filter(c => c.verification_status === 'CONTRADICTED' || c.verification_status === 'DISPUTED').length;
+    const unverifiedClaims = claims.filter(c => c.verification_status === 'UNVERIFIED').length;
+
+    const contradictions = db.prepare('SELECT COUNT(*) as cnt FROM research_contradictions WHERE job_id = ?').get(jobId)?.cnt || 0;
+    const evidenceCount = db.prepare('SELECT COUNT(*) as cnt FROM evidence_items WHERE job_id = ?').get(jobId)?.cnt || 0;
+
+    return {
+      totalClaims,
+      verifiedClaims,
+      partiallySupported,
+      contradictedClaims,
+      unverifiedClaims,
+      contradictions,
+      evidenceCount,
+      verificationRate: totalClaims > 0 ? Number(((verifiedClaims + 0.5 * partiallySupported) / totalClaims).toFixed(2)) : 0
+    };
   }
 
   // --- Sections ---
@@ -383,13 +519,25 @@ export const researchRepository = {
   saveSource: (args) => ResearchRepository.addSource({ ...args, category: args.sourceType || 'web', credibilityScore: args.confidenceScore || 0.7, isPrimarySource: Boolean(args.isPrimary) }),
   getSources: (jobId) => ResearchRepository.getSourcesByJobId(jobId),
   getSourcesByJobId: (jobId) => ResearchRepository.getSourcesByJobId(jobId),
+  addEvidenceItem: (args) => ResearchRepository.addEvidenceItem(args),
+  saveEvidenceBatch: (jobId, items) => ResearchRepository.saveEvidenceBatch(jobId, items),
+  getEvidenceByJobId: (jobId) => ResearchRepository.getEvidenceByJobId(jobId),
   addClaim: (args) => ResearchRepository.addClaim(args),
+  saveClaimsBatch: (jobId, claims) => ResearchRepository.saveClaimsBatch(jobId, claims),
+  updateClaimVerification: (claimId, args) => ResearchRepository.updateClaimVerification(claimId, args),
+  linkClaimEvidence: (claimId, evidenceId, rel) => ResearchRepository.linkClaimEvidence(claimId, evidenceId, rel),
+  linkClaimEvidenceBatch: (links) => ResearchRepository.linkClaimEvidenceBatch(links),
   getClaims: (jobId) => ResearchRepository.getClaimsByJobId(jobId),
   getClaimsByJobId: (jobId) => ResearchRepository.getClaimsByJobId(jobId),
+  addContradiction: (args) => ResearchRepository.addContradiction(args),
+  getContradictionsByJobId: (jobId) => ResearchRepository.getContradictionsByJobId(jobId),
+  getVerificationSummary: (jobId) => ResearchRepository.getVerificationSummary(jobId),
   saveSections: (jobId, sections) => ResearchRepository.saveSections(jobId, sections),
   saveSection: (args) => ResearchRepository.saveSections(args.jobId, [{ section_order: args.sectionOrder, title: args.title, content_markdown: args.contentMarkdown }]),
   getSections: (jobId) => ResearchRepository.getSectionsByJobId(jobId),
   getSectionsByJobId: (jobId) => ResearchRepository.getSectionsByJobId(jobId),
+  saveQualityCheck: (args) => ResearchRepository.saveQualityCheck(args),
+  getQualityCheckByJobId: (jobId) => ResearchRepository.getQualityCheckByJobId(jobId),
   saveArtifact: (args) => ResearchRepository.saveArtifact(args),
   getArtifacts: (jobId) => ResearchRepository.getArtifactsByJobId(jobId),
   recordRun: (args) => ResearchRepository.recordRun(args)

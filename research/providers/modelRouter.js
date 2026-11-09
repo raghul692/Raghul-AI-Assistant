@@ -1,5 +1,12 @@
 import { GoogleGenAI } from '@google/genai';
 import { RESEARCH_CONFIG } from '../config.js';
+import { AIProviderManager } from '../../orchestration/aiProviderManager.js';
+
+let sharedAiManager = null;
+function getAiManager() {
+  if (!sharedAiManager) sharedAiManager = new AIProviderManager();
+  return sharedAiManager;
+}
 
 /**
  * Model Router for Autonomous Deep Research Engine
@@ -12,8 +19,8 @@ export class ModelRouter {
     this.client = apiKey ? new GoogleGenAI({ apiKey }) : null;
     this.primaryAgent = RESEARCH_CONFIG.geminiDeepResearchAgent || 'deep-research-preview-04-2026';
     this.primaryMaxAgent = RESEARCH_CONFIG.geminiDeepResearchMaxAgent || 'deep-research-max-preview-04-2026';
-    this.fastModel = RESEARCH_CONFIG.geminiFastModel || 'gemini-3.5-flash';
-    this.fallbackFastModel = 'gemini-3.5-flash-lite';
+    this.fastModel = RESEARCH_CONFIG.geminiFastModel || 'gemini-3.5-flash-lite';
+    this.fallbackFastModel = 'gemini-flash-lite-latest';
     this.totalTokensUsed = 0;
     this.totalCostEstimated = 0;
   }
@@ -26,39 +33,57 @@ export class ModelRouter {
    * Internal helper to execute prompt with fallback and retry
    */
   async _callGeminiText(prompt, systemInstruction = '', model = this.fastModel) {
-    if (!this.client) {
-      throw new Error('Gemini API client not initialized. Check GEMINI_API_KEY in .env');
-    }
-
-    const candidateModels = [model, 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-flash-lite-latest', 'gemini-3.7-flash'];
+    const candidateModels = [
+      model,
+      'gemini-3.5-flash-lite',
+      'gemini-flash-lite-latest',
+      'gemini-3.5-flash',
+      'gemini-3.7-flash'
+    ];
     let lastError = null;
 
-    for (const m of candidateModels) {
-      try {
-        const response = await this.client.models.generateContent({
-          model: m,
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          config: {
-            systemInstruction: systemInstruction ? { parts: [{ text: systemInstruction }] } : undefined,
-            temperature: 0.2
-          }
-        });
+    if (this.client) {
+      for (const m of candidateModels) {
+        try {
+          const response = await this.client.models.generateContent({
+            model: m,
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            config: {
+              systemInstruction: systemInstruction ? { parts: [{ text: systemInstruction }] } : undefined,
+              temperature: 0.2
+            }
+          });
 
-        const text = response.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        // Basic token estimation (approx 4 chars per token)
-        const promptTokens = Math.ceil((prompt.length + systemInstruction.length) / 4);
-        const completionTokens = Math.ceil(text.length / 4);
-        this.totalTokensUsed += (promptTokens + completionTokens);
-        this.totalCostEstimated += (promptTokens * 0.00000015 + completionTokens * 0.0000006);
+          const text = response.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          const promptTokens = Math.ceil((prompt.length + systemInstruction.length) / 4);
+          const completionTokens = Math.ceil(text.length / 4);
+          this.totalTokensUsed += (promptTokens + completionTokens);
+          this.totalCostEstimated += (promptTokens * 0.00000015 + completionTokens * 0.0000006);
 
-        return { text, modelUsed: m, tokens: promptTokens + completionTokens };
-      } catch (err) {
-        lastError = err;
-        console.warn(`[ModelRouter] Model ${m} invocation failed: ${err.message}. Trying fallback...`);
+          return { text, modelUsed: m, tokens: promptTokens + completionTokens };
+        } catch (err) {
+          lastError = err;
+        }
       }
     }
 
-    throw new Error(`All Gemini models failed. Last error: ${lastError?.message}`);
+    // Secondary Cross-Provider Fallback (Groq Llama-3.3, Cloudflare AI, OpenRouter)
+    try {
+      const aiManager = getAiManager();
+      const res = await aiManager.generateText({
+        prompt,
+        systemInstruction,
+        temperature: 0.2,
+        maxTokens: 4096
+      });
+      if (res && res.text) {
+        return { text: res.text, modelUsed: res.provider || 'failover-provider', tokens: 1000 };
+      }
+    } catch (fallbackErr) {
+      console.warn('[ModelRouter] Cross-provider failover notice:', fallbackErr.message);
+    }
+
+    throw new Error(`All reasoning model providers failed. Last error: ${lastError?.message || 'Unknown'}`);
   }
 
   /**
@@ -156,7 +181,22 @@ User Constraints: ${JSON.stringify(constraints)}`;
   /**
    * 2. Atomic Claim Extraction from Source Text
    */
-  async extractAtomicClaims(sourceTitle, sourceUrl, textContent) {
+  async extractAtomicClaims(sourceTitle, sourceUrl = '', textContent = '') {
+    let title = typeof sourceTitle === 'string' ? sourceTitle : 'Source Document';
+    let url = sourceUrl;
+    let content = textContent;
+
+    if (Array.isArray(sourceTitle)) {
+      title = sourceTitle[0]?.title || 'Source Document';
+      url = sourceTitle[0]?.sourceUrl || 'https://unknown';
+      content = sourceTitle.map(p => p.text || p.snippet || '').join('\n\n');
+    } else if (typeof sourceTitle === 'object' && sourceTitle !== null) {
+      title = sourceTitle.title || sourceTitle.sourceTitle || 'Source Document';
+      url = sourceTitle.url || sourceTitle.sourceUrl || 'https://unknown';
+      content = sourceTitle.text || sourceTitle.textContent || '';
+    }
+    content = String(content || '');
+
     const system = `You are a Rigorous Fact-Checking Data Engineer.
 Extract key factual assertions and quantitative claims from the provided source document.
 Each claim must be standalone, verifiable, and atomic (one single testable fact per claim).
@@ -170,9 +210,9 @@ Output valid JSON array only:
   }
 ]`;
 
-    const sampleText = textContent.slice(0, 3500);
-    const prompt = `Source Title: ${sourceTitle}
-Source URL: ${sourceUrl}
+    const sampleText = content.slice(0, 3500);
+    const prompt = `Source Title: ${title}
+Source URL: ${url}
 Document Passage:
 """
 ${sampleText}

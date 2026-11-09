@@ -237,6 +237,44 @@ export function initResearchSchema() {
     );
 
     CREATE INDEX IF NOT EXISTS idx_research_quality_job ON research_quality_checks(job_id);
+
+    -- 14. Research Contradictions (Discrepancies across sources)
+    CREATE TABLE IF NOT EXISTS research_contradictions (
+      id TEXT PRIMARY KEY,
+      job_id TEXT NOT NULL,
+      claim_id TEXT,
+      source_a_id TEXT,
+      source_b_id TEXT,
+      disputed_topic TEXT NOT NULL,
+      source_a_assertion TEXT,
+      source_b_assertion TEXT,
+      resolution_strategy TEXT NOT NULL DEFAULT 'disputed_in_report',
+      final_disposition TEXT,
+      created_at INTEGER NOT NULL,
+      FOREIGN KEY (job_id) REFERENCES research_jobs(id) ON DELETE CASCADE,
+      FOREIGN KEY (claim_id) REFERENCES research_claims(id) ON DELETE SET NULL,
+      FOREIGN KEY (source_a_id) REFERENCES research_sources(id) ON DELETE SET NULL,
+      FOREIGN KEY (source_b_id) REFERENCES research_sources(id) ON DELETE SET NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_research_contradictions_job ON research_contradictions(job_id);
   `);
+
+  // Additive column migrations (safe & idempotent)
+  const addCol = (table, col, typeDef) => {
+    try {
+      const cols = db.prepare(`PRAGMA table_info(${table})`).all().map(c => c.name);
+      if (!cols.includes(col)) {
+        db.prepare(`ALTER TABLE ${table} ADD COLUMN ${col} ${typeDef}`).run();
+      }
+    } catch (_) {}
+  };
+
+  addCol('research_claims', 'exact_quote', 'TEXT');
+  addCol('research_claims', 'primary_source_id', 'TEXT');
+  addCol('research_claims', 'verified_at', 'INTEGER');
+  addCol('evidence_items', 'char_count', 'INTEGER');
+  addCol('evidence_items', 'passage_index', 'INTEGER');
+  addCol('evidence_items', 'content_hash', 'TEXT');
 }
 
