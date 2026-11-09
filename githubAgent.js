@@ -37,7 +37,7 @@ export class GitHubAgent {
     const lower = message.toLowerCase().trim();
 
     // 0. Strict negative guard: Document / Report / Research inquiries or code writing requests
-    if (/^\/research\b/i.test(lower) || /\bdeep research\b/i.test(lower)) {
+    if (/^\/(?:research|deepresearch)\b/i.test(lower) || /\b(?:deep\s*research|research\s*dossier|research\s*report)\b/i.test(lower)) {
       return false;
     }
 
@@ -159,9 +159,9 @@ export class GitHubAgent {
       }
     } catch (e) {}
 
-    // 2. Check for explicit repo name patterns like repo: "name" or repo name
+    // 2. Check for explicit repo name patterns like repo: "name" or repo name (must require 'repo' or 'repository' keyword)
     const explicitMatch = message.match(/(?:repo|repository)\s+(?:named|name|called|is|for)?\s*[:\s]*([a-zA-Z0-9_\-]+)/i) ||
-                          message.match(/(?:in|from|to|on)\s+(?:repo|repository)?\s*([a-zA-Z0-9_\-]+)/i);
+                          message.match(/(?:in|from|to|on)\s+(?:the\s+)?(?:repo|repository)\s*[:\s]*([a-zA-Z0-9_\-]+)/i);
     if (explicitMatch && explicitMatch[1]) {
       const cand = explicitMatch[1].toLowerCase();
       if (!['the', 'my', 'a', 'an', 'new', 'this', 'that', 'recent', 'latest'].includes(cand)) {
