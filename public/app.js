@@ -2061,6 +2061,10 @@ function switchStudioActiveFile(idx, preserveCurrent = true) {
   syncStudioGutter();
   updateStudioCursorPosition();
   updateStudioQualityBadge();
+
+  if (typeof window.switchMonacoFile === 'function') {
+    window.switchMonacoFile(activeFile);
+  }
 }
 
 // Close a tab
@@ -2201,6 +2205,9 @@ async function updateStudioQualityBadge() {
     if (data.success && data.result) {
       const v = data.result;
       if (scoreEl) scoreEl.textContent = `CQI: ${v.cqi} ${v.grade}`;
+      if (typeof window.setMonacoDiagnosticsMarkers === 'function') {
+        window.setMonacoDiagnosticsMarkers(v.errors || [], v.warnings || []);
+      }
       if (statusEl) {
         if (v.valid) {
           statusEl.textContent = 'AST Valid';

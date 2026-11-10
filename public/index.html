@@ -21,6 +21,13 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   
+  <!-- Real xterm.js Terminal Engine -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css">
+  <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+
+  <!-- Monaco Editor AMD Loader (VS Code Engine) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+  
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -1471,30 +1478,24 @@
     </div>
   </div>
 
-  <!-- Nexus Canvas Studio V2: Tier-1 Developer-Grade IDE & Multi-File Workspace -->
+  <!-- Professional VS Code-Grade AI Development Environment (Canvas Studio V3) -->
   <div class="artifact-modal-backdrop canvas-studio-backdrop" id="artifactModal" aria-hidden="true">
     <div class="canvas-studio-dialog" id="canvasStudioDialog">
-      <!-- Studio Header Bar -->
+      <!-- 1. Top IDE Header Bar -->
       <div class="canvas-studio-header">
         <div class="studio-header-left">
-          <button type="button" class="studio-btn studio-btn-icon" id="btnStudioToggleSidebar" title="Toggle File Tree Explorer (Ctrl+B)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="9" y1="3" x2="9" y2="21"></line>
-            </svg>
-          </button>
           <div class="studio-brand-pill">
             <svg class="studio-brand-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="16 18 22 12 16 6"></polyline>
               <polyline points="8 6 2 12 8 18"></polyline>
             </svg>
-            <span class="studio-brand-name">STUDIO</span>
+            <span class="studio-brand-name">STUDIO IDE</span>
           </div>
           <div class="studio-project-meta">
-            <span class="studio-project-title" id="artifactTitle">Nexus Interactive Project</span>
+            <span class="studio-project-title" id="artifactTitle">ai-chatbot (Workspace)</span>
             <span class="studio-status-badge">
               <span class="status-dot-pulse online"></span>
-              <span id="studioEngineStatus">Engine Ready</span>
+              <span id="studioEngineStatus">Ready</span>
             </span>
             <div class="studio-quality-badge" id="studioQualityBadge" style="display:inline-flex; align-items:center; gap:6px; margin-left:8px; padding:2px 8px; border-radius:6px; background:rgba(34,197,94,0.12); border:1px solid rgba(34,197,94,0.3); font-size:11px; font-weight:600; color:#4ade80;" title="Automated AST & Code Quality Index">
               <span id="studioQualityScore">CQI: 100 A+</span>
@@ -1504,79 +1505,56 @@
           </div>
         </div>
 
-        <!-- Center: Developer View Mode Switcher -->
-        <div class="studio-view-modes" role="tablist" aria-label="Studio View Modes">
-          <button type="button" class="studio-view-btn active" data-view="editor" id="btnViewEditor" title="Code Editor View">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-            <span>Editor</span>
-          </button>
-          <button type="button" class="studio-view-btn" data-view="preview" id="btnViewPreview" title="Live Web Preview View">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path></svg>
-            <span>Preview</span>
-          </button>
-          <button type="button" class="studio-view-btn" data-view="console" id="btnViewConsole" title="Terminal Output Console">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
-            <span>Terminal</span>
-            <span class="console-count-badge" id="consoleCountBadge" style="display:none;">0</span>
-          </button>
-          <button type="button" class="studio-view-btn" data-view="split" id="btnViewSplit" title="Side-by-side Editor & Output">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="3" x2="12" y2="21"></line></svg>
-            <span>Split</span>
+        <!-- Center: Command Palette Trigger Bar -->
+        <div style="flex:1; max-width:420px; display:flex; justify-content:center;">
+          <button type="button" id="btnOpenCommandPalette" style="width:100%; height:26px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:#94a3b8; font-size:0.73rem; display:inline-flex; align-items:center; justify-content:space-between; padding:0 10px; cursor:pointer;" title="Open Command Palette (Ctrl+Shift+P / F1)">
+            <span style="display:inline-flex; align-items:center; gap:6px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <span>Search commands & files...</span>
+            </span>
+            <kbd class="studio-kbd">Ctrl+Shift+P</kbd>
           </button>
         </div>
 
         <!-- Right: Developer Actions -->
         <div class="studio-header-right">
-          <button type="button" class="studio-btn studio-btn-run" id="btnStudioRunCode" title="Execute Code (Ctrl + Enter)">
+          <button type="button" class="studio-btn studio-btn-run" id="btnStudioRunCode" title="Execute Code or Build (Ctrl + Enter)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
             <span>Run</span>
             <kbd class="studio-kbd">Ctrl ↵</kbd>
           </button>
-          <button type="button" class="studio-btn" id="btnStudioFormat" title="Format Code">
+          <button type="button" class="studio-btn" id="canvasActionVerifySelfRepair" title="Validate AST, check security, and run automated self-repair">
+            <span class="studio-ai-icon">🛡️</span>
+            <span>Self-Repair</span>
+          </button>
+          <button type="button" class="studio-btn" id="btnStudioFormat" title="Format Document (Shift + Alt + F)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="7" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="7" y2="18"></line></svg>
             <span>Format</span>
           </button>
-          <button type="button" class="studio-btn" id="btnStudioExport" title="Export Project Package">
+          <button type="button" class="studio-btn" id="btnStudioExport" title="Export Project ZIP Package">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             <span>Export</span>
           </button>
-          <button type="button" class="studio-btn studio-btn-icon" id="closeArtifactBtn" title="Close Studio (Esc)">
+          <button type="button" class="studio-btn studio-btn-icon" id="closeArtifactBtn" title="Close IDE (Esc)">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         </div>
       </div>
 
-      <!-- Studio AI Transformation & Autonomous Copilot Bar -->
+      <!-- 2. AI Copilot Inline Toolbar -->
       <div class="canvas-studio-ai-bar">
         <div class="studio-ai-row-primary">
           <div class="studio-ai-actions">
-            <button type="button" class="studio-ai-pill" id="canvasActionVerifySelfRepair" title="Validate AST, check security, and run automated self-repair">
-              <span class="studio-ai-icon">🛡️</span>
-              <span>Self-Repair</span>
-            </button>
-            <button type="button" class="studio-ai-pill" id="canvasActionRefactor" title="Refactor code for Clean Code & SOLID principles">
-              <span class="studio-ai-icon">🪄</span>
-              <span>Refactor</span>
-            </button>
-            <button type="button" class="studio-ai-pill" id="canvasActionFix" title="Detect & fix bugs, memory leaks, and edge-cases">
-              <span class="studio-ai-icon">🐞</span>
-              <span>Fix Bugs</span>
-            </button>
-            <button type="button" class="studio-ai-pill" id="canvasActionComments" title="Add clean docstrings and explanatory comments">
-              <span class="studio-ai-icon">💬</span>
-              <span>Add Docs</span>
-            </button>
-            <button type="button" class="studio-ai-pill" id="canvasActionTranslate" title="Explain code and architecture in Tamil">
-              <span class="studio-ai-icon">🌐</span>
-              <span>Tamil Explain</span>
-            </button>
+            <button type="button" class="studio-ai-pill" id="canvasActionRefactor" title="Refactor for Clean Code & SOLID principles">🪄 Refactor</button>
+            <button type="button" class="studio-ai-pill" id="canvasActionFix" title="Detect & fix bugs, memory leaks, and runtime errors">🐞 Fix Bugs</button>
+            <button type="button" class="studio-ai-pill" id="canvasActionComments" title="Add clean JSDoc/docstrings">💬 Add Docs</button>
+            <button type="button" class="studio-ai-pill" id="canvasActionTranslate" title="Explain code and architecture">🌐 Explain</button>
           </div>
 
-          <!-- Autonomous Studio Copilot Prompt Box -->
           <div class="studio-copilot-box">
             <span class="copilot-sparkle-badge">✨ COPILOT</span>
-            <input type="text" id="studioAiCopilotInput" class="studio-copilot-input" placeholder="Copilot: e.g. 'Build modern login page with glassmorphism, tabs and validation'..." autocomplete="off">
-            <button type="button" class="studio-copilot-btn" id="btnStudioAiGenerate" title="Generate / Modify Project (Enter)">
+            <input type="text" id="studioAiCopilotInput" class="studio-copilot-input" placeholder="Ask AI Copilot: e.g. 'Add JWT auth middleware' or 'Create test suite'..." autocomplete="off">
+            <button type="button" class="studio-copilot-btn" id="btnStudioAiGenerate" title="Generate Code (Enter)">
               <span>Generate</span>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
             </button>
@@ -1587,128 +1565,233 @@
             <span id="studioAiFeedbackText">AI Copilot generating...</span>
           </div>
         </div>
-
-        <!-- Quick Copilot Prompt Suggestions -->
-        <div class="studio-copilot-quick-strip" id="studioCopilotQuickStrip">
-          <span class="quick-strip-label">⚡ QUICK:</span>
-          <button type="button" class="copilot-quick-chip" data-prompt="Create modern glassmorphism login & register card with animated tab switching, input icons, and validation">🎨 Modern Login Page</button>
-          <button type="button" class="copilot-quick-chip" data-prompt="Add responsive dark/light mode toggle with smooth CSS variable transition and localStorage persistence">🌓 Dark/Light Mode</button>
-          <button type="button" class="copilot-quick-chip" data-prompt="Create sound.js using Web Audio API for interactive click, hover, and success audio effects">🔊 Sound Effects</button>
-          <button type="button" class="copilot-quick-chip" data-prompt="Add live canvas particle background with interactive mouse magnetic effect">✨ Particle FX</button>
-        </div>
       </div>
 
-      <!-- Main IDE Workspace Grid -->
-      <div class="canvas-studio-workspace" id="canvasStudioWorkspace">
-        <!-- 1. Left Collapsible File Tree Explorer -->
-        <aside class="studio-explorer-pane" id="studioExplorerPane">
-          <div class="explorer-header">
-            <span class="explorer-label">PROJECT FILES</span>
-            <div class="explorer-actions">
-              <button type="button" class="explorer-icon-btn" id="btnStudioNewFile" title="New File">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              </button>
-              <button type="button" class="explorer-icon-btn" id="btnToggleFileTree" title="Toggle Sidebar">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
-              </button>
+      <!-- 3. Professional IDE Workspace Container -->
+      <div class="canvas-studio-workspace" id="canvasStudioWorkspace" style="display:flex; flex:1; min-height:0; overflow:hidden;">
+        <!-- 3a. Activity Bar (Leftmost Icon Strip) -->
+        <div class="canvas-activity-bar" id="canvasActivityBar">
+          <div class="activity-bar-group">
+            <button type="button" class="activity-bar-btn active" id="activityBtnExplorer" title="Explorer (Ctrl+Shift+E)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            </button>
+            <button type="button" class="activity-bar-btn" id="activityBtnSearch" title="Search Workspace (Ctrl+Shift+F)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </button>
+            <button type="button" class="activity-bar-btn" id="activityBtnGit" title="Source Control: Git (Ctrl+Shift+G)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M18 9a9 9 0 0 1-9 9"></path></svg>
+              <span class="activity-badge" id="gitActivityBadge" style="display:none;">0</span>
+            </button>
+            <button type="button" class="activity-bar-btn" id="activityBtnDiagnostics" title="Diagnostics & Problems">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </button>
+          </div>
+          <div class="activity-bar-group">
+            <button type="button" class="activity-bar-btn" id="activityBtnSettings" title="IDE Settings">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3b. Collapsible Sidebar Panels -->
+        <aside class="canvas-sidebar-panel" id="canvasSidebarPanel">
+          <!-- View 1: Explorer -->
+          <div id="sidebarViewExplorer" style="display:flex; flex-direction:column; height:100%;">
+            <div class="sidebar-view-header">
+              <span>EXPLORER</span>
+              <div style="display:flex; gap:4px;">
+                <button type="button" class="explorer-icon-btn" id="btnWorkspaceNewFile" title="New File">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+                <button type="button" class="explorer-icon-btn" id="btnWorkspaceNewFolder" title="New Folder">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                </button>
+                <button type="button" class="explorer-icon-btn" id="btnWorkspaceRefresh" title="Refresh Workspace Tree">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                </button>
+              </div>
+            </div>
+            <div class="sidebar-view-body" id="studioWorkspaceTree">
+              <div style="padding:10px; color:#64748b; font-size:0.75rem;">Loading workspace files...</div>
             </div>
           </div>
-          <div class="explorer-tree-list" id="studioFileTreeList">
-            <!-- Dynamically populated files -->
+
+          <!-- View 2: Search -->
+          <div id="sidebarViewSearch" style="display:none; flex-direction:column; height:100%;">
+            <div class="sidebar-view-header"><span>SEARCH</span></div>
+            <div class="sidebar-view-body">
+              <input type="text" id="workspaceSearchInput" class="studio-copilot-input" style="width:100%; margin-bottom:8px; padding:6px 8px; background:#0f172a; border:1px solid #334155; border-radius:4px;" placeholder="Search in files...">
+              <div id="workspaceSearchResults" style="font-size:0.75rem; color:#94a3b8;">Enter query to search across workspace.</div>
+            </div>
+          </div>
+
+          <!-- View 3: Source Control (Git) -->
+          <div id="sidebarViewGit" style="display:none; flex-direction:column; height:100%;">
+            <div class="sidebar-view-header">
+              <span>SOURCE CONTROL</span>
+              <button type="button" class="explorer-icon-btn" id="btnGitRefresh" title="Refresh Git Status">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+              </button>
+            </div>
+            <div class="sidebar-view-body">
+              <div class="git-commit-box">
+                <textarea id="gitCommitInput" class="git-commit-input" placeholder="Commit message (Ctrl+Enter to commit)..."></textarea>
+                <button type="button" id="btnGitCommit" class="git-commit-btn">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Commit Staged</span>
+                </button>
+              </div>
+              <div id="gitChangesContainer">
+                <div style="color:#64748b; font-size:0.75rem;">Loading Git status...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- View 4: Settings -->
+          <div id="sidebarViewSettings" style="display:none; flex-direction:column; height:100%;">
+            <div class="sidebar-view-header"><span>IDE SETTINGS</span></div>
+            <div class="sidebar-view-body" style="display:flex; flex-direction:column; gap:12px; font-size:0.75rem;">
+              <div>
+                <label style="color:#94a3b8; display:block; margin-bottom:4px;">Editor Color Theme</label>
+                <select id="studioThemeSelect" style="width:100%; background:#0f172a; border:1px solid #334155; color:#f8fafc; padding:6px; border-radius:4px;">
+                  <option value="vs-dark">VS Code Dark+</option>
+                  <option value="vs">Visual Studio Light</option>
+                  <option value="hc-black">High Contrast Dark</option>
+                </select>
+              </div>
+              <div>
+                <label style="color:#94a3b8; display:block; margin-bottom:4px;">Font Size</label>
+                <select id="studioFontSizeSelect" style="width:100%; background:#0f172a; border:1px solid #334155; color:#f8fafc; padding:6px; border-radius:4px;">
+                  <option value="13">13px</option>
+                  <option value="14" selected>14px (Recommended)</option>
+                  <option value="15">15px</option>
+                  <option value="16">16px</option>
+                </select>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" id="studioMinimapToggle" checked>
+                <label for="studioMinimapToggle" style="color:#cbd5e1;">Show Code Minimap</label>
+              </div>
+            </div>
           </div>
         </aside>
 
-        <!-- 2. Center/Main Editor Area -->
-        <main class="studio-editor-area" id="studioEditorArea">
-          <!-- Editor Tabs Row -->
+        <!-- 3c. Main Editor Area -->
+        <main class="studio-editor-area" id="studioEditorArea" style="flex:1; display:flex; flex-direction:column; min-width:0; position:relative;">
+          <!-- Editor Tabs Bar -->
           <div class="studio-tabs-bar" id="studioTabsBar">
-            <button type="button" class="studio-rail-toggle-btn" id="btnUncollapseSidebarRail" title="Show File Tree Explorer (Ctrl+B)" style="display:none;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
-              <span>Files</span>
-            </button>
             <div class="studio-dynamic-tabs" id="studioDynamicTabs"></div>
-          </div>
-
-          <!-- Line-Numbered Code Editor Container -->
-          <div class="studio-code-canvas-box" id="canvasEditorContainer">
-            <div class="studio-gutter" id="studioEditorGutter">1</div>
-            <textarea id="canvasCodeTextarea" class="studio-textarea" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="// Write or edit code here..."></textarea>
-          </div>
-
-          <!-- Editor Footer Status Bar -->
-          <div class="studio-editor-statusbar">
-            <div class="statusbar-left">
-              <span class="statusbar-item" id="studioLangBadge">JAVASCRIPT</span>
-              <span class="statusbar-item" id="studioCharCount">0 chars</span>
-            </div>
-            <div class="statusbar-right">
-              <span class="statusbar-item" id="studioCursorPos">Ln 1, Col 1</span>
-              <span class="statusbar-item">UTF-8</span>
-            </div>
-          </div>
-        </main>
-
-        <!-- 3. Output Pane (Live Preview & Terminal Console) -->
-        <section class="studio-output-area" id="studioOutputArea">
-          <div class="output-pane-header">
-            <div class="output-pane-tabs">
-              <button type="button" class="output-tab-btn active" id="tabOutputPreview" data-subview="preview">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+            <div style="display:flex; align-items:center; gap:4px; padding-right:8px;">
+              <button type="button" class="studio-btn" id="btnToggleLiveViewport" style="height:22px; padding:0 6px; font-size:0.68rem;" title="Toggle Live Web Viewport Split">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line></svg>
                 <span>Live Viewport</span>
               </button>
-              <button type="button" class="output-tab-btn" id="tabOutputTerminal" data-subview="terminal">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
-                <span>Console & Logs</span>
-              </button>
-              <button type="button" class="output-tab-btn" id="tabOutputDiagnostics" data-subview="diagnostics">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                <span>Diagnostics</span>
-              </button>
-            </div>
-            <div class="output-pane-actions">
-              <button type="button" class="output-action-icon-btn" id="btnArtifactReload" title="Reload Viewport">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-              </button>
-              <button type="button" class="output-action-icon-btn" id="btnClearTerminalConsole" title="Clear Console Logs">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-              </button>
             </div>
           </div>
 
-          <!-- Subview 1: Sandboxed Web Iframe Viewport -->
-          <div class="studio-viewport-box" id="artifactBodyWrapper">
-            <iframe id="artifactSandboxIframe" class="studio-sandbox-iframe" sandbox="allow-scripts allow-modals allow-forms allow-popups" src="about:blank"></iframe>
+          <!-- Breadcrumbs Bar -->
+          <div id="studioBreadcrumbs" style="height:22px; background:#080c12; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; padding:0 12px; font-size:0.7rem; color:#64748b; font-family:monospace;">
+            <span id="breadcrumbPath">workspace > main.js</span>
           </div>
 
-          <!-- Subview 2: Developer Terminal Console Output -->
-          <div class="studio-terminal-box" id="studioTerminalBox" style="display:none;">
-            <div class="terminal-meta-bar">
-              <div class="terminal-filters">
-                <button type="button" class="terminal-filter-pill active" data-filter="all">All</button>
-                <button type="button" class="terminal-filter-pill" data-filter="stdout">Stdout</button>
-                <button type="button" class="terminal-filter-pill" data-filter="error">Errors</button>
+          <!-- Split Container: Monaco Editor + Optional Live Viewport -->
+          <div style="flex:1; display:flex; min-height:0; position:relative;">
+            <div class="studio-code-canvas-box" id="canvasEditorContainer" style="flex:1; position:relative; min-width:0;">
+              <!-- Monaco Editor Root Mount -->
+              <div id="monacoMount" class="monaco-editor-mount"></div>
+              <!-- Fallback Textarea if offline -->
+              <textarea id="canvasCodeTextarea" class="studio-textarea" style="display:none;" spellcheck="false"></textarea>
+            </div>
+
+            <!-- Optional Split Live Viewport (HTML / CSS / JS Preview) -->
+            <div id="artifactBodyWrapper" style="display:none; width:45%; border-left:1px solid rgba(255,255,255,0.1); background:#ffffff;">
+              <iframe id="artifactSandboxIframe" class="studio-sandbox-iframe" sandbox="allow-scripts allow-modals allow-forms allow-popups" style="width:100%; height:100%; border:none;" src="about:blank"></iframe>
+            </div>
+          </div>
+
+          <!-- 3d. Resizable Bottom Panel Drawer (Terminal & Diagnostics) -->
+          <div class="studio-bottom-panel" id="studioBottomPanel">
+            <div class="bottom-panel-header">
+              <div class="bottom-panel-tabs">
+                <button type="button" class="bottom-tab-btn active" id="tabBottomTerminal" data-panel="terminal">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                  <span>TERMINAL</span>
+                </button>
+                <button type="button" class="bottom-tab-btn" id="tabBottomProblems" data-panel="problems">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                  <span>PROBLEMS</span>
+                  <span id="problemsBadgeCount" style="padding:1px 5px; font-size:0.65rem; background:rgba(239,68,68,0.2); color:#f87171; border-radius:10px; font-weight:700;">0</span>
+                </button>
+                <button type="button" class="bottom-tab-btn" id="tabBottomOutput" data-panel="output">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line></svg>
+                  <span>OUTPUT</span>
+                </button>
               </div>
-              <span class="terminal-duration-badge" id="terminalDurationBadge">Ready</span>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <button type="button" class="explorer-icon-btn" id="btnRestartTerminal" title="New Terminal Session">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+                <button type="button" class="explorer-icon-btn" id="btnClearTerminal" title="Clear Terminal">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+                <button type="button" class="explorer-icon-btn" id="btnToggleBottomPanel" title="Minimize Panel">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+              </div>
             </div>
-            <div class="terminal-stream-log" id="studioTerminalLogs">
-              <div class="terminal-log-row info">
-                <span class="log-prefix">$</span>
-                <span class="log-msg">Nexus Developer Studio Ready. Press <strong>Run (Ctrl+Enter)</strong> to execute code or launch Live Viewport.</span>
+
+            <!-- Drawer Content Panes -->
+            <div class="bottom-panel-content">
+              <!-- Pane 1: xterm.js Live Terminal -->
+              <div id="bottomTerminalView" class="xterm-terminal-container" style="display:block;">
+                <div id="xtermMount" style="width:100%; height:100%;"></div>
+              </div>
+
+              <!-- Pane 2: Problems & AST Diagnostics -->
+              <div id="bottomProblemsView" style="display:none; padding:10px 14px; overflow-y:auto; height:100%;">
+                <div id="diagnosticsReportContainer">
+                  <div style="color:#64748b; font-size:0.75rem;">No problems detected in workspace files.</div>
+                </div>
+              </div>
+
+              <!-- Pane 3: Build & Execution Output -->
+              <div id="bottomOutputView" style="display:none; padding:10px 14px; font-family:monospace; font-size:0.75rem; color:#cbd5e1; overflow-y:auto; height:100%;">
+                <div id="studioOutputLogs">Build and Copilot outputs will appear here.</div>
               </div>
             </div>
           </div>
 
-          <!-- Subview 3: Developer AST Diagnostics & Quality Inspector -->
-          <div class="studio-diagnostics-box" id="studioDiagnosticsBox" style="display:none; padding:16px; overflow-y:auto; height:100%; font-family:var(--font-mono, monospace); font-size:12px; color:#cbd5e1; background:#0f172a;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #334155; padding-bottom:8px;">
-              <span style="font-weight:700; color:#f8fafc; font-size:13px;">🛡️ CODE QUALITY & SECURITY DIAGNOSTICS</span>
-              <button type="button" class="studio-btn" id="btnRunDiagnosticsCheck" style="padding:4px 8px; font-size:11px;">Re-Validate</button>
+          <!-- 3e. Professional VS Code Status Bar -->
+          <footer class="studio-statusbar-vscode" style="height:24px; min-height:24px; background:#070a0f; border-top:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:space-between; padding:0 10px; font-size:0.68rem; color:#94a3b8; user-select:none;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span id="statusGitBranch" style="display:inline-flex; align-items:center; gap:4px; color:#38bdf8;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M18 9a9 9 0 0 1-9 9"></path></svg>
+                <span>main</span>
+              </span>
+              <span id="statusProblemsCount" style="display:inline-flex; align-items:center; gap:4px;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <span>0 errors</span>
+              </span>
             </div>
-            <div id="diagnosticsReportContainer">
-              <div style="color:#94a3b8;">Click "Self-Repair" or "Re-Validate" to perform static AST and security analysis.</div>
+
+            <div style="display:flex; align-items:center; gap:14px;">
+              <span id="statusCursorPos">Ln 1, Col 1</span>
+              <span>Spaces: 2</span>
+              <span>UTF-8</span>
+              <span id="statusLanguageMode" style="font-weight:600; color:#cbd5e1;">JavaScript</span>
             </div>
-          </div>
-        </section>
+          </footer>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. VS Code Command Palette Overlay (Ctrl+Shift+P / F1) -->
+  <div class="command-palette-backdrop" id="commandPaletteModal" style="display:none;" aria-hidden="true">
+    <div class="command-palette-box">
+      <input type="text" id="commandPaletteInput" class="command-palette-input" placeholder="Type a command or search files..." autocomplete="off">
+      <div class="command-palette-list" id="commandPaletteList">
+        <!-- Dynamically populated commands -->
       </div>
     </div>
   </div>
@@ -2896,6 +2979,7 @@
     </div>
   </div>
 
+  <script src="/studioIde.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

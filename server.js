@@ -40,6 +40,9 @@ import githubRoutes from './githubRoutes.js';
 import portfolioRoutes from './portfolioRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import codeRoutes from './routes/codeRoutes.js';
+import terminalRoutes from './routes/terminalRoutes.js';
+import workspaceRoutes from './routes/workspaceRoutes.js';
+import gitRoutes from './routes/gitRoutes.js';
 import governanceRoutes from './routes/governanceRoutes.js';
 import productivityRoutes from './routes/productivityRoutes.js';
 import documentRoutes from './routes/documentRoutes.js';
@@ -601,7 +604,16 @@ app.use('/api/research', researchRouter);
 
 // --- TIER-1 CAPABILITIES REST ENDPOINTS ---
 
-// 1. Sandboxed Terminal Execution (Capabilities 28, 29, 30)
+// 1. Integrated IDE Terminal API (Interactive Shell & SSE Streaming)
+app.use('/api/terminal', terminalRoutes);
+
+// 1b. IDE Workspace File System API (Full Disk File Operations & Tree)
+app.use('/api/workspace', workspaceRoutes);
+
+// 1c. IDE Git Source Control API (Status, Diff, Staging, Commits, Branches)
+app.use('/api/git', gitRoutes);
+
+// 1d. Sandboxed Terminal Execution Legacy Alias
 app.post('/api/terminal/run', requireLocalDeveloperOrigin, async (req, res) => {
   try {
     const { command } = req.body;

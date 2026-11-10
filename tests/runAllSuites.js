@@ -21,7 +21,8 @@ const SUITES = [
   { name: 'Stage 7: Security Guardrails & SSRF Protection', file: 'tests/test-stage7-security.js' },
   { name: 'Stage 8: Benchmark Topologies & Evaluation', file: 'tests/test-stage8-benchmark.js' },
   { name: 'Audited Real Executed Deep Research Job', file: 'tests/verify-completed-job.js' },
-  { name: 'Stage 10: Advanced AI Coding Engine & AST Validator', file: 'tests/test-coding-engine.js' }
+  { name: 'Stage 10: Advanced AI Coding Engine & AST Validator', file: 'tests/test-coding-engine.js' },
+  { name: 'Stage 11: Canvas Studio IDE, Terminal & Workspace', file: 'tests/test-canvas-studio-ide.js' }
 ];
 
 async function runSuite(suite) {
