@@ -1930,25 +1930,44 @@ function updateStudioCursorPosition() {
   cursorPos.textContent = `Ln ${lineNum}, Col ${colNum}`;
 }
 
-// Render the File Tree Explorer
+// Render the File Tree Explorer (Project Files)
 function renderStudioFileTree() {
   const listEl = document.getElementById('studioFileTreeList');
   if (!listEl) return;
-  const { files, activeFileIndex } = window.canvasStudio;
+  const { files, activeFileIndex } = window.canvasStudio || {};
 
-  listEl.innerHTML = files.map((f, idx) => {
-    const isActive = idx === activeFileIndex;
-    const icon = getFileIconEmoji(f.name);
-    return `
-      <div class="explorer-file-item ${isActive ? 'active' : ''}" data-idx="${idx}" title="${f.name}">
-        <div class="file-item-left">
-          <span class="file-type-icon">${icon}</span>
-          <span class="file-name-text">${f.name}</span>
-        </div>
-        ${files.length > 1 ? `<button type="button" class="file-del-btn" data-del-idx="${idx}" title="Delete file">&times;</button>` : ''}
+  if (!files || files.length === 0) {
+    listEl.innerHTML = `
+      <div style="padding:16px 12px; color:#64748b; font-size:0.75rem; text-align:center;">
+        <p style="margin:0 0 8px;">No files in project.</p>
+        <button type="button" class="studio-btn" id="btnEmptyAddFile" style="padding:4px 10px; font-size:0.72rem;">+ Create File</button>
       </div>
     `;
-  }).join('');
+    listEl.querySelector('#btnEmptyAddFile')?.addEventListener('click', () => createNewStudioFile());
+    return;
+  }
+
+  listEl.innerHTML = `
+    <div style="padding:4px 8px 6px; font-size:0.68rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:flex; justify-content:space-between; align-items:center;">
+      <span>PROJECT FILES (${files.length})</span>
+      <button type="button" id="btnSidebarAddFile" class="explorer-icon-btn" title="Add File" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:14px; padding:0 4px;">+</button>
+    </div>
+    <div class="studio-project-files-list">
+      ${files.map((f, idx) => {
+        const isActive = idx === activeFileIndex;
+        const icon = getFileIconEmoji(f.name);
+        return `
+          <div class="explorer-file-item ${isActive ? 'active' : ''}" data-idx="${idx}" title="${f.name}">
+            <div class="file-item-left">
+              <span class="file-type-icon">${icon}</span>
+              <span class="file-name-text">${f.name}</span>
+            </div>
+            ${files.length > 1 ? `<button type="button" class="file-del-btn" data-del-idx="${idx}" title="Delete file">&times;</button>` : ''}
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
 
   listEl.querySelectorAll('.explorer-file-item').forEach(el => {
     el.addEventListener('click', (e) => {
@@ -1964,6 +1983,10 @@ function renderStudioFileTree() {
       const idx = parseInt(btn.dataset.delIdx, 10);
       deleteStudioFile(idx);
     });
+  });
+
+  listEl.querySelector('#btnSidebarAddFile')?.addEventListener('click', () => {
+    createNewStudioFile();
   });
 }
 
@@ -2033,11 +2056,14 @@ function renderStudioTabs() {
 function switchStudioActiveFile(idx, preserveCurrent = true) {
   const textarea = document.getElementById('canvasCodeTextarea');
   const langBadge = document.getElementById('studioLangBadge');
-  const { files, activeFileIndex } = window.canvasStudio;
+  const { files, activeFileIndex } = window.canvasStudio || {};
 
   // Save current code to current active file before switching (only when switching to a different file)
-  if (preserveCurrent && textarea && files && files[activeFileIndex] && activeFileIndex !== idx) {
-    files[activeFileIndex].content = textarea.value;
+  if (preserveCurrent && files && files[activeFileIndex] && activeFileIndex !== idx) {
+    const curVal = (window.studioIDE && window.studioIDE.editor)
+      ? window.studioIDE.editor.getValue()
+      : (textarea ? textarea.value : files[activeFileIndex].content);
+    files[activeFileIndex].content = curVal;
   }
 
   if (!files || !files[idx]) return;
@@ -2064,6 +2090,14 @@ function switchStudioActiveFile(idx, preserveCurrent = true) {
 
   if (typeof window.switchMonacoFile === 'function') {
     window.switchMonacoFile(activeFile);
+  }
+
+  // If in split preview mode and HTML, update live preview
+  if (window.canvasStudio.viewMode === 'split' || window.canvasStudio.viewMode === 'preview') {
+    const iframe = document.getElementById('artifactSandboxIframe');
+    if (iframe && typeof compileWebProjectBundle === 'function') {
+      iframe.srcdoc = compileWebProjectBundle();
+    }
   }
 }
 
@@ -2131,6 +2165,8 @@ function switchStudioView(mode = 'editor') {
   window.canvasStudio.viewMode = mode;
   const workspace = document.getElementById('canvasStudioWorkspace');
   const viewBtns = document.querySelectorAll('.studio-view-btn');
+  const editorBox = document.getElementById('canvasEditorContainer');
+  const previewBox = document.getElementById('artifactBodyWrapper');
 
   viewBtns.forEach(btn => {
     btn.classList.toggle('active', btn.dataset.view === mode);
@@ -2141,12 +2177,46 @@ function switchStudioView(mode = 'editor') {
   }
 
   if (mode === 'preview') {
-    switchStudioOutputSubView('preview');
-  } else if (mode === 'console') {
-    switchStudioOutputSubView('terminal');
+    if (editorBox) editorBox.style.display = 'none';
+    if (previewBox) {
+      previewBox.style.display = 'block';
+      previewBox.style.width = '100%';
+    }
+    const iframe = document.getElementById('artifactSandboxIframe');
+    if (iframe && typeof compileWebProjectBundle === 'function') {
+      iframe.srcdoc = compileWebProjectBundle();
+    }
   } else if (mode === 'split') {
-    // If output was hidden, default to current subview
-    switchStudioOutputSubView(window.canvasStudio.outputSubView || 'preview');
+    if (editorBox) {
+      editorBox.style.display = 'block';
+      editorBox.style.width = '50%';
+      editorBox.style.flex = '1';
+    }
+    if (previewBox) {
+      previewBox.style.display = 'block';
+      previewBox.style.width = '50%';
+    }
+    const iframe = document.getElementById('artifactSandboxIframe');
+    if (iframe && typeof compileWebProjectBundle === 'function') {
+      iframe.srcdoc = compileWebProjectBundle();
+    }
+  } else {
+    // 'editor' mode
+    if (editorBox) {
+      editorBox.style.display = 'block';
+      editorBox.style.width = '100%';
+      editorBox.style.flex = '1';
+    }
+    if (previewBox) {
+      previewBox.style.display = 'none';
+    }
+  }
+
+  // Trigger Monaco relayout
+  if (window.studioIDE && window.studioIDE.editor) {
+    setTimeout(() => {
+      window.studioIDE.editor.layout();
+    }, 50);
   }
 }
 
@@ -2472,9 +2542,13 @@ async function runStudioCode() {
   const durationBadge = document.getElementById('terminalDurationBadge');
   const { files, activeFileIndex } = window.canvasStudio;
 
-  // Sync current textarea to file
-  if (textarea && files[activeFileIndex]) {
-    files[activeFileIndex].content = textarea.value;
+  // Sync current editor code to file
+  if (files && files[activeFileIndex]) {
+    const curCode = (window.studioIDE && window.studioIDE.editor)
+      ? window.studioIDE.editor.getValue()
+      : (textarea ? textarea.value : files[activeFileIndex].content);
+    files[activeFileIndex].content = curCode;
+    if (textarea) textarea.value = curCode;
   }
 
   const activeFile = files[activeFileIndex];
@@ -2697,12 +2771,14 @@ function openCanvasEditor(rawCodeOrFiles, lang = 'javascript', title = 'Nexus In
   const initialActive = Math.min(Math.max(0, targetFileIndex), initialFiles.length - 1);
   window.canvasStudio.activeFileIndex = initialActive;
   window.canvasStudio.openTabs = initialFiles.map((_, i) => i);
+  window.canvasStudio.isOpen = true;
 
   if (titleEl) {
     titleEl.textContent = initialFiles.length > 1 ? `Multi-File Project (${initialFiles.length} files)` : title;
   }
 
-  let targetView = defaultView || 'split';
+  const hasHtml = initialFiles.some(f => f.name.endsWith('.html')) || (lang && lang.toLowerCase() === 'html');
+  let targetView = defaultView || (hasHtml ? 'split' : 'editor');
 
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
@@ -2712,14 +2788,27 @@ function openCanvasEditor(rawCodeOrFiles, lang = 'javascript', title = 'Nexus In
   switchStudioActiveFile(initialActive, false);
   switchStudioView(targetView);
 
-  // If web, auto-compile initial preview without white screen
-  const hasHtml = initialFiles.some(f => f.name.endsWith('.html'));
+  // Initialize Monaco Editor and Terminal
+  if (typeof window.initMonacoEditor === 'function') {
+    window.initMonacoEditor((editor) => {
+      if (typeof window.switchMonacoFile === 'function' && initialFiles[initialActive]) {
+        window.switchMonacoFile(initialFiles[initialActive]);
+      }
+    });
+  } else if (typeof window.switchMonacoFile === 'function' && initialFiles[initialActive]) {
+    window.switchMonacoFile(initialFiles[initialActive]);
+  }
+
+  if (typeof window.initInteractiveTerminal === 'function') {
+    window.initInteractiveTerminal();
+  }
+
+  // If web, auto-compile initial preview into iframe
   if (hasHtml) {
-    switchStudioOutputSubView('preview');
     const iframe = document.getElementById('artifactSandboxIframe');
-    if (iframe) iframe.srcdoc = compileWebProjectBundle();
-  } else {
-    switchStudioOutputSubView('terminal');
+    if (iframe && typeof compileWebProjectBundle === 'function') {
+      iframe.srcdoc = compileWebProjectBundle();
+    }
   }
 }
 

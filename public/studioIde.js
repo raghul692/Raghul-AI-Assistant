@@ -71,6 +71,24 @@
       return;
     }
 
+    if (window.studioIDE._isInitializing) {
+      if (callback) {
+        window.studioIDE._pendingCallbacks = window.studioIDE._pendingCallbacks || [];
+        window.studioIDE._pendingCallbacks.push(callback);
+      }
+      return;
+    }
+    window.studioIDE._isInitializing = true;
+    window.studioIDE._pendingCallbacks = callback ? [callback] : [];
+
+    const onReady = (editor) => {
+      window.studioIDE.isInitialized = true;
+      window.studioIDE._isInitializing = false;
+      const cbs = window.studioIDE._pendingCallbacks || [];
+      window.studioIDE._pendingCallbacks = [];
+      cbs.forEach(cb => { try { cb(editor); } catch (e) { console.error(e); } });
+    };
+
     if (typeof window.require !== 'undefined') {
       window.require.config({
         paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' }
@@ -81,9 +99,12 @@
         const container = document.getElementById('monacoMount');
         if (!container) return;
 
+        const { files, activeFileIndex } = window.canvasStudio || {};
+        const curFile = (files && files[activeFileIndex]) || { name: 'index.html', content: '', language: 'html' };
+
         const editor = monaco.editor.create(container, {
-          value: '// Welcome to Raghul AI Professional Studio IDE\nconsole.log("VS Code-Grade AI Editor Ready.");',
-          language: 'javascript',
+          value: curFile.content || '',
+          language: getMonacoLanguage(curFile.name),
           theme: window.studioIDE.currentTheme,
           fontSize: window.studioIDE.fontSize,
           fontFamily: "'JetBrains Mono', Consolas, 'Courier New', monospace",
@@ -100,7 +121,10 @@
         });
 
         window.studioIDE.editor = editor;
-        window.studioIDE.isInitialized = true;
+
+        // Hide fallback textarea
+        const fallback = document.getElementById('canvasCodeTextarea');
+        if (fallback) fallback.style.display = 'none';
 
         // Sync model changes with active file
         editor.onDidChangeModelContent(() => {
@@ -109,8 +133,7 @@
           if (files && files[activeFileIndex]) {
             files[activeFileIndex].content = content;
           }
-          const textarea = document.getElementById('canvasCodeTextarea');
-          if (textarea) textarea.value = content;
+          if (fallback) fallback.value = content;
 
           // Trigger debounced quality badge check
           if (typeof window.updateStudioQualityBadge === 'function') {
@@ -139,10 +162,16 @@
           toggleCommandPalette(true);
         });
 
-        if (callback) callback(editor);
+        onReady(editor);
+      }, function (err) {
+        console.warn('[StudioIDE] Failed to load Monaco from CDN; falling back to textarea:', err);
+        window.studioIDE._isInitializing = false;
+        const fallback = document.getElementById('canvasCodeTextarea');
+        if (fallback) fallback.style.display = 'block';
       });
     } else {
       console.warn('[StudioIDE] Monaco loader script not detected; using fallback editor.');
+      window.studioIDE._isInitializing = false;
       const fallback = document.getElementById('canvasCodeTextarea');
       if (fallback) fallback.style.display = 'block';
     }
@@ -151,29 +180,39 @@
   // Switch or Create Monaco Model for file
   function switchMonacoFile(file) {
     if (!file) return;
+
+    // Always keep fallback textarea in sync
+    const textarea = document.getElementById('canvasCodeTextarea');
+    if (textarea) textarea.value = file.content || '';
+
     const { monaco, editor, models } = window.studioIDE;
     if (!monaco || !editor) {
-      const textarea = document.getElementById('canvasCodeTextarea');
-      if (textarea) textarea.value = file.content || '';
+      initMonacoEditor(() => switchMonacoFile(file));
       return;
     }
 
-    const filePath = file.name || 'unnamed.js';
+    const filePath = file.name || 'main.js';
     const lang = getMonacoLanguage(filePath);
     let model = models.get(filePath);
 
     if (!model || model.isDisposed()) {
-      const uri = monaco.Uri.parse(`file:///${filePath}`);
-      model = monaco.editor.getModel(uri) || monaco.editor.createModel(file.content || '', lang, uri);
+      const uri = monaco.Uri.parse(`inmemory://model/${encodeURIComponent(filePath)}`);
+      const existing = monaco.editor.getModel(uri);
+      if (existing) existing.dispose();
+      model = monaco.editor.createModel(file.content || '', lang, uri);
       models.set(filePath, model);
     } else {
-      if (model.getValue() !== file.content) {
+      if (model.getValue() !== (file.content || '')) {
         model.setValue(file.content || '');
       }
     }
 
     editor.setModel(model);
     window.studioIDE.activeModel = model;
+
+    setTimeout(() => {
+      editor.layout();
+    }, 15);
 
     // Update Status Bar Language
     const statusLang = document.getElementById('statusLanguageMode');
@@ -184,7 +223,7 @@
     // Update Breadcrumbs
     const breadcrumb = document.getElementById('breadcrumbPath');
     if (breadcrumb) {
-      breadcrumb.textContent = `workspace > ${filePath}`;
+      breadcrumb.textContent = `project > ${filePath}`;
     }
   }
 
@@ -755,7 +794,9 @@
         window.studioIDE.activeSidebar = name;
 
         if (name === 'git') loadGitStatus();
-        if (name === 'explorer') loadWorkspaceTree();
+        if (name === 'explorer' && typeof window.renderStudioFileTree === 'function') {
+          window.renderStudioFileTree();
+        }
       });
     });
 
@@ -782,9 +823,15 @@
     document.getElementById('btnClearTerminal')?.addEventListener('click', () => window.studioIDE.xterm?.clear());
     document.getElementById('btnGitCommit')?.addEventListener('click', commitGitStaged);
     document.getElementById('btnGitRefresh')?.addEventListener('click', loadGitStatus);
-    document.getElementById('btnWorkspaceNewFile')?.addEventListener('click', createNewFilePrompt);
-    document.getElementById('btnWorkspaceNewFolder')?.addEventListener('click', createNewFolderPrompt);
-    document.getElementById('btnWorkspaceRefresh')?.addEventListener('click', loadWorkspaceTree);
+    document.getElementById('btnStudioNewFile')?.addEventListener('click', () => {
+      if (typeof window.createNewStudioFile === 'function') window.createNewStudioFile();
+    });
+    document.getElementById('btnWorkspaceNewFile')?.addEventListener('click', () => {
+      if (typeof window.createNewStudioFile === 'function') window.createNewStudioFile();
+    });
+    document.getElementById('btnWorkspaceRefresh')?.addEventListener('click', () => {
+      if (typeof window.renderStudioFileTree === 'function') window.renderStudioFileTree();
+    });
     document.getElementById('btnOpenCommandPalette')?.addEventListener('click', () => toggleCommandPalette(true));
     document.getElementById('btnToggleLiveViewport')?.addEventListener('click', toggleLiveViewport);
 
@@ -857,14 +904,13 @@
 
     // Initialize Monaco and Terminal
     initMonacoEditor((editor) => {
-      const { files, activeFileIndex } = window.canvasStudio;
+      const { files, activeFileIndex } = window.canvasStudio || {};
       if (files && files[activeFileIndex]) {
         switchMonacoFile(files[activeFileIndex]);
       }
     });
 
     initInteractiveTerminal();
-    loadWorkspaceTree();
     loadGitStatus();
   };
 
@@ -886,3 +932,4 @@
   }
 
 })();
+

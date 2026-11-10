@@ -220,7 +220,7 @@ await test('public/studioIde.js exists and exports master IDE functions', () => 
   assert(content.includes('toggleCommandPalette'), 'Must include toggleCommandPalette');
 });
 
-await test('public/index.html includes Monaco AMD loader, xterm.js, and studioIde.js', () => {
+await test('public/index.html includes Monaco AMD loader, xterm.js, studioIde.js, and Project Files tree', () => {
   const htmlPath = path.join(PROJECT_ROOT, 'public', 'index.html');
   const content = fs.readFileSync(htmlPath, 'utf8');
   assert(content.includes('xterm.js'), 'Must load xterm.js');
@@ -228,7 +228,17 @@ await test('public/index.html includes Monaco AMD loader, xterm.js, and studioId
   assert(content.includes('studioIde.js'), 'Must load studioIde.js');
   assert(content.includes('id="monacoMount"'), 'Must have monaco mount');
   assert(content.includes('id="xtermMount"'), 'Must have xterm mount');
+  assert(content.includes('id="studioFileTreeList"'), 'Must have studioFileTreeList for project files');
+  assert(content.includes('id="artifactBodyWrapper"'), 'Must have artifactBodyWrapper for live viewport');
   assert(content.includes('id="commandPaletteModal"'), 'Must have command palette modal');
+});
+
+await test('public/style.css includes responsive split view and editor container layouts', () => {
+  const cssPath = path.join(PROJECT_ROOT, 'public', 'style.css');
+  const content = fs.readFileSync(cssPath, 'utf8');
+  assert(content.includes('view-split'), 'Must have view-split styles');
+  assert(content.includes('view-preview'), 'Must have view-preview styles');
+  assert(content.includes('monaco-editor-mount'), 'Must have monaco-editor-mount styles');
 });
 
 console.log('\n=================================================================');
@@ -240,3 +250,4 @@ if (failed > 0) {
 } else {
   process.exit(0);
 }
+

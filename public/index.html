@@ -1595,24 +1595,18 @@
 
         <!-- 3b. Collapsible Sidebar Panels -->
         <aside class="canvas-sidebar-panel" id="canvasSidebarPanel">
-          <!-- View 1: Explorer -->
+          <!-- View 1: Explorer (Project Files) -->
           <div id="sidebarViewExplorer" style="display:flex; flex-direction:column; height:100%;">
             <div class="sidebar-view-header">
-              <span>EXPLORER</span>
+              <span>PROJECT FILES</span>
               <div style="display:flex; gap:4px;">
-                <button type="button" class="explorer-icon-btn" id="btnWorkspaceNewFile" title="New File">
+                <button type="button" class="explorer-icon-btn" id="btnStudioNewFile" title="New File in Project">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                </button>
-                <button type="button" class="explorer-icon-btn" id="btnWorkspaceNewFolder" title="New Folder">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                </button>
-                <button type="button" class="explorer-icon-btn" id="btnWorkspaceRefresh" title="Refresh Workspace Tree">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                 </button>
               </div>
             </div>
-            <div class="sidebar-view-body" id="studioWorkspaceTree">
-              <div style="padding:10px; color:#64748b; font-size:0.75rem;">Loading workspace files...</div>
+            <div class="sidebar-view-body" id="studioFileTreeList" style="flex:1; overflow-y:auto; padding:6px 0;">
+              <div style="padding:10px; color:#64748b; font-size:0.75rem;">Loading project files...</div>
             </div>
           </div>
 
@@ -1695,8 +1689,8 @@
           </div>
 
           <!-- Split Container: Monaco Editor + Optional Live Viewport -->
-          <div style="flex:1; display:flex; min-height:0; position:relative;">
-            <div class="studio-code-canvas-box" id="canvasEditorContainer" style="flex:1; position:relative; min-width:0;">
+          <div style="flex:1; display:flex; min-height:0; position:relative;" id="studioSplitViewport">
+            <div class="studio-code-canvas-box" id="canvasEditorContainer" style="flex:1; position:relative; min-width:0; height:100%;">
               <!-- Monaco Editor Root Mount -->
               <div id="monacoMount" class="monaco-editor-mount"></div>
               <!-- Fallback Textarea if offline -->
@@ -1704,8 +1698,8 @@
             </div>
 
             <!-- Optional Split Live Viewport (HTML / CSS / JS Preview) -->
-            <div id="artifactBodyWrapper" style="display:none; width:45%; border-left:1px solid rgba(255,255,255,0.1); background:#ffffff;">
-              <iframe id="artifactSandboxIframe" class="studio-sandbox-iframe" sandbox="allow-scripts allow-modals allow-forms allow-popups" style="width:100%; height:100%; border:none;" src="about:blank"></iframe>
+            <div id="artifactBodyWrapper" style="display:none; width:50%; border-left:1px solid rgba(255,255,255,0.1); background:#ffffff; position:relative; height:100%;">
+              <iframe id="artifactSandboxIframe" class="studio-sandbox-iframe" sandbox="allow-scripts allow-modals allow-forms allow-popups" style="width:100%; height:100%; border:none; display:block;" src="about:blank"></iframe>
             </div>
           </div>
 
@@ -2979,7 +2973,7 @@
     </div>
   </div>
 
-  <script src="/studioIde.js"></script>
   <script src="app.js"></script>
+  <script src="studioIde.js"></script>
 </body>
 </html>
