@@ -13,6 +13,7 @@ import { NEXUS_SOUL } from './soul.js';
 import { DEVELOPER_WORKFLOW } from './developerWorkflow.js';
 import { REACT_FRAMEWORK } from './reactFramework.js';
 import { PERSONA_CATALOG } from './personaCatalog.js';
+import { buildCodingSystemContext } from '../services/codingKnowledgeEngine.js';
 
 class PromptEngine {
   constructor() {
@@ -103,9 +104,13 @@ class PromptEngine {
       sections.push(REACT_FRAMEWORK);
     }
 
-    // 4. LAYER 4: Disciplined Developer Workflow (When coding or for coder persona)
+    // 4. LAYER 4: Disciplined Developer Workflow & Structured Knowledge (When coding or for coder persona)
     if (isCoding) {
       sections.push(DEVELOPER_WORKFLOW);
+      const codingContext = buildCodingSystemContext(message, projectContext || '');
+      if (codingContext) {
+        sections.push(codingContext);
+      }
     }
 
     // 5. LAYER 5: Adaptive User Personalization (Identity Layer)

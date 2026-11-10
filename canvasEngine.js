@@ -1,5 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { AIProviderManager } from './orchestration/aiProviderManager.js';
+import { validateProjectFiles, validateCode } from './services/codeValidator.js';
 
 let sharedProviderManager = null;
 function getProviderManager() {
@@ -226,10 +227,14 @@ ${activeFileName ? `(Currently active file: ${activeFileName})` : ''}
   const summaryMatch = fullText.match(/###\s*SUMMARY\s*([\s\S]*?)$/i);
   const summary = summaryMatch ? summaryMatch[1].trim() : 'Project files successfully generated and updated by Nexus AI Copilot.';
 
+  // Automated Pre-Delivery AST & Quality Validation
+  const validation = validateProjectFiles(parsedFiles);
+
   return {
     success: true,
     files: parsedFiles,
     summary,
+    validation,
     rawOutput: fullText
   };
 }

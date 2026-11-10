@@ -20,7 +20,8 @@ const SUITES = [
   { name: 'Stage 6: Workspace UI & SSE Integration', file: 'tests/test-stage6-workspace.js' },
   { name: 'Stage 7: Security Guardrails & SSRF Protection', file: 'tests/test-stage7-security.js' },
   { name: 'Stage 8: Benchmark Topologies & Evaluation', file: 'tests/test-stage8-benchmark.js' },
-  { name: 'Audited Real Executed Deep Research Job', file: 'tests/verify-completed-job.js' }
+  { name: 'Audited Real Executed Deep Research Job', file: 'tests/verify-completed-job.js' },
+  { name: 'Stage 10: Advanced AI Coding Engine & AST Validator', file: 'tests/test-coding-engine.js' }
 ];
 
 async function runSuite(suite) {
@@ -95,3 +96,4 @@ runAll().catch(err => {
   console.error('Fatal harness error:', err);
   process.exit(1);
 });
+

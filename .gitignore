@@ -13,7 +13,8 @@ data/*.db-journal
 
 # Temporary testing & scratch scripts
 scratch/
-test-*.js
+/test-*.js
+!tests/
 
 # OS & Editor files
 .DS_Store

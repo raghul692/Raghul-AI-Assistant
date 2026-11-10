@@ -15,6 +15,8 @@ import { fileURLToPath } from 'url';
 import { recordAuditLog, RISK_LEVELS } from './governanceAudit.js';
 import { AIProviderManager } from './orchestration/aiProviderManager.js';
 import { runCodeSandboxTool } from './agentTools.js';
+import { validateCode } from './services/codeValidator.js';
+import { executeTestSuite, runCode } from './services/codeExecutionEngine.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -163,11 +165,12 @@ export function applyFilePatch(relativeFilePath, targetText, replacementText) {
 }
 
 /**
- * Run iterative test & self-repair loop
+ * Run iterative test & self-repair loop with AST validation and test harnesses
  */
 export async function runSelfRepairLoop({
   codeToVerify,
-  testCode,
+  testCode = '',
+  language = 'javascript',
   maxIterations = 3,
   onIteration = () => {}
 }) {
@@ -175,67 +178,111 @@ export async function runSelfRepairLoop({
   let passed = false;
   let iterations = 0;
   let lastError = null;
+  let validation = null;
 
   while (iterations < maxIterations && !passed) {
     iterations++;
-    onIteration({ iteration: iterations, status: 'testing', message: `Executing verification suite (iteration ${iterations}/${maxIterations})...` });
+    onIteration({ iteration: iterations, status: 'validating', message: `Auditing AST syntax & code quality (iteration ${iterations}/${maxIterations})...` });
 
-    // Combine code + test
-    const harness = `${currentCode}\n\n// --- Test Verification Suite ---\n${testCode}`;
-    const testResult = runCodeSandboxTool('javascript', harness);
-
-    if (testResult.success && !testResult.error && !testResult.errors) {
-      passed = true;
-      onIteration({ iteration: iterations, status: 'passed', message: 'Verification suite passed with zero errors!' });
-      return {
-        success: true,
-        iterations,
-        code: currentCode,
-        output: testResult.output
-      };
+    // Step 1: Pre-execution AST & Quality Inspection
+    validation = validateCode({ code: currentCode, language });
+    if (!validation.valid) {
+      const errorSummaries = validation.errors.map(e => `[${e.rule}] Line ${e.line}: ${e.message}`).join('\n');
+      lastError = `Code quality & AST errors detected:\n${errorSummaries}`;
+      onIteration({ iteration: iterations, status: 'fixing', message: `AST validation failed (${validation.errors.length} issues). Generating repair...` });
+    } else {
+      // Step 2: Runtime & Test Verification
+      if (testCode && testCode.trim()) {
+        onIteration({ iteration: iterations, status: 'testing', message: `Executing automated test harness...` });
+        const suiteResult = await executeTestSuite({ code: currentCode, testCode, language });
+        if (suiteResult.passed) {
+          passed = true;
+          onIteration({ iteration: iterations, status: 'passed', message: 'Verification suite passed with zero errors!' });
+          return {
+            success: true,
+            iterations,
+            code: currentCode,
+            cqi: validation.cqi,
+            grade: validation.grade,
+            output: suiteResult.output,
+            validation
+          };
+        }
+        lastError = suiteResult.failedAssertion || 'Test assertion failed';
+      } else {
+        // Run code directly to verify execution stability
+        const runRes = await runCode({ code: currentCode, language });
+        if (runRes.success) {
+          passed = true;
+          onIteration({ iteration: iterations, status: 'passed', message: 'Code executed cleanly with zero runtime errors.' });
+          return {
+            success: true,
+            iterations,
+            code: currentCode,
+            cqi: validation.cqi,
+            grade: validation.grade,
+            output: runRes.output,
+            validation
+          };
+        }
+        lastError = runRes.error || runRes.errors || 'Runtime execution failed';
+      }
     }
 
-    lastError = testResult.error || testResult.errors || 'Assertion failed';
-    onIteration({ iteration: iterations, status: 'fixing', message: `Test failed: ${lastError.slice(0, 80)}. Generating automated repair...` });
+    if (!passed && iterations < maxIterations) {
+      onIteration({ iteration: iterations, status: 'fixing', message: `Refining code to resolve: ${String(lastError).slice(0, 80)}...` });
 
-    // Ask AI model for fix
-    const repairPrompt = `You are an elite automated code repair agent.
-The following code failed its verification tests.
+      const repairPrompt = `You are Nexus Automated Code Repair Architect.
+The following ${language} code failed pre-delivery verification or tests.
 
-Original Code:
+=== ORIGINAL CODE ===
 ${currentCode}
 
-Test Suite:
-${testCode}
-
-Test Execution Error:
+=== VERIFICATION / TEST FAILURE ===
 ${lastError}
 
-Fix the code. Return ONLY the complete corrected implementation inside a javascript code block:
-\`\`\`javascript
+${testCode ? `=== TEST HARNESS ===\n${testCode}\n` : ''}
+
+Strict Instructions:
+1. Fix all syntax, type, logic, and assertion errors.
+2. Maintain 100% complete production logic. STRICTLY NO PLACEHOLDERS (no // TODO, no // ... rest of code).
+3. Return ONLY the complete corrected implementation inside a code fence:
+\`\`\`${language}
 // corrected code
 \`\`\``;
 
-    const mgr = getProviderManager();
-    const repairRes = await mgr.generateText({
-      prompt: repairPrompt,
-      taskCategory: 'coding_debugging',
-      maxTokens: 1000
-    });
+      try {
+        const mgr = getProviderManager();
+        const repairRes = await mgr.generateText({
+          prompt: repairPrompt,
+          taskCategory: 'coding_debugging',
+          maxTokens: 3000
+        });
 
-    const match = repairRes.text.match(/```(?:javascript|js)?\s*([\s\S]*?)```/);
-    if (match) {
-      currentCode = match[1].trim();
-    } else {
-      currentCode = repairRes.text.trim();
+        const match = repairRes?.text?.match(/```(?:[a-zA-Z0-9_-]+)?\s*([\s\S]*?)```/);
+        if (match) {
+          currentCode = match[1].trim();
+        } else if (repairRes?.text) {
+          currentCode = repairRes.text.trim();
+        }
+      } catch (err) {
+        console.warn('[CodingAgent] Automated repair call notice:', err.message);
+        break;
+      }
     }
   }
+
+  // Final validation pass
+  const finalValidation = validateCode({ code: currentCode, language });
 
   return {
     success: passed,
     iterations,
     code: currentCode,
-    error: lastError
+    cqi: finalValidation.cqi,
+    grade: finalValidation.grade,
+    error: lastError,
+    validation: finalValidation
   };
 }
 

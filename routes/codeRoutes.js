@@ -3,6 +3,10 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { scanWorkspaceTree, rollbackSnapshot, applyFilePatch, runSelfRepairLoop } from '../codingAgent.js';
+import { validateCode, validateProjectFiles } from '../services/codeValidator.js';
+import { runCode, executeTestSuite } from '../services/codeExecutionEngine.js';
+import { getAllKnownStacks, classifyTechStack } from '../services/codingKnowledgeEngine.js';
+import { getWorkspaceContextSummary } from '../services/codebaseContextEngine.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -103,12 +107,67 @@ router.post('/rollback', (req, res) => {
   }
 });
 
-// 5. Self-Repair Execution
+// 5. Self-Repair Execution (Enhanced with AST and Multi-Language support)
 router.post('/self-repair', async (req, res) => {
   try {
-    const { code, testCode, maxIterations } = req.body;
-    const result = await runSelfRepairLoop({ codeToVerify: code, testCode, maxIterations });
+    const { code, testCode, language = 'javascript', maxIterations } = req.body;
+    const result = await runSelfRepairLoop({ codeToVerify: code, testCode, language, maxIterations });
     res.json({ success: true, result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 6. Pre-Delivery AST Code Validation
+router.post('/validate', (req, res) => {
+  try {
+    const { code, language = 'javascript', filePath = '', files = null } = req.body;
+
+    if (Array.isArray(files) && files.length > 0) {
+      const projectResult = validateProjectFiles(files);
+      return res.json({ success: true, result: projectResult });
+    }
+
+    const validation = validateCode({ code, language, filePath });
+    res.json({ success: true, result: validation });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 7. Sandboxed Polyglot Code Execution
+router.post('/execute', async (req, res) => {
+  try {
+    const { code, language = 'javascript', testCode = null, timeoutMs = 3000 } = req.body;
+    if (!code) return res.status(400).json({ error: 'Code is required' });
+
+    if (testCode && typeof testCode === 'string') {
+      const suiteResult = await executeTestSuite({ code, testCode, language, timeoutMs });
+      return res.json({ success: true, result: suiteResult });
+    }
+
+    const result = await runCode({ code, language, options: { timeoutMs } });
+    res.json({ success: true, result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 8. Supported Knowledge Domains
+router.get('/knowledge', (req, res) => {
+  try {
+    const stacks = getAllKnownStacks();
+    res.json({ success: true, count: stacks.length, stacks });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 9. Workspace Context & Architectural Summary
+router.get('/context', (req, res) => {
+  try {
+    const summary = getWorkspaceContextSummary();
+    res.json({ success: true, summary });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

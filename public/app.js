@@ -2060,6 +2060,7 @@ function switchStudioActiveFile(idx, preserveCurrent = true) {
   renderStudioTabs();
   syncStudioGutter();
   updateStudioCursorPosition();
+  updateStudioQualityBadge();
 }
 
 // Close a tab
@@ -2145,19 +2146,23 @@ function switchStudioView(mode = 'editor') {
   }
 }
 
-// Switch output pane subview: 'preview' | 'terminal'
+// Switch output pane subview: 'preview' | 'terminal' | 'diagnostics'
 function switchStudioOutputSubView(subview = 'preview') {
   window.canvasStudio.outputSubView = subview;
   const tabPreview = document.getElementById('tabOutputPreview');
   const tabTerminal = document.getElementById('tabOutputTerminal');
+  const tabDiagnostics = document.getElementById('tabOutputDiagnostics');
   const previewBox = document.getElementById('artifactBodyWrapper');
   const terminalBox = document.getElementById('studioTerminalBox');
+  const diagnosticsBox = document.getElementById('studioDiagnosticsBox');
 
   if (tabPreview) tabPreview.classList.toggle('active', subview === 'preview');
   if (tabTerminal) tabTerminal.classList.toggle('active', subview === 'terminal');
+  if (tabDiagnostics) tabDiagnostics.classList.toggle('active', subview === 'diagnostics');
 
   if (previewBox) previewBox.style.display = subview === 'preview' ? 'block' : 'none';
   if (terminalBox) terminalBox.style.display = subview === 'terminal' ? 'flex' : 'none';
+  if (diagnosticsBox) diagnosticsBox.style.display = subview === 'diagnostics' ? 'block' : 'none';
 
   if (subview === 'terminal') {
     // Reset unread badge
@@ -2166,6 +2171,158 @@ function switchStudioOutputSubView(subview = 'preview') {
       badge.style.display = 'none';
       badge.textContent = '0';
     }
+  } else if (subview === 'diagnostics') {
+    updateStudioQualityBadge();
+  }
+}
+
+// Master AST & Code Quality Inspector
+let qualityDebounceTimer = null;
+async function updateStudioQualityBadge() {
+  const { files, activeFileIndex } = window.canvasStudio;
+  const badge = document.getElementById('studioQualityBadge');
+  const scoreEl = document.getElementById('studioQualityScore');
+  const statusEl = document.getElementById('studioQualityStatus');
+  const container = document.getElementById('diagnosticsReportContainer');
+  if (!files || !files[activeFileIndex]) return;
+
+  const activeFile = files[activeFileIndex];
+  try {
+    const res = await fetch('/api/code/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: activeFile.content || '',
+        language: activeFile.language || 'javascript',
+        filePath: activeFile.name || 'main.js'
+      })
+    });
+    const data = await res.json();
+    if (data.success && data.result) {
+      const v = data.result;
+      if (scoreEl) scoreEl.textContent = `CQI: ${v.cqi} ${v.grade}`;
+      if (statusEl) {
+        if (v.valid) {
+          statusEl.textContent = 'AST Valid';
+          if (badge) {
+            badge.style.background = 'rgba(34,197,94,0.12)';
+            badge.style.borderColor = 'rgba(34,197,94,0.3)';
+            badge.style.color = '#4ade80';
+          }
+        } else {
+          statusEl.textContent = `${v.errors.length} Issue(s)`;
+          if (badge) {
+            badge.style.background = 'rgba(239,68,68,0.12)';
+            badge.style.borderColor = 'rgba(239,68,68,0.3)';
+            badge.style.color = '#f87171';
+          }
+        }
+      }
+
+      if (container) {
+        let html = `
+          <div style="display:flex; justify-content:space-between; margin-bottom:12px; padding:10px; background:rgba(255,255,255,0.03); border-radius:6px;">
+            <div><strong>Active File:</strong> ${escapeHtml(activeFile.name)}</div>
+            <div><strong>Quality Grade:</strong> <span style="color:${v.cqi >= 80 ? '#4ade80' : '#f87171'}; font-weight:700;">${v.cqi}/100 (${v.grade})</span></div>
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:14px; text-align:center;">
+            <div style="background:rgba(255,255,255,0.02); padding:6px; border-radius:4px;"><div style="color:#94a3b8; font-size:10px;">SYNTAX</div><div style="font-weight:700;">${v.metrics.syntax}/40</div></div>
+            <div style="background:rgba(255,255,255,0.02); padding:6px; border-radius:4px;"><div style="color:#94a3b8; font-size:10px;">COMPLETENESS</div><div style="font-weight:700;">${v.metrics.completeness}/25</div></div>
+            <div style="background:rgba(255,255,255,0.02); padding:6px; border-radius:4px;"><div style="color:#94a3b8; font-size:10px;">SECURITY</div><div style="font-weight:700;">${v.metrics.security}/25</div></div>
+            <div style="background:rgba(255,255,255,0.02); padding:6px; border-radius:4px;"><div style="color:#94a3b8; font-size:10px;">STANDARDS</div><div style="font-weight:700;">${v.metrics.maintainability}/10</div></div>
+          </div>
+        `;
+
+        if (v.errors.length > 0) {
+          html += `<div style="color:#f87171; font-weight:700; margin-bottom:6px;">❌ Identified Issues (${v.errors.length}):</div>`;
+          html += v.errors.map(e => `
+            <div style="background:rgba(239,68,68,0.08); border-left:3px solid #ef4444; padding:6px 10px; margin-bottom:6px; border-radius:0 4px 4px 0;">
+              <div><strong>[${escapeHtml(e.rule)}]</strong> Line ${e.line}: ${escapeHtml(e.message)}</div>
+              ${e.snippet ? `<div style="font-size:11px; color:#fca5a5; margin-top:2px; font-family:monospace;">${escapeHtml(e.snippet)}</div>` : ''}
+            </div>
+          `).join('');
+        } else {
+          html += `<div style="color:#4ade80; font-weight:600; padding:8px; background:rgba(34,197,94,0.08); border-radius:4px; margin-bottom:8px;">✅ AST Syntax Valid & Zero Placeholders Detected. Production Ready!</div>`;
+        }
+
+        if (v.warnings.length > 0) {
+          html += `<div style="color:#fbbf24; font-weight:700; margin-top:10px; margin-bottom:6px;">⚠️ Warnings (${v.warnings.length}):</div>`;
+          html += v.warnings.map(w => `
+            <div style="background:rgba(245,158,11,0.08); border-left:3px solid #f59e0b; padding:6px 10px; margin-bottom:6px; border-radius:0 4px 4px 0;">
+              <div><strong>[${escapeHtml(w.rule)}]</strong> Line ${w.line}: ${escapeHtml(w.message)}</div>
+              ${w.snippet ? `<div style="font-size:11px; color:#fde68a; margin-top:2px; font-family:monospace;">${escapeHtml(w.snippet)}</div>` : ''}
+            </div>
+          `).join('');
+        }
+
+        container.innerHTML = html;
+      }
+    }
+  } catch (err) {
+    console.warn('[StudioQuality] Validation check notice:', err.message);
+  }
+}
+
+// Automated AST Self-Repair Action
+async function executeStudioVerifySelfRepair() {
+  const textarea = document.getElementById('canvasCodeTextarea');
+  const statusBox = document.getElementById('canvasActionStatus');
+  const statusText = document.getElementById('studioAiFeedbackText');
+  const targetBtn = document.getElementById('canvasActionVerifySelfRepair');
+  const { files, activeFileIndex } = window.canvasStudio;
+
+  if (textarea && files[activeFileIndex]) {
+    files[activeFileIndex].content = textarea.value;
+  }
+
+  const activeFile = files[activeFileIndex];
+  if (!activeFile || !activeFile.content.trim()) return;
+
+  if (targetBtn) targetBtn.disabled = true;
+  if (statusBox) {
+    statusBox.style.display = 'inline-flex';
+    if (statusText) statusText.textContent = `Running AST audit & automated self-repair on ${activeFile.name}...`;
+  }
+
+  appendTerminalLog('info', `🛡️ Initiating Automated AST Self-Repair Loop for ${activeFile.name}...`);
+  switchStudioOutputSubView('diagnostics');
+  if (window.canvasStudio.viewMode === 'editor') {
+    switchStudioView('split');
+  }
+
+  try {
+    const res = await fetch('/api/code/self-repair', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: activeFile.content,
+        language: activeFile.language,
+        maxIterations: 3
+      })
+    });
+    const data = await res.json();
+    if (data.success && data.result) {
+      const { code, cqi, grade, iterations } = data.result;
+      if (code && code !== activeFile.content) {
+        activeFile.content = code;
+        if (textarea) textarea.value = code;
+        syncStudioGutter();
+        appendTerminalLog('stdout', `✨ Code healed and repaired in ${iterations} iteration(s) (CQI: ${cqi || 100} ${grade || 'A+'})!`);
+      } else {
+        appendTerminalLog('stdout', `✅ Code passed verification with zero errors (CQI: ${cqi || 100} ${grade || 'A+'})!`);
+      }
+      if (statusText) statusText.textContent = `✅ Self-Repair Complete (CQI: ${cqi || 100})`;
+      await updateStudioQualityBadge();
+    } else {
+      appendTerminalLog('error', `Self-repair notice: ${data.error || 'Unable to repair all issues'}`);
+      if (statusText) statusText.textContent = `⚠️ Self-repair notice`;
+    }
+  } catch (err) {
+    appendTerminalLog('error', `Self-Repair Error: ${err.message}`);
+    if (statusText) statusText.textContent = `❌ Error: ${err.message}`;
+  } finally {
+    if (targetBtn) targetBtn.disabled = false;
+    setTimeout(() => { if (statusBox) statusBox.style.display = 'none'; }, 4000);
   }
 }
 
@@ -4834,11 +4991,14 @@ function setupSettingsModal() {
     });
   });
 
-  // AI Transformation Bar Pills
+  // AI Transformation Bar Pills & Self-Repair
+  document.getElementById('canvasActionVerifySelfRepair')?.addEventListener('click', () => executeStudioVerifySelfRepair());
   document.getElementById('canvasActionRefactor')?.addEventListener('click', () => executeStudioAiAction('refactor'));
   document.getElementById('canvasActionFix')?.addEventListener('click', () => executeStudioAiAction('fix'));
   document.getElementById('canvasActionComments')?.addEventListener('click', () => executeStudioAiAction('comments'));
   document.getElementById('canvasActionTranslate')?.addEventListener('click', () => executeStudioAiAction('translate'));
+  document.getElementById('tabOutputDiagnostics')?.addEventListener('click', () => switchStudioOutputSubView('diagnostics'));
+  document.getElementById('btnRunDiagnosticsCheck')?.addEventListener('click', () => updateStudioQualityBadge());
 
   // Studio Editor Textarea: Input, Scroll, Cursor tracking & Shortcuts
   if (canvasCodeTextarea) {
@@ -4849,6 +5009,12 @@ function setupSettingsModal() {
       }
       syncStudioGutter();
       updateStudioCursorPosition();
+
+      // Debounce AST & Quality check
+      clearTimeout(qualityDebounceTimer);
+      qualityDebounceTimer = setTimeout(() => {
+        updateStudioQualityBadge();
+      }, 600);
     });
 
     canvasCodeTextarea.addEventListener('scroll', () => {
