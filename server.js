@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
@@ -38,6 +39,10 @@ import { portfolioKnowledgeEngine } from './portfolioKnowledgeEngine.js';
 import githubRoutes from './githubRoutes.js';
 import portfolioRoutes from './portfolioRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
+import codeRoutes from './routes/codeRoutes.js';
+import governanceRoutes from './routes/governanceRoutes.js';
+import productivityRoutes from './routes/productivityRoutes.js';
+import documentRoutes from './routes/documentRoutes.js';
 import { researchRouter } from './research/routes/researchRoutes.js';
 import { runTerminalCommand } from './terminalSandbox.js';
 import {
@@ -74,6 +79,7 @@ import {
   checkAndSummarizeConversation
 } from './memory/persistentMemoryEngine.js';
 import {
+  db,
   listProjectsDb, getProjectDb, createProjectDb,
   updateProjectDb, deleteProjectDb, addProjectFileDb,
   deleteProjectFileDb, getProjectKnowledgeContext
@@ -110,11 +116,47 @@ const PORT = process.env.PORT || 3000;
 const MAX_MEMORY_TURNS = parseInt(process.env.MAX_MEMORY_TURNS || '14', 10);
 
 app.use(compression());
-app.use(cors());
+
+// Security: Helmet HTTP Headers
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false
+}));
+
+// Security: Hardened CORS Policy
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim())
+  : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5173'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Blocked by CORS policy: Origin not allowed.'));
+  },
+  credentials: true
+}));
+
+// Security Middleware: Require Localhost & Developer Origin for Sensitive Endpoints
+export function requireLocalDeveloperOrigin(req, res, next) {
+  const remoteIp = req.ip || req.connection?.remoteAddress || '';
+  const isLoopback = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].some(ip => remoteIp.includes(ip));
+  const origin = req.headers.origin;
+  const isAllowedOrigin = !origin || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+  if (!isLoopback || !isAllowedOrigin) {
+    return res.status(403).json({ error: 'Forbidden: Access restricted to authorized local developer origin.' });
+  }
+  next();
+}
+
 // Increased body limit to 50MB to support multimodal Image/Audio/PDF uploads cleanly
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1h',
+  etag: true
+}));
 
 // Security: Rate Limiting across API endpoints
 app.use('/api/', rateLimiterMiddleware(120, 60000));
@@ -560,7 +602,7 @@ app.use('/api/research', researchRouter);
 // --- TIER-1 CAPABILITIES REST ENDPOINTS ---
 
 // 1. Sandboxed Terminal Execution (Capabilities 28, 29, 30)
-app.post('/api/terminal/run', async (req, res) => {
+app.post('/api/terminal/run', requireLocalDeveloperOrigin, async (req, res) => {
   try {
     const { command } = req.body;
     if (!command) return res.status(400).json({ error: 'Command string required' });
@@ -571,168 +613,15 @@ app.post('/api/terminal/run', async (req, res) => {
   }
 });
 
-// 2. Email Management (Capability 15)
-app.get('/api/productivity/emails', (req, res) => {
-  const folder = req.query.folder || 'inbox';
-  res.json({ emails: listEmails(folder) });
-});
+// 2. Productivity Suite REST API (Email, Calendar, Reminders, Spreadsheets)
+app.use('/api/productivity', productivityRoutes);
 
-app.post('/api/productivity/emails/draft', (req, res) => {
-  const { to, subject, body } = req.body;
-  if (!to || !subject) return res.status(400).json({ error: 'Recipient and subject required' });
-  const draft = draftEmail({ to, subject, body: body || '' });
-  res.json({ success: true, draft });
-});
+// 3. Document Studio & Multi-Format Generator API (PDF, DOCX, PPTX, Editing)
+app.use('/api/documents', documentRoutes);
 
-app.post('/api/productivity/emails/send', (req, res) => {
-  const { to, subject, body } = req.body;
-  if (!to || !subject) return res.status(400).json({ error: 'Recipient and subject required' });
-  const sent = sendEmail({ to, subject, body: body || '' });
-  res.json({ success: true, sent });
-});
-
-// 3. Calendar & Reminders (Capabilities 16, 17)
-app.get('/api/productivity/calendar', (req, res) => {
-  res.json({ events: listCalendarEvents() });
-});
-
-app.post('/api/productivity/calendar', (req, res) => {
-  const { title, startTime, endTime, location, description } = req.body;
-  if (!title || !startTime) return res.status(400).json({ error: 'Title and startTime required' });
-  const event = createCalendarEvent({ title, startTime, endTime: endTime || (startTime + 3600000), location, description });
-  res.json({ success: true, event });
-});
-
-app.get('/api/productivity/reminders', (req, res) => {
-  const status = req.query.status || 'pending';
-  res.json({ reminders: listReminders(status) });
-});
-
-app.post('/api/productivity/reminders', (req, res) => {
-  const { title, dueTime, priority } = req.body;
-  if (!title) return res.status(400).json({ error: 'Reminder title required' });
-  const reminder = createReminder({ title, dueTime: dueTime || (Date.now() + 3600000), priority });
-  res.json({ success: true, reminder });
-});
-
-app.post('/api/productivity/reminders/:id/complete', (req, res) => {
-  const completed = completeReminder(req.params.id);
-  res.json({ success: completed });
-});
-
-// 4. Spreadsheets, Data Analysis & Visualization (Capabilities 20, 22, 23)
-app.post('/api/productivity/spreadsheet', (req, res) => {
-  const { title, headers, rows } = req.body;
-  const sheet = createSpreadsheet({ title, headers: headers || [], rows: rows || [] });
-  res.json(sheet);
-});
-
-app.post('/api/productivity/analyze', (req, res) => {
-  const { numbers, label } = req.body;
-  if (!numbers || !Array.isArray(numbers)) return res.status(400).json({ error: 'Array of numbers required' });
-  const stats = analyzeDataset({ numbers, label });
-  res.json(stats);
-});
-
-app.post('/api/productivity/chart', (req, res) => {
-  const { type, title, labels, data, datasetLabel } = req.body;
-  const chart = generateChart({ type, title, labels, data, datasetLabel });
-  res.json(chart);
-});
-
-app.post('/api/productivity/presentation', (req, res) => {
-  const { title, slides } = req.body;
-  const deck = generatePresentationDeck({ title, slides: slides || [] });
-  res.json(deck);
-});
-
-app.post('/api/productivity/document', (req, res) => {
-  const { title, author, abstract, sections } = req.body;
-  const doc = generatePublicationDocument({ title, author, abstract, sections: sections || [] });
-  res.json(doc);
-});
-
-// ============================================================================
-// DOCUMENT STUDIO & MULTI-FORMAT GENERATOR API (PDF, DOCX, PPTX, EDITING)
-// ============================================================================
-app.get('/api/documents', (req, res) => {
-  const limit = parseInt(req.query.limit || '50', 10);
-  res.json({ documents: listDocuments(limit) });
-});
-
-app.get('/api/documents/:fileId', (req, res) => {
-  const meta = getDocumentMetadata(req.params.fileId);
-  if (!meta) return res.status(404).json({ error: 'Document not found' });
-  res.json({ document: meta });
-});
-
-app.get('/api/documents/download/:fileId', (req, res) => {
-  const meta = getDocumentMetadata(req.params.fileId);
-  if (!meta || !fs.existsSync(meta.path)) {
-    return res.status(404).json({ error: 'Document file not found or expired' });
-  }
-  res.download(meta.path, meta.filename);
-});
-
-app.get('/api/documents/view/:fileId', (req, res) => {
-  const meta = getDocumentMetadata(req.params.fileId);
-  if (!meta || !fs.existsSync(meta.path)) {
-    return res.status(404).send('Document not found');
-  }
-  const contentType = meta.format === 'pdf' ? 'application/pdf'
-    : (meta.format === 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    : (meta.format === 'pptx' ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation' : 'text/plain'));
-  res.setHeader('Content-Type', contentType);
-  res.setHeader('Content-Disposition', `inline; filename="${meta.filename}"`);
-  fs.createReadStream(meta.path).pipe(res);
-});
-
-app.post('/api/documents/generate', async (req, res) => {
-  try {
-    const { format = 'pdf', style = 'ieee', title, subtitle, author, abstract, sections = [], tables = [], kpis = [], slides = [], content = '' } = req.body;
-    if (!title && !content) return res.status(400).json({ error: 'title or content required' });
-
-    let result;
-    if (format === 'pdf') {
-      if (style === 'executive') {
-        result = await generateExecutivePdf({ title, author, executiveSummary: abstract, kpis, sections });
-      } else {
-        result = await generateIEEEPdf({ title, authors: [{ name: author || 'Nexus Fellow', affiliation: 'Nexus Labs' }], abstract, sections, tables });
-      }
-    } else if (format === 'docx') {
-      result = await generateDocxDocument({ title, subtitle, author, abstract, sections, tables });
-    } else if (format === 'pptx') {
-      result = await generatePptxDeck({ title, subtitle, author, theme: req.body.theme || 'dark', slides });
-    } else {
-      result = exportDataFile({ filename: `${title || 'export'}.${format}`, content, format });
-    }
-    res.json({ success: true, document: result });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.post('/api/documents/edit', async (req, res) => {
-  try {
-    const { pdfBase64, originalFilename, instructions, addBorder, addPageNumbers, fontName, textReplacements, restructureAlignment } = req.body;
-    if (!pdfBase64) return res.status(400).json({ error: 'pdfBase64 required' });
-
-    const pdfBuffer = Buffer.from(pdfBase64, 'base64');
-    const result = await editUploadedPdf({
-      pdfBuffer,
-      originalFilename: originalFilename || 'document.pdf',
-      instructions: instructions || '',
-      addBorder: Boolean(addBorder),
-      addPageNumbers: Boolean(addPageNumbers),
-      fontName: fontName || 'Helvetica',
-      textReplacements: textReplacements || [],
-      restructureAlignment: Boolean(restructureAlignment)
-    });
-    res.json({ success: true, document: result });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// Legacy export compatibility aliases
+app.get('/api/calendar/export-ics/:id', (req, res) => res.redirect(307, `/api/productivity/calendar/export-ics/${req.params.id}`));
+app.get('/api/emails/export-eml/:id', (req, res) => res.redirect(307, `/api/productivity/emails/export-eml/${req.params.id}`));
 
 // 5. Autonomous Task Orchestrator (Capabilities 6, 7, 8, 9, 10, 42, 43, 44, 45, 53, 54, 70)
 app.get('/api/tasks', (req, res) => {
@@ -857,24 +746,7 @@ app.delete('/api/projects/:id/files/:fileId', (req, res) => {
 });
 
 // 7. Enterprise Governance & Immutable Audit Logs (Capabilities 46, 47, 49, 61, 75)
-app.get('/api/governance/audit', (req, res) => {
-  const limit = parseInt(req.query.limit || '50', 10);
-  res.json({ logs: getAuditLogs(limit) });
-});
-
-app.get('/api/governance/approvals', (req, res) => {
-  res.json({ approvals: listPendingApprovals() });
-});
-
-app.post('/api/governance/approvals/:id', (req, res) => {
-  try {
-    const { approved = true, reviewer = 'Raghul' } = req.body;
-    const result = resolveHumanApproval(req.params.id, Boolean(approved), reviewer);
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+app.use('/api/governance', governanceRoutes);
 
 // REAL-TIME STREAMING ENDPOINT (ChatGPT / Claude-like instant TTFT with Multimodal & Web Reader)
 app.post('/api/chat/stream', async (req, res) => {
@@ -1991,58 +1863,7 @@ app.post('/api/rag/index-file', async (req, res) => {
 });
 
 // 2. Production Coding Agent & Workspace Endpoints (Upgrade 05)
-app.get('/api/code/tree', (req, res) => {
-  try {
-    const tree = scanWorkspaceTree();
-    res.json({ success: true, tree });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.get('/api/code/read', (req, res) => {
-  try {
-    const filePath = req.query.path;
-    if (!filePath) return res.status(400).json({ error: 'Path is required' });
-    const fullPath = path.resolve(__dirname, filePath);
-    if (!fullPath.startsWith(__dirname)) return res.status(403).json({ error: 'Access denied' });
-    if (!fs.existsSync(fullPath)) return res.status(404).json({ error: 'File not found' });
-    const content = fs.readFileSync(fullPath, 'utf8');
-    res.json({ success: true, filePath, content });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.post('/api/code/patch', (req, res) => {
-  try {
-    const { filePath, targetText, replacementText } = req.body;
-    const result = applyFilePatch(filePath, targetText, replacementText);
-    res.json({ success: true, result });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.post('/api/code/rollback', (req, res) => {
-  try {
-    const { snapshotId } = req.body;
-    const result = rollbackSnapshot(snapshotId);
-    res.json({ success: true, result });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.post('/api/code/self-repair', async (req, res) => {
-  try {
-    const { code, testCode, maxIterations } = req.body;
-    const result = await runSelfRepairLoop({ codeToVerify: code, testCode, maxIterations });
-    res.json({ success: true, result });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+app.use('/api/code', codeRoutes);
 
 // 3. Durable Task Resume (Upgrade 09)
 app.post('/api/tasks/resume', async (req, res) => {
@@ -2113,7 +1934,34 @@ app.get('/api/swarm/stream', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`⚡ Ultra-Fast AI Chatbot running at http://localhost:${PORT}`);
   console.log(`🚀 Token Streaming (SSE) enabled with low-latency models!`);
 });
+
+// ARCH-03: Graceful Shutdown Lifecycle
+function handleGracefulShutdown(signal) {
+  console.log(`\n🛑 Received ${signal}. Commencing graceful system shutdown...`);
+  server.close(() => {
+    console.log('HTTP server closed.');
+    try {
+      if (db) {
+        console.log('Flushing SQLite WAL checkpoint...');
+        db.pragma('wal_checkpoint(TRUNCATE)');
+        db.close();
+        console.log('SQLite database connection closed cleanly.');
+      }
+    } catch (dbErr) {
+      console.warn('Warning during DB close:', dbErr.message);
+    }
+    process.exit(0);
+  });
+
+  setTimeout(() => {
+    console.error('Shutdown timed out. Forcing process exit.');
+    process.exit(1);
+  }, 5000).unref();
+}
+
+process.on('SIGINT', () => handleGracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => handleGracefulShutdown('SIGTERM'));

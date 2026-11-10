@@ -2564,7 +2564,6 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
   <!-- Real-Time Voice Mode Overlay (ChatGPT Style) -->
   <div class="voice-mode-overlay" id="voiceModeOverlay" style="display:none;" aria-hidden="true">
     <div class="voice-mode-container">
@@ -2852,7 +2851,7 @@
     <div class="modal-dialog-card modal-lg">
       <div class="modal-card-header">
         <h3>🕒 Scheduled Tasks & Reminders</h3>
-        <button class="modal-close-icon" id="closeScheduledBtn">&times;</button>
+        <button class="modal-close-icon" id="closeScheduledBtn" aria-label="Close Scheduled Tasks">&times;</button>
       </div>
       <div class="modal-card-body" id="scheduledModalContainer">
         <p style="color: var(--text-tertiary); text-align: center; padding: 30px;">Loading schedule...</p>
@@ -2865,7 +2864,7 @@
     <div class="modal-dialog-card modal-lg">
       <div class="modal-card-header">
         <h3>📚 Document & Knowledge Library</h3>
-        <button class="modal-close-icon" id="closeLibraryBtn">&times;</button>
+        <button class="modal-close-icon" id="closeLibraryBtn" aria-label="Close Document Library">&times;</button>
       </div>
       <div class="modal-card-body" id="libraryModalContainer">
         <p style="color: var(--text-tertiary); text-align: center; padding: 30px;">Loading library documents...</p>
@@ -2873,5 +2872,6 @@
     </div>
   </div>
 
+  <script src="app.js"></script>
 </body>
 </html>

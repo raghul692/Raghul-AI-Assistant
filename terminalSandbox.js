@@ -28,7 +28,11 @@ const FORBIDDEN_COMMAND_PATTERNS = [
   /curl\s+.*\|\s*(bash|sh|cmd|powershell)/i,
   /powershell.*-enc/i,
   /shutdown/i,
-  /drop\s+database/i
+  /drop\s+database/i,
+  /[;&|`$]/, // Block command chaining and shell substitution
+  /\bnode\s+(-e|--eval|-i|--interactive)\b/i, // Block arbitrary inline eval
+  /\b(type|cat|more)\s+.*\.env\b/i, // Block credential inspection
+  /\.env\b/i // Never touch .env through sandbox
 ];
 
 /**

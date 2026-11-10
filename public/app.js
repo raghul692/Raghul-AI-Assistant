@@ -8009,6 +8009,18 @@ async function loadResearchHistory() {
   }
 }
 
+// Global WCAG 2.2 Accessibility: Modal dismissal & focus restoration via Escape key
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const openModals = document.querySelectorAll('.modal-backdrop:not([style*="display: none"]), .modal-backdrop.open, #deepResearchWorkspaceModal[style*="display: flex"]');
+    openModals.forEach(m => {
+      m.style.display = 'none';
+      m.setAttribute('aria-hidden', 'true');
+      m.classList.remove('open');
+    });
+  }
+});
+
 // Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initDeepResearchWorkspace);
