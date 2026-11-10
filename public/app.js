@@ -7972,11 +7972,15 @@ function initDeepResearchWorkspace() {
 
   function openModal() {
     modal.style.display = 'flex';
+    modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
+    const hubsMenu = document.getElementById('hubsPopoverMenu');
+    if (hubsMenu) hubsMenu.style.display = 'none';
     loadResearchHistory();
   }
 
   function closeModal() {
+    modal.classList.remove('open');
     modal.style.display = 'none';
     modal.setAttribute('aria-hidden', 'true');
   }
