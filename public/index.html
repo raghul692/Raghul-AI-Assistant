@@ -28,7 +28,7 @@
   <!-- Monaco Editor AMD Loader (VS Code Engine) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
   
-  <link rel="stylesheet" href="style.css?v=20261111_1">
+  <link rel="stylesheet" href="style.css?v=20261111_3">
 </head>
 <body>
   <div class="app-layout">
@@ -2106,509 +2106,1448 @@
   <!-- ========================================================================= -->
   <div class="artifact-modal-backdrop" id="portfolioDashboardModal" aria-hidden="true" style="display:none;">
     <div class="artifact-modal-dialog portfolio-hub-dialog">
-      <!-- Hub Top Header -->
-      <div class="artifact-modal-header portfolio-hub-header">
-        <div class="artifact-header-left">
-          <div class="portfolio-badge">
-            <span style="font-size: 1.1rem;">🌐</span>
-            <span>Portfolio Intelligence Hub</span>
+      <!-- 1. LEFT PERSISTENT SIDEBAR (REFERENCES 1, 2, 3) -->
+      <aside class="port-sidebar">
+        <!-- Brand Identity -->
+        <div class="port-sidebar-brand">
+          <div class="port-brand-logo">RR</div>
+          <div class="port-brand-meta">
+            <div class="port-brand-name">Raghul Raja M</div>
+            <div class="port-brand-ver">Portfolio OS v3.0</div>
+            <div class="port-status-pill">
+              <span class="pulse-dot"></span>
+              <span id="portfolioHubStatusTag">Online</span>
+            </div>
           </div>
-          <span class="artifact-title" id="portfolioHubTitle">raghulraja.is-a.dev • Systems & Automation</span>
-          <span class="portfolio-conn-indicator" id="portfolioHubConnBadge">
-            <span class="status-dot online"></span>
-            <span id="portfolioHubStatusTag">Vercel & Render Live (24 MCP Tools)</span>
-          </span>
         </div>
-        <div class="artifact-header-right">
-          <a href="https://raghulraja.is-a.dev/" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 5px; text-decoration: none; color: var(--text-primary); padding: 5px 10px; font-size: 0.8rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px;">
-            <span>Visit Site ↗</span>
-          </a>
-          <button type="button" class="btn-refresh" id="refreshPortfolioHubBtn" title="Sync Live Portfolio Data">
-            <svg class="refresh-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
-            </svg>
-            <span>Refresh</span>
+
+        <!-- Navigation Links -->
+        <nav class="port-sidebar-nav">
+          <button type="button" class="port-nav-btn active" data-porttab="portOverview">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span>Dashboard</span>
           </button>
-          <button type="button" class="btn-artifact-icon" id="closePortfolioHubBtn" title="Close Portfolio Hub (Esc)">&times;</button>
+          <button type="button" class="port-nav-btn" data-porttab="portAutomations">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            <span>Automation</span>
+          </button>
+          <button type="button" class="port-nav-btn" data-porttab="portMonitoring">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            <span>Monitoring</span>
+          </button>
+          <button type="button" class="port-nav-btn" data-porttab="portAiAssistant">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <span>AI Assistant</span>
+            <span class="port-nav-badge">v4.0</span>
+          </button>
+          <button type="button" class="port-nav-btn" data-porttab="portProjects">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            <span>Projects</span>
+          </button>
+          <button type="button" class="port-nav-btn" data-porttab="portKnowledge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            <span>Knowledge Base</span>
+          </button>
+          <button type="button" class="port-nav-btn" data-porttab="portDatabase">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+            <span>Database</span>
+          </button>
+          <button type="button" class="port-nav-btn" data-porttab="portDeployments">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path></svg>
+            <span>Deployments</span>
+          </button>
+          <button type="button" class="port-nav-btn" data-porttab="portAnalytics">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <span>Analytics</span>
+          </button>
+          <button type="button" class="port-nav-btn" data-porttab="portSecurity">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span>Security</span>
+          </button>
+          <button type="button" class="port-nav-btn" data-porttab="portSettings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Settings</span>
+          </button>
+          <button type="button" class="port-nav-btn" data-porttab="portTools">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+            <span>Integrations</span>
+            <span class="port-nav-badge">24</span>
+          </button>
+        </nav>
+
+        <!-- Sidebar Health Dial Card (Ref 1) -->
+        <div class="port-sidebar-health-card">
+          <div class="port-sidebar-health-header">
+            <span class="port-live-dot"></span>
+            <span>Portfolio Health</span>
+          </div>
+          <svg class="port-radial-gauge-svg" viewBox="0 0 100 55">
+            <path d="M 15 50 A 35 35 0 0 1 85 50" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8" stroke-linecap="round"></path>
+            <path d="M 15 50 A 35 35 0 0 1 85 50" fill="none" stroke="url(#healthGaugeGrad)" stroke-width="8" stroke-dasharray="110" stroke-dashoffset="0" stroke-linecap="round"></path>
+            <defs>
+              <linearGradient id="healthGaugeGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#10b981"></stop>
+                <stop offset="100%" stop-color="#34d399"></stop>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="port-health-val" id="portSidebarHealthVal">100%</div>
+          <div class="port-health-status-sub">All Systems Healthy</div>
+          <div class="port-uptime-sub">Uptime 99.98% ↑</div>
         </div>
-      </div>
 
-      <!-- Navigation Tabs Bar (14 Specialized Panes) -->
-      <div class="portfolio-hub-nav-bar">
-        <button type="button" class="port-nav-tab active" data-porttab="portOverview">Overview & Health</button>
-        <button type="button" class="port-nav-tab" data-porttab="portWebsite">Pages & SEO</button>
-        <button type="button" class="port-nav-tab" data-porttab="portDrafts">
-          <span>Content & Drafts</span>
-          <span class="port-tab-badge" id="portDraftsCount">1</span>
-        </button>
-        <button type="button" class="port-nav-tab" data-porttab="portProjects">Projects Manager</button>
-        <button type="button" class="port-nav-tab" data-porttab="portGithub">GitHub Sync</button>
-        <button type="button" class="port-nav-tab" data-porttab="portDeployments">Deployment Center</button>
-        <button type="button" class="port-nav-tab" data-porttab="portAnalytics">Visitor Analytics</button>
-        <button type="button" class="port-nav-tab" data-porttab="portContacts">
-          <span>Contact Submissions</span>
-          <span class="port-tab-badge" id="portContactsCount">3</span>
-        </button>
-        <button type="button" class="port-nav-tab" data-porttab="portKnowledge">Knowledge Engine</button>
-        <button type="button" class="port-nav-tab" data-porttab="portAutomations">Automations (8)</button>
-        <button type="button" class="port-nav-tab" data-porttab="portDatabase">Supabase & Data</button>
-        <button type="button" class="port-nav-tab" data-porttab="portPerformance">Performance Lab</button>
-        <button type="button" class="port-nav-tab" data-porttab="portSecurity">Security & Audits</button>
-        <button type="button" class="port-nav-tab" data-porttab="portTools">MCP Tools (24)</button>
-      </div>
+        <!-- Sidebar Motivational Card (Ref 1) -->
+        <div class="port-sidebar-quote-card">
+          <div class="port-quote-tagline">Build. Innovate. Grow. Forever.</div>
+          <div class="port-quote-author">— Raghul Raja M</div>
+        </div>
+      </aside>
 
-      <!-- Hub Content Panes Body -->
-      <div class="portfolio-hub-body">
+      <!-- 2. RIGHT MAIN OPERATING CENTER -->
+      <div class="port-main-wrapper">
+        <!-- Top Nav Bar -->
+        <header class="port-topbar">
+          <div class="port-search-bar">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="portGlobalSearchInput" placeholder="Search anything... (⌘ + K)">
+            <span class="port-kbd">⌘ + K</span>
+          </div>
+          <div class="port-topbar-right">
+            <button type="button" class="port-ai-mode-pill" id="portGlobalAiModeBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <span>Global AI Mode</span>
+            </button>
+            <div class="port-icon-btn" id="portNotificationsBtn" title="Notifications">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              <span class="port-notif-badge">3</span>
+            </div>
+            <div class="port-icon-btn" id="portThemeToggleBtn" title="Theme">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </div>
+            <div class="port-user-avatar" title="Raghul Raja M">R</div>
+            <a href="https://raghulraja.is-a.dev/" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 5px; text-decoration: none; color: var(--text-primary); padding: 5px 10px; font-size: 0.8rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px;">
+              <span>Visit Site ↗</span>
+            </a>
+            <button type="button" class="btn-refresh" id="refreshPortfolioHubBtn" title="Sync Live Portfolio Data">
+              <svg class="refresh-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+              </svg>
+              <span>Refresh</span>
+            </button>
+            <button type="button" class="btn-artifact-icon" id="closePortfolioHubBtn" title="Close Portfolio Hub (Esc)">&times;</button>
+          </div>
+        </header>
 
-        <!-- 1. OVERVIEW & HEALTH PANE -->
-        <div class="port-pane active" id="portPaneOverview">
-          <div class="port-hero-banner">
-            <div class="port-hero-info">
-              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                <h3 style="font-size: 1.25rem; font-weight: 700; color: #fff; margin: 0;">RAGHUL RAJA M — Portfolio Operations</h3>
-                <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.76rem; padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3);">All Systems Nominal</span>
+        <!-- Scrollable Content Panes Body -->
+        <div class="port-hub-body">
+
+          <!-- ================================================================= -->
+          <!-- 1. OVERVIEW & HEALTH PANE (MASTER DASHBOARD - REFERENCE 1) -->
+          <!-- ================================================================= -->
+          <div class="port-pane active" id="portPaneOverview">
+            <!-- Hero Greeting Banner -->
+            <div class="port-overview-hero">
+              <div class="port-hero-left">
+                <div class="port-hero-avatar">RR</div>
+                <div>
+                  <h2 class="port-greeting-title">Good Evening, Raghul! 👋</h2>
+                  <p class="port-greeting-sub">Your portfolio is running smoothly. Everything is under control.</p>
+                </div>
               </div>
-              <p style="font-size: 0.84rem; color: #94a3b8; margin: 0; line-height: 1.5;">
-                Central command for <code style="color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 2px 6px; border-radius: 4px;">https://raghulraja.is-a.dev/</code> with automated GitHub synchronization, continuous health monitoring, intelligent content drafting, and Supabase integration.
+              <div style="display: flex; align-items: center;">
+                <div class="port-hero-quote">
+                  "Build better. Automate smarter. Innovate always."<br>
+                  <span style="color: #a78bfa; font-weight: 500;">— Raghul Raja M</span>
+                </div>
+                <div class="port-clock-box">
+                  <div class="port-clock-date" id="portLiveDate">Mon, Nov 11, 2026</div>
+                  <div class="port-clock-time" id="portLiveClock">06:47 PM <span class="port-clock-tz">IST</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5 Stat Cards with SVG Sparklines (Ref 1) -->
+            <div class="port-stat-cards-5">
+              <!-- 1. Total Visitors -->
+              <div class="port-stat-card">
+                <div class="port-stat-header">
+                  <span class="port-stat-label">Total Visitors</span>
+                  <div class="port-stat-icon-wrap" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  </div>
+                </div>
+                <div class="port-stat-num-row">
+                  <span class="port-stat-num" id="valStatVisitors">48.2K</span>
+                  <span class="port-stat-delta">↑ +12.5%</span>
+                </div>
+                <svg class="port-sparkline-svg" viewBox="0 0 120 30">
+                  <path d="M 0,22 Q 20,28 40,16 T 80,14 T 120,6" fill="none" stroke="#06b6d4" stroke-width="2"></path>
+                </svg>
+              </div>
+
+              <!-- 2. Live Users -->
+              <div class="port-stat-card">
+                <div class="port-stat-header">
+                  <span class="port-stat-label">Live Users</span>
+                  <span class="port-live-badge-sm">• LIVE</span>
+                </div>
+                <div class="port-stat-num-row">
+                  <span class="port-stat-num" id="valStatLiveUsers" style="color: #c084fc;">1.2K</span>
+                  <span class="port-stat-delta">↑ +8.1%</span>
+                </div>
+                <svg class="port-sparkline-svg" viewBox="0 0 120 30">
+                  <path d="M 0,25 Q 30,10 60,18 T 100,8 T 120,4" fill="none" stroke="#a855f7" stroke-width="2"></path>
+                </svg>
+              </div>
+
+              <!-- 3. Clicks Today -->
+              <div class="port-stat-card">
+                <div class="port-stat-header">
+                  <span class="port-stat-label">Clicks Today</span>
+                  <div class="port-stat-icon-wrap" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path></svg>
+                  </div>
+                </div>
+                <div class="port-stat-num-row">
+                  <span class="port-stat-num" id="valStatClicks">8.7K</span>
+                  <span class="port-stat-delta">↑ +14.2%</span>
+                </div>
+                <svg class="port-sparkline-svg" viewBox="0 0 120 30">
+                  <path d="M 0,20 Q 30,26 60,12 T 90,16 T 120,5" fill="none" stroke="#3b82f6" stroke-width="2"></path>
+                </svg>
+              </div>
+
+              <!-- 4. Projects Viewed -->
+              <div class="port-stat-card">
+                <div class="port-stat-header">
+                  <span class="port-stat-label">Projects Viewed</span>
+                  <div class="port-stat-icon-wrap" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                  </div>
+                </div>
+                <div class="port-stat-num-row">
+                  <span class="port-stat-num" id="valStatProjects">12.5K</span>
+                  <span class="port-stat-delta">↑ +16.7%</span>
+                </div>
+                <svg class="port-sparkline-svg" viewBox="0 0 120 30">
+                  <path d="M 0,24 Q 25,12 50,18 T 90,8 T 120,4" fill="none" stroke="#10b981" stroke-width="2"></path>
+                </svg>
+              </div>
+
+              <!-- 5. Success Rate -->
+              <div class="port-stat-card">
+                <div class="port-stat-header">
+                  <span class="port-stat-label">Success Rate</span>
+                  <div class="port-stat-icon-wrap" style="background: rgba(20, 184, 166, 0.15); color: #14b8a6;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="9 12 12 15 16 10"></polyline></svg>
+                  </div>
+                </div>
+                <div class="port-stat-num-row">
+                  <span class="port-stat-num" id="valStatSuccessRate">99.8%</span>
+                  <span class="port-stat-delta">↑ +0.1%</span>
+                </div>
+                <svg class="port-sparkline-svg" viewBox="0 0 120 30">
+                  <path d="M 0,16 Q 30,10 60,12 T 90,8 T 120,6" fill="none" stroke="#14b8a6" stroke-width="2"></path>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Middle 4-Column Operations Grid (Ref 1) -->
+            <div class="port-grid-4col">
+              <!-- Col 1: Live Activity Feed -->
+              <div class="port-panel-card">
+                <div class="port-panel-header">
+                  <div class="port-panel-title">
+                    <span class="port-live-dot"></span>
+                    <span>Live Activity Feed</span>
+                  </div>
+                  <span class="port-panel-link" onclick="switchPortfolioTab('portAnalytics')">View All →</span>
+                </div>
+                <div class="port-feed-list" id="portLiveActivityFeed">
+                  <div class="port-feed-item">
+                    <span class="port-feed-time">6:47:12 PM</span>
+                    <span class="port-feed-icon">🇮🇳</span>
+                    <span class="port-feed-text">New visitor from India <code>/projects</code></span>
+                    <span class="port-feed-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">Page View</span>
+                  </div>
+                  <div class="port-feed-item">
+                    <span class="port-feed-time">6:46:58 PM</span>
+                    <span class="port-feed-icon">🚀</span>
+                    <span class="port-feed-text">Deployment completed successfully <code>v2.3.0</code></span>
+                    <span class="port-feed-tag" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">Success</span>
+                  </div>
+                  <div class="port-feed-item">
+                    <span class="port-feed-time">6:46:47 PM</span>
+                    <span class="port-feed-icon">👤</span>
+                    <span class="port-feed-text">New contact submission: hello@user.com</span>
+                    <span class="port-feed-tag" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">Message</span>
+                  </div>
+                  <div class="port-feed-item">
+                    <span class="port-feed-time">6:45:32 PM</span>
+                    <span class="port-feed-icon">🗄️</span>
+                    <span class="port-feed-text">Database query executed (12ms)</span>
+                    <span class="port-feed-tag" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">DB</span>
+                  </div>
+                  <div class="port-feed-item">
+                    <span class="port-feed-time">6:44:20 PM</span>
+                    <span class="port-feed-icon">⚡</span>
+                    <span class="port-feed-text">Workflow finished: Health Check</span>
+                    <span class="port-feed-tag" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">Success</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Col 2: Automation Flow -->
+              <div class="port-panel-card">
+                <div class="port-panel-header">
+                  <div class="port-panel-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    <span>Automation Flow</span>
+                  </div>
+                  <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.68rem; padding: 2px 7px; border-radius: 10px;">• Running</span>
+                </div>
+                <div class="port-flow-nodes">
+                  <div class="port-flow-node active">
+                    <div class="port-flow-circle">🐙</div>
+                    <span class="port-flow-node-title">GitHub</span>
+                  </div>
+                  <span class="port-flow-arrow">→</span>
+                  <div class="port-flow-node active">
+                    <div class="port-flow-circle">⚙️</div>
+                    <span class="port-flow-node-title">Build</span>
+                  </div>
+                  <span class="port-flow-arrow">→</span>
+                  <div class="port-flow-node active">
+                    <div class="port-flow-circle">✓</div>
+                    <span class="port-flow-node-title">Test</span>
+                  </div>
+                  <span class="port-flow-arrow">→</span>
+                  <div class="port-flow-node active">
+                    <div class="port-flow-circle">🚀</div>
+                    <span class="port-flow-node-title">Deploy</span>
+                  </div>
+                  <span class="port-flow-arrow">→</span>
+                  <div class="port-flow-node active">
+                    <div class="port-flow-circle">📊</div>
+                    <span class="port-flow-node-title">Monitor</span>
+                  </div>
+                </div>
+                <div class="port-task-box">
+                  <div class="port-task-title">Current Task</div>
+                  <div class="port-task-desc" id="portFlowTaskDesc">Running health check & performance test...</div>
+                  <div class="port-progress-bar-wrap">
+                    <div class="port-progress-bar-fill" id="portFlowProgressBar" style="width: 72%;"></div>
+                  </div>
+                  <div class="port-task-timing">
+                    <span>Started: 6:45 PM</span>
+                    <span>ETA: 6:48 PM</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Col 3: System Monitor (Host Telemetry) -->
+              <div class="port-panel-card">
+                <div class="port-panel-header">
+                  <div class="port-panel-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    <span>System Monitor</span>
+                  </div>
+                  <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.68rem; padding: 2px 7px; border-radius: 10px;">• Live</span>
+                </div>
+                <div class="port-telemetry-grid">
+                  <div class="port-telem-item">
+                    <span class="port-telem-label">CPU Usage</span>
+                    <span class="port-telem-val" id="monCpuVal">28.4%</span>
+                    <svg style="width: 100%; height: 20px;" viewBox="0 0 80 20">
+                      <path d="M 0,16 Q 20,4 40,12 T 80,6" fill="none" stroke="#34d399" stroke-width="1.8"></path>
+                    </svg>
+                  </div>
+                  <div class="port-telem-item">
+                    <span class="port-telem-label">Memory Usage</span>
+                    <span class="port-telem-val" id="monMemVal">44.7%</span>
+                    <svg style="width: 100%; height: 20px;" viewBox="0 0 80 20">
+                      <path d="M 0,14 Q 25,18 50,8 T 80,10" fill="none" stroke="#38bdf8" stroke-width="1.8"></path>
+                    </svg>
+                  </div>
+                  <div class="port-telem-item">
+                    <span class="port-telem-label">Disk Usage</span>
+                    <span class="port-telem-val" id="monDiskVal">32.1%</span>
+                    <svg style="width: 100%; height: 20px;" viewBox="0 0 80 20">
+                      <path d="M 0,18 Q 30,12 60,16 T 80,8" fill="none" stroke="#a855f7" stroke-width="1.8"></path>
+                    </svg>
+                  </div>
+                  <div class="port-telem-item">
+                    <span class="port-telem-label">Network</span>
+                    <span class="port-telem-val" id="monNetVal">12.8 MB/s</span>
+                    <svg style="width: 100%; height: 20px;" viewBox="0 0 80 20">
+                      <path d="M 0,15 Q 20,6 40,14 T 80,5" fill="none" stroke="#06b6d4" stroke-width="1.8"></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Col 4: Raghul AI Assistant Dock -->
+              <div class="port-panel-card">
+                <div class="port-panel-header">
+                  <div class="port-panel-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="#a855f7"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    <span>Raghul AI Assistant</span>
+                  </div>
+                  <span class="badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; font-size: 0.68rem; padding: 2px 7px; border-radius: 10px;">Active</span>
+                </div>
+                <div class="port-ai-dock-bubble">
+                  <strong style="color: #e2e8f0;">Hello Raghul! 👋</strong><br>
+                  Your portfolio is fully optimized. Here's what's happening right now:
+                  <div class="port-ai-checklist">
+                    <div><span>✅</span> <span>Website: Online & Healthy</span></div>
+                    <div><span>✅</span> <span>Deployments: Up to date</span></div>
+                    <div><span>✅</span> <span>Database: Synced</span></div>
+                    <div><span>✅</span> <span>SEO: Optimized</span></div>
+                    <div><span>✅</span> <span>Analytics: Tracking</span></div>
+                  </div>
+                </div>
+                <div class="port-ai-actions-row">
+                  <button type="button" class="port-ai-action-btn" id="btnQuickEditAbout">✏️ Update About</button>
+                  <button type="button" class="port-ai-action-btn" id="btnQuickNewProject">➕ Add Project</button>
+                  <button type="button" class="port-ai-action-btn" id="btnQuickDeploy">🚀 Deploy</button>
+                  <button type="button" class="port-ai-action-btn" id="btnQuickAnalytics">📊 Analytics</button>
+                  <button type="button" class="port-ai-action-btn" id="btnRunHealthCheck">🛡️ Full Audit</button>
+                </div>
+                <div class="port-ai-dock-input-bar">
+                  <input type="text" id="portAiDockInput" placeholder="Ask anything about your portfolio...">
+                  <button type="button" id="portAiDockSendBtn" title="Send query">➤</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Analytics Overview & Deployments Row (Ref 1) -->
+            <div class="port-grid-2col-wide">
+              <!-- Left: Analytics Overview Area Chart -->
+              <div class="port-panel-card">
+                <div class="port-panel-header">
+                  <div class="port-panel-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <span>Analytics Overview</span>
+                    <span style="font-size: 0.72rem; color: #94a3b8; font-weight: normal; margin-left: 10px;">
+                      <span style="color: #38bdf8;">● Visitors</span> &nbsp;
+                      <span style="color: #c084fc;">● Clicks</span> &nbsp;
+                      <span style="color: #34d399;">● Engagement</span>
+                    </span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 0.74rem;">28.4K Visitors ↑+18.2%</span>
+                    <select style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #94a3b8; font-size: 0.72rem; padding: 2px 6px;">
+                      <option>Last 7 Days</option>
+                      <option>Last 30 Days</option>
+                    </select>
+                  </div>
+                </div>
+                <!-- Smooth SVG Area Chart -->
+                <div class="port-chart-container">
+                  <svg style="width: 100%; height: 100%;" viewBox="0 0 600 160">
+                    <defs>
+                      <linearGradient id="chartGradVisitors" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.3"></stop>
+                        <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"></stop>
+                      </linearGradient>
+                      <linearGradient id="chartGradClicks" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#a855f7" stop-opacity="0.25"></stop>
+                        <stop offset="100%" stop-color="#a855f7" stop-opacity="0"></stop>
+                      </linearGradient>
+                    </defs>
+                    <!-- Horizontal Grid lines -->
+                    <line x1="30" y1="30" x2="580" y2="30" stroke="rgba(255,255,255,0.04)" stroke-dasharray="4 4"></line>
+                    <line x1="30" y1="70" x2="580" y2="70" stroke="rgba(255,255,255,0.04)" stroke-dasharray="4 4"></line>
+                    <line x1="30" y1="110" x2="580" y2="110" stroke="rgba(255,255,255,0.04)" stroke-dasharray="4 4"></line>
+                    <!-- Areas -->
+                    <path d="M 40,120 Q 120,60 200,90 T 360,70 T 500,40 L 560,35 L 560,140 L 40,140 Z" fill="url(#chartGradVisitors)"></path>
+                    <path d="M 40,120 Q 120,60 200,90 T 360,70 T 500,40 L 560,35" fill="none" stroke="#38bdf8" stroke-width="2.5"></path>
+                    <!-- Second line -->
+                    <path d="M 40,135 Q 120,100 200,110 T 360,95 T 500,75 L 560,65 L 560,140 L 40,140 Z" fill="url(#chartGradClicks)"></path>
+                    <path d="M 40,135 Q 120,100 200,110 T 360,95 T 500,75 L 560,65" fill="none" stroke="#a855f7" stroke-width="2.2"></path>
+                    <!-- Third line -->
+                    <path d="M 40,138 Q 130,125 210,130 T 370,115 T 510,95 L 560,88" fill="none" stroke="#34d399" stroke-width="2"></path>
+                    <!-- Dates -->
+                    <text x="40" y="155" fill="#64748b" font-size="10">Nov 05</text>
+                    <text x="130" y="155" fill="#64748b" font-size="10">Nov 06</text>
+                    <text x="210" y="155" fill="#64748b" font-size="10">Nov 07</text>
+                    <text x="300" y="155" fill="#64748b" font-size="10">Nov 08</text>
+                    <text x="390" y="155" fill="#64748b" font-size="10">Nov 09</text>
+                    <text x="480" y="155" fill="#64748b" font-size="10">Nov 10</text>
+                    <text x="540" y="155" fill="#64748b" font-size="10">Nov 11</text>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Right: Deployments Live Preview Card (Ref 1) -->
+              <div class="port-panel-card">
+                <div class="port-panel-header">
+                  <div class="port-panel-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path></svg>
+                    <span>Deployments</span>
+                  </div>
+                  <span class="port-panel-link" onclick="switchPortfolioTab('portDeployments')">View All →</span>
+                </div>
+                <div class="port-deploy-card-preview">
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                      <strong style="color: #34d399; font-size: 0.85rem;">Production Deployment Successful</strong>
+                      <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">2m ago • <code>v2.3.0</code> (Edge CDN Ready)</div>
+                    </div>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.72rem;">Live</span>
+                  </div>
+                  <div style="font-size: 0.75rem; color: #cbd5e1; display: flex; flex-direction: column; gap: 4px; margin: 4px 0;">
+                    <div>🟢 Build Completed &bull; 1m ago</div>
+                    <div>🟢 Tests Passed &bull; 1m ago</div>
+                    <div>🟢 Deployed to Production &bull; 2m ago</div>
+                  </div>
+                  <!-- Hero Preview Mockup -->
+                  <div class="port-deploy-hero-preview">
+                    <div>
+                      <div style="font-weight: 700; color: #fff; font-size: 0.82rem;">Raghul Raja M</div>
+                      <div style="font-size: 0.7rem; color: #94a3b8;">Full-Stack Engineer & Autonomous AI Systems</div>
+                    </div>
+                    <a href="https://raghulraja.is-a.dev/" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 4px 10px; text-decoration: none;">View Live →</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom 3-Column Grid (Ref 1) -->
+            <div class="port-grid-3col">
+              <!-- Card 1: Knowledge Base -->
+              <div class="port-panel-card">
+                <div class="port-panel-header">
+                  <div class="port-panel-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    <span>Knowledge Base</span>
+                  </div>
+                  <span style="font-size: 0.7rem; color: #94a3b8;">Updated 2m ago</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.76rem;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: rgba(255,255,255,0.02); border-radius: 6px;">
+                    <span style="color: #e2e8f0;">📄 ALIDAXIS Project Documentation</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.68rem;">98% match</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: rgba(255,255,255,0.02); border-radius: 6px;">
+                    <span style="color: #e2e8f0;">📄 Portfolio Architecture Guide</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.68rem;">95% match</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: rgba(255,255,255,0.02); border-radius: 6px;">
+                    <span style="color: #e2e8f0;">📄 Deployment Checklist</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.68rem;">92% match</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 2: Recent Activity Log -->
+              <div class="port-panel-card">
+                <div class="port-panel-header">
+                  <div class="port-panel-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span>Recent Activity Log</span>
+                  </div>
+                  <span class="port-panel-link" onclick="switchPortfolioTab('portSecurity')">View All →</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 7px; font-size: 0.74rem;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #94a3b8;">6:47:12 PM &bull; Health check passed</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.65rem;">Success</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #94a3b8;">6:46:58 PM &bull; Deployed v2.3.0</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.65rem;">Success</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #94a3b8;">6:45:32 PM &bull; Database backup completed</span>
+                    <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-size: 0.65rem;">Info</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #94a3b8;">6:43:20 PM &bull; Analytics data synced</span>
+                    <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-size: 0.65rem;">Info</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 3: Security & Access (Ref 1) -->
+              <div class="port-panel-card">
+                <div class="port-panel-header">
+                  <div class="port-panel-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    <span>Security & Access</span>
+                  </div>
+                  <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.68rem;">Protected</span>
+                </div>
+                <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 8px;">
+                  <div style="text-align: center;">
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #34d399;">100%</div>
+                    <div style="font-size: 0.68rem; color: #94a3b8;">Security</div>
+                  </div>
+                  <div style="text-align: center;">
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #38bdf8;">0</div>
+                    <div style="font-size: 0.68rem; color: #94a3b8;">Threats</div>
+                  </div>
+                  <div style="text-align: center;">
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #c084fc;">5</div>
+                    <div style="font-size: 0.68rem; color: #94a3b8;">Active Sessions</div>
+                  </div>
+                </div>
+                <!-- Mini World Map SVG -->
+                <svg style="width: 100%; height: 55px;" viewBox="0 0 240 70">
+                  <path d="M 20,25 Q 35,15 50,25 Q 60,35 40,45 Z M 80,18 Q 100,12 120,20 Q 115,35 90,32 Z M 150,20 Q 180,10 210,25 Q 195,45 160,38 Z M 165,40 Q 185,42 175,58 Z" fill="rgba(255,255,255,0.06)"></path>
+                  <circle cx="168" cy="28" r="3" fill="#10b981"><animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite"></circle>
+                  <circle cx="48" cy="26" r="2.5" fill="#38bdf8"></circle>
+                  <circle cx="95" cy="22" r="2.5" fill="#a855f7"></circle>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Legacy Diagnostic Container for backward compatibility -->
+            <div id="portHealthCheckResults" style="display: none;"></div>
+          </div>
+
+          <!-- ================================================================= -->
+          <!-- 2. AUTOMATION OPERATIONS PANE (REFERENCE 2) -->
+          <!-- ================================================================= -->
+          <div class="port-pane" id="portPaneAutomations">
+            <!-- Rocket Hero Banner -->
+            <div class="port-auto-hero">
+              <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 46px; height: 46px; border-radius: 12px; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);">
+                  🚀
+                </div>
+                <div>
+                  <h2 style="font-size: 1.3rem; font-weight: 700; color: #fff; margin: 0 0 3px 0;">Portfolio Automation</h2>
+                  <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Smart • Automated • Always Online</p>
+                </div>
+              </div>
+              <div style="text-align: center;">
+                <div style="font-size: 0.82rem; font-weight: 600; color: #e2e8f0;">Monitor • Automate • Optimize</div>
+                <div style="font-size: 0.74rem; color: #94a3b8;">Your Portfolio, Our Priority</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="badge" style="background: rgba(16, 185, 129, 0.18); color: #34d399; font-size: 0.78rem; padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                  <span class="pulse-dot" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10b981; margin-right: 5px;"></span>
+                  Live &bull; Last updated: 18:45:32
+                </span>
+              </div>
+            </div>
+
+            <!-- 4 Stat Cards (Ref 2) -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px;">
+              <div class="port-stat-card">
+                <span class="port-stat-label">Total Visitors</span>
+                <div class="port-stat-num-row">
+                  <span class="port-stat-num">24.8K</span>
+                  <span class="port-stat-delta">↑ 12.5%</span>
+                </div>
+                <svg class="port-sparkline-svg" viewBox="0 0 120 30"><path d="M 0,22 Q 30,12 60,18 T 120,6" fill="none" stroke="#38bdf8" stroke-width="2"></path></svg>
+              </div>
+              <div class="port-stat-card">
+                <span class="port-stat-label">Live Clicks</span>
+                <div class="port-stat-num-row">
+                  <span class="port-stat-num">8.4K</span>
+                  <span class="port-stat-delta">↑ 18.7%</span>
+                </div>
+                <svg class="port-sparkline-svg" viewBox="0 0 120 30"><path d="M 0,25 Q 30,8 60,15 T 120,4" fill="none" stroke="#c084fc" stroke-width="2"></path></svg>
+              </div>
+              <div class="port-stat-card">
+                <span class="port-stat-label">Automation Runs</span>
+                <div class="port-stat-num-row">
+                  <span class="port-stat-num">247</span>
+                  <span class="port-stat-delta">↑ 22.1%</span>
+                </div>
+                <svg class="port-sparkline-svg" viewBox="0 0 120 30"><path d="M 0,20 Q 30,22 60,10 T 120,5" fill="none" stroke="#34d399" stroke-width="2"></path></svg>
+              </div>
+              <div class="port-stat-card">
+                <span class="port-stat-label">Success Rate</span>
+                <div class="port-stat-num-row">
+                  <span class="port-stat-num">99.6%</span>
+                  <span class="port-stat-delta">↑ 0.2%</span>
+                </div>
+                <svg class="port-sparkline-svg" viewBox="0 0 120 30"><path d="M 0,16 Q 30,12 60,10 T 120,6" fill="none" stroke="#10b981" stroke-width="2"></path></svg>
+              </div>
+            </div>
+
+            <!-- Middle 3-Column (Live Activity, Automation Control, System Status) -->
+            <div style="display: grid; grid-template-columns: 1.1fr 1.2fr 1fr; gap: 14px; margin-bottom: 18px;">
+              <!-- Col 1: Live Activity Feed -->
+              <div class="port-panel-card">
+                <div class="port-panel-header">
+                  <div class="port-panel-title">
+                    <span class="port-live-dot"></span>
+                    <span>Live Activity Feed</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.65rem; margin-left: 6px;">Live</span>
+                  </div>
+                  <span class="port-panel-link">View All →</span>
+                </div>
+                <div class="port-feed-list">
+                  <div class="port-feed-item">
+                    <span class="port-feed-time">2m ago</span>
+                    <span class="port-feed-icon">🟢</span>
+                    <span class="port-feed-text">Deployment Successful (v2.3.0 to production)</span>
+                    <span class="port-feed-tag" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">Success</span>
+                  </div>
+                  <div class="port-feed-item">
+                    <span class="port-feed-time">3m ago</span>
+                    <span class="port-feed-icon">👤</span>
+                    <span class="port-feed-text">New Visitor from India (2 pages viewed)</span>
+                    <span class="port-feed-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">Visitor</span>
+                  </div>
+                  <div class="port-feed-item">
+                    <span class="port-feed-time">5m ago</span>
+                    <span class="port-feed-icon">🐙</span>
+                    <span class="port-feed-text">Code Update (Updated: src/components/Hero.tsx)</span>
+                    <span class="port-feed-tag" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">Commit</span>
+                  </div>
+                  <div class="port-feed-item">
+                    <span class="port-feed-time">7m ago</span>
+                    <span class="port-feed-icon">🗄️</span>
+                    <span class="port-feed-text">Database Backup (Supabase backup completed)</span>
+                    <span class="port-feed-tag" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">Success</span>
+                  </div>
+                  <div class="port-feed-item">
+                    <span class="port-feed-time">10m ago</span>
+                    <span class="port-feed-icon">⚡</span>
+                    <span class="port-feed-text">Automation Workflow (Ran: health-check-workflow)</span>
+                    <span class="port-feed-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">Completed</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Col 2: Automation Control Master Card & 6 Action Tiles (Ref 2) -->
+              <div class="port-panel-card">
+                <div class="port-panel-header">
+                  <div class="port-panel-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span>Automation Control</span>
+                  </div>
+                  <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.68rem;">Active ▾</span>
+                </div>
+                <!-- Master Auto Toggle -->
+                <div class="port-master-toggle-card">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #10b981; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.85rem;">▶</div>
+                    <div>
+                      <div style="font-weight: 700; color: #fff; font-size: 0.84rem;">Auto Mode is Active</div>
+                      <div style="font-size: 0.72rem; color: #94a3b8;">All systems are running smoothly</div>
+                    </div>
+                  </div>
+                  <label class="port-switch">
+                    <input type="checkbox" id="portAutoModeToggle" checked>
+                    <span class="port-slider"></span>
+                  </label>
+                </div>
+                <!-- 6 Quick Action Tiles -->
+                <div class="port-auto-actions-grid">
+                  <button type="button" class="port-action-tile" id="btnActionHealthCheck">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    <span>Run Health Check</span>
+                  </button>
+                  <button type="button" class="port-action-tile" id="btnActionDeployNow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path></svg>
+                    <span>Deploy Now</span>
+                  </button>
+                  <button type="button" class="port-action-tile" id="btnActionRunTests">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 2v7.31"></path><path d="M14 9.3V2"></path><path d="M8.5 2h7"></path><path d="M14 9.3a6.5 6.5 0 1 1-4 0"></path><path d="M5.52 16h12.96"></path></svg>
+                    <span>Run Tests</span>
+                  </button>
+                  <button type="button" class="port-action-tile" id="btnActionBackupDb">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                    <span>Backup DB</span>
+                  </button>
+                  <button type="button" class="port-action-tile" id="btnActionClearCache">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    <span>Clear Cache</span>
+                  </button>
+                  <button type="button" class="port-action-tile" id="btnActionRollback">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                    <span>Rollback</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Col 3: System Status List (Ref 2) -->
+              <div class="port-panel-card">
+                <div class="port-panel-header">
+                  <div class="port-panel-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <span>System Status</span>
+                  </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.78rem;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #cbd5e1;">🟢 Portfolio Website</span>
+                    <span style="color: #34d399; font-weight: 600;">Online</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #cbd5e1;">🟢 API Server</span>
+                    <span style="color: #34d399; font-weight: 600;">Online</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #cbd5e1;">🟢 Database (Supabase)</span>
+                    <span style="color: #34d399; font-weight: 600;">Online</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #cbd5e1;">🟢 CDN (Vercel)</span>
+                    <span style="color: #34d399; font-weight: 600;">Online</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #cbd5e1;">🟢 Monitoring</span>
+                    <span style="color: #34d399; font-weight: 600;">Online</span>
+                  </div>
+                  <!-- Audio Waveform SVG -->
+                  <svg style="width: 100%; height: 28px; margin-top: 8px;" viewBox="0 0 160 28">
+                    <path d="M 0,14 Q 20,4 40,20 T 80,10 T 120,24 T 160,8" fill="none" stroke="#34d399" stroke-width="2"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Row: Analytics Chart, Top Locations Map, Recent Deployments -->
+            <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 14px; margin-bottom: 18px;">
+              <!-- Analytics -->
+              <div class="port-panel-card">
+                <div class="port-panel-header">
+                  <div class="port-panel-title">Analytics Overview</div>
+                  <span style="font-size: 0.7rem; color: #94a3b8;">Last 30 Days ▾</span>
+                </div>
+                <svg style="width: 100%; height: 110px;" viewBox="0 0 300 110">
+                  <path d="M 20,90 Q 70,30 120,60 T 220,40 L 280,20" fill="none" stroke="#38bdf8" stroke-width="2.5"></path>
+                  <path d="M 20,100 Q 70,60 120,80 T 220,65 L 280,45" fill="none" stroke="#a855f7" stroke-width="2"></path>
+                  <path d="M 20,105 Q 70,85 120,95 T 220,80 L 280,68" fill="none" stroke="#34d399" stroke-width="1.8"></path>
+                </svg>
+              </div>
+
+              <!-- Top Locations (Ref 2) -->
+              <div class="port-panel-card">
+                <div class="port-panel-header">
+                  <div class="port-panel-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    <span>Top Locations</span>
+                  </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.76rem;">
+                  <div style="display: flex; justify-content: space-between;"><span style="color: #cbd5e1;">🇮🇳 India</span><strong style="color: #38bdf8;">42.6%</strong></div>
+                  <div style="display: flex; justify-content: space-between;"><span style="color: #cbd5e1;">🇺🇸 USA</span><strong style="color: #38bdf8;">24.1%</strong></div>
+                  <div style="display: flex; justify-content: space-between;"><span style="color: #cbd5e1;">🇬🇧 UK</span><strong style="color: #38bdf8;">12.8%</strong></div>
+                  <div style="display: flex; justify-content: space-between;"><span style="color: #cbd5e1;">🌐 Others</span><strong style="color: #38bdf8;">20.5%</strong></div>
+                </div>
+              </div>
+
+              <!-- Recent Deployments -->
+              <div class="port-panel-card">
+                <div class="port-panel-header">
+                  <div class="port-panel-title">Recent Deployments</div>
+                  <span class="port-panel-link">View All →</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 7px; font-size: 0.74rem;">
+                  <div>
+                    <div style="display: flex; justify-content: space-between;">
+                      <strong style="color: #34d399;">v2.3.0 - Production</strong>
+                      <span style="color: #94a3b8;">2m ago</span>
+                    </div>
+                    <div style="color: #64748b; font-size: 0.7rem;">Deployed successfully</div>
+                  </div>
+                  <div>
+                    <div style="display: flex; justify-content: space-between;">
+                      <strong style="color: #38bdf8;">v2.3.0 - Preview</strong>
+                      <span style="color: #94a3b8;">1h ago</span>
+                    </div>
+                    <div style="color: #64748b; font-size: 0.7rem;">Preview ready</div>
+                  </div>
+                  <div>
+                    <div style="display: flex; justify-content: space-between;">
+                      <strong style="color: #fbbf24;">v2.2.9 - Production</strong>
+                      <span style="color: #94a3b8;">1d ago</span>
+                    </div>
+                    <div style="color: #64748b; font-size: 0.7rem;">Deployed successfully</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer Banner (Ref 2) -->
+            <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.22); border-radius: 12px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
+              <div style="color: #34d399; font-weight: 600;">
+                🏆 Portfolio Automation is Active! 🎉 Your portfolio is monitored, optimized and ready for the world.
+              </div>
+              <div style="display: flex; gap: 10px; color: #94a3b8; font-size: 0.75rem;">
+                <span>GitHub</span> &bull; <span>Vercel</span> &bull; <span>Supabase</span> &bull; <span>Render</span>
+              </div>
+              <span class="badge" style="background: #8b5cf6; color: #fff; font-size: 0.72rem; padding: 3px 8px; border-radius: 8px;">Powered by MCP ✨</span>
+            </div>
+
+            <div id="portAutomationsGrid" style="display: none;"></div>
+          </div>
+
+          <!-- ================================================================= -->
+          <!-- 3. RAGHUL AI ASSISTANT V4.0 CONSOLE (REFERENCE 3) -->
+          <!-- ================================================================= -->
+          <div class="port-pane" id="portPaneAiAssistant">
+            <!-- Hero Banner with Cyber Avatar Silhouette -->
+            <div class="port-ai-console-hero">
+              <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #a855f7, #ec4899); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 0 25px rgba(168, 85, 247, 0.5);">
+                  ✦
+                </div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <h2 style="font-size: 1.3rem; font-weight: 700; color: #fff; margin: 0;">Raghul AI Assistant</h2>
+                    <span class="badge" style="background: rgba(168, 85, 247, 0.25); color: #c084fc; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px;">v4.0</span>
+                  </div>
+                  <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 2px;">Your Personal Portfolio Management Agent</div>
+                  <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 1px;">Plan &bull; Manage &bull; Automate &bull; Optimize</div>
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 0.82rem; color: #e2e8f0; font-style: italic;">"Everything is under control, Raghul!"</div>
+                <div style="font-size: 0.72rem; color: #a78bfa;">— Raghul AI</div>
+              </div>
+            </div>
+
+            <!-- Sub Navigation Tabs -->
+            <div class="port-ai-subtabs">
+              <button type="button" class="port-ai-subtab-btn active">💬 Chat</button>
+              <button type="button" class="port-ai-subtab-btn">📋 Plan</button>
+              <button type="button" class="port-ai-subtab-btn">⚙️ Actions</button>
+              <button type="button" class="port-ai-subtab-btn">⚡ Automation</button>
+              <button type="button" class="port-ai-subtab-btn">📜 History</button>
+            </div>
+
+            <!-- Split 2-Column (Left: Verified Execution Console, Right: Control Center) -->
+            <div class="port-ai-split-2col">
+              <!-- Left: Verified Execution Console -->
+              <div class="port-panel-card">
+                <!-- User Request Bubble -->
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 14px;">
+                  <div style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 12px 12px 2px 12px; padding: 10px 14px; font-size: 0.82rem; color: #f1f5f9; max-width: 85%;">
+                    👤 Update my ALIDAXIS project details, fix the contact form and deploy the latest version
+                  </div>
+                </div>
+
+                <!-- Verified Actions Progress Card -->
+                <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 16px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div style="font-weight: 600; color: #fff; font-size: 0.86rem; display: flex; align-items: center; gap: 8px;">
+                      <div class="port-brand-logo" style="width: 24px; height: 24px; font-size: 0.7rem;">RR</div>
+                      <span>Working on your request...</span>
+                    </div>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.72rem;">✓ Completed</span>
+                  </div>
+
+                  <!-- Verified Tasks List -->
+                  <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.78rem; color: #cbd5e1; margin-bottom: 16px;">
+                    <div>🟢 Fetched ALIDAXIS project details from knowledge base</div>
+                    <div>🟢 Updated project information and screenshots</div>
+                    <div>🟢 Fixed contact form issue (Render logs analyzed)</div>
+                    <div>🟢 Ran tests successfully (12/12 passed)</div>
+                    <div>🟢 Committing changes to GitHub...</div>
+                    <div>🟢 Deploying to production...</div>
+                  </div>
+
+                  <!-- 5-Stage Pipeline Timeline -->
+                  <div class="port-execution-pipeline">
+                    <div class="port-pipeline-step">
+                      <div class="port-pipeline-dot"></div>
+                      <span style="font-size: 0.68rem; color: #34d399;">Analyze</span>
+                    </div>
+                    <div class="port-pipeline-line"></div>
+                    <div class="port-pipeline-step">
+                      <div class="port-pipeline-dot"></div>
+                      <span style="font-size: 0.68rem; color: #34d399;">Update Files</span>
+                    </div>
+                    <div class="port-pipeline-line"></div>
+                    <div class="port-pipeline-step">
+                      <div class="port-pipeline-dot"></div>
+                      <span style="font-size: 0.68rem; color: #34d399;">Run Tests</span>
+                    </div>
+                    <div class="port-pipeline-line"></div>
+                    <div class="port-pipeline-step">
+                      <div class="port-pipeline-dot"></div>
+                      <span style="font-size: 0.68rem; color: #34d399;">Deploy</span>
+                    </div>
+                    <div class="port-pipeline-line"></div>
+                    <div class="port-pipeline-step">
+                      <div class="port-pipeline-dot"></div>
+                      <span style="font-size: 0.68rem; color: #34d399;">Verify</span>
+                    </div>
+                  </div>
+
+                  <!-- Success Box -->
+                  <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.28); border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                    <div>
+                      <strong style="color: #34d399; font-size: 0.82rem;">All tasks completed successfully! 🎉</strong>
+                      <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">Your portfolio is now updated and live. &bull; Completed in 2m 18s</div>
+                    </div>
+                    <a href="https://raghulraja.is-a.dev/" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="font-size: 0.74rem; text-decoration: none;">View Live Site ↗</a>
+                  </div>
+                </div>
+
+                <!-- Prompt Chips Row -->
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 10px 0;">
+                  <button type="button" class="port-ai-action-btn">💼 Update Projects</button>
+                  <button type="button" class="port-ai-action-btn">📊 Check Analytics</button>
+                  <button type="button" class="port-ai-action-btn">🛠️ Fix Errors</button>
+                  <button type="button" class="port-ai-action-btn">🚀 Deploy New Version</button>
+                  <button type="button" class="port-ai-action-btn">📑 Show Reports</button>
+                </div>
+
+                <!-- Chat Input Bar -->
+                <div style="display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 6px 10px;">
+                  <input type="text" id="portAiConsoleInput" placeholder="Ask Raghul AI anything... (e.g. 'Show live visitors', 'Update skills')" style="flex: 1; background: transparent; border: none; color: #fff; font-size: 0.82rem; outline: none;">
+                  <button type="button" id="portAiConsoleSendBtn" style="background: #8b5cf6; border: none; border-radius: 6px; color: #fff; padding: 6px 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Send</button>
+                </div>
+              </div>
+
+              <!-- Right: Live Control Center & Radial Resource Telemetry -->
+              <div class="port-panel-card">
+                <div class="port-panel-header">
+                  <div class="port-panel-title">
+                    <span class="port-live-dot"></span>
+                    <span>Live Control Center</span>
+                  </div>
+                  <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.68rem;">Real-time</span>
+                </div>
+                <!-- 8 Action Tiles (Ref 3) -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px;">
+                  <button type="button" class="port-action-tile" style="padding: 8px 4px;">
+                    <span style="font-size: 1rem;">🌐</span>
+                    <span style="font-size: 0.7rem;">Update Site</span>
+                  </button>
+                  <button type="button" class="port-action-tile" style="padding: 8px 4px;">
+                    <span style="font-size: 1rem;">💼</span>
+                    <span style="font-size: 0.7rem;">Projects</span>
+                  </button>
+                  <button type="button" class="port-action-tile" style="padding: 8px 4px;">
+                    <span style="font-size: 1rem;">🧪</span>
+                    <span style="font-size: 0.7rem;">Run Tests</span>
+                  </button>
+                  <button type="button" class="port-action-tile" style="padding: 8px 4px;">
+                    <span style="font-size: 1rem;">🚀</span>
+                    <span style="font-size: 0.7rem;">Deploy</span>
+                  </button>
+                  <button type="button" class="port-action-tile" style="padding: 8px 4px;">
+                    <span style="font-size: 1rem;">🛡️</span>
+                    <span style="font-size: 0.7rem;">Errors</span>
+                  </button>
+                  <button type="button" class="port-action-tile" style="padding: 8px 4px;">
+                    <span style="font-size: 1rem;">📊</span>
+                    <span style="font-size: 0.7rem;">Analytics</span>
+                  </button>
+                  <button type="button" class="port-action-tile" style="padding: 8px 4px;">
+                    <span style="font-size: 1rem;">🗄️</span>
+                    <span style="font-size: 0.7rem;">Backup</span>
+                  </button>
+                  <button type="button" class="port-action-tile" style="padding: 8px 4px;">
+                    <span style="font-size: 1rem;">↩️</span>
+                    <span style="font-size: 0.7rem;">Rollback</span>
+                  </button>
+                </div>
+
+                <!-- Automation Workflows Status List (Ref 3) -->
+                <div class="port-panel-header" style="margin-top: 6px;">
+                  <div class="port-panel-title">Automation Workflows</div>
+                  <span class="port-panel-link">View All →</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.75rem; margin-bottom: 14px;">
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: #cbd5e1;">🟢 Portfolio Deployment</span>
+                    <span style="color: #38bdf8;">Running... &bull; 2m ago</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: #cbd5e1;">🟢 Database Backup</span>
+                    <span style="color: #34d399;">Success &bull; 5m ago</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: #cbd5e1;">🟢 Analytics Sync</span>
+                    <span style="color: #34d399;">Success &bull; 8m ago</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: #cbd5e1;">🟡 SEO Optimization</span>
+                    <span style="color: #fbbf24;">Pending &bull; 12m ago</span>
+                  </div>
+                </div>
+
+                <!-- 4 Circular Radial Resource Gauges (Ref 3) -->
+                <div class="port-panel-header" style="margin-top: 6px;">
+                  <div class="port-panel-title">System Monitor</div>
+                  <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.68rem;">Live</span>
+                </div>
+                <div class="port-dials-grid-4">
+                  <div class="port-dial-card">
+                    <svg class="port-dial-svg" viewBox="0 0 36 36">
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"></path>
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10b981" stroke-dasharray="92, 100" stroke-width="3"></path>
+                      <text x="18" y="20.5" font-size="9" fill="#fff" text-anchor="middle" font-weight="700">92%</text>
+                    </svg>
+                    <span class="port-dial-label">CPU</span>
+                  </div>
+                  <div class="port-dial-card">
+                    <svg class="port-dial-svg" viewBox="0 0 36 36">
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"></path>
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#38bdf8" stroke-dasharray="78, 100" stroke-width="3"></path>
+                      <text x="18" y="20.5" font-size="9" fill="#fff" text-anchor="middle" font-weight="700">78%</text>
+                    </svg>
+                    <span class="port-dial-label">Memory</span>
+                  </div>
+                  <div class="port-dial-card">
+                    <svg class="port-dial-svg" viewBox="0 0 36 36">
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"></path>
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#fbbf24" stroke-dasharray="68, 100" stroke-width="3"></path>
+                      <text x="18" y="20.5" font-size="9" fill="#fff" text-anchor="middle" font-weight="700">68%</text>
+                    </svg>
+                    <span class="port-dial-label">Disk</span>
+                  </div>
+                  <div class="port-dial-card">
+                    <svg class="port-dial-svg" viewBox="0 0 36 36">
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"></path>
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#a855f7" stroke-dasharray="89, 100" stroke-width="3"></path>
+                      <text x="18" y="20.5" font-size="9" fill="#fff" text-anchor="middle" font-weight="700">89%</text>
+                    </svg>
+                    <span class="port-dial-label">Network</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================= -->
+          <!-- 4. DEEP MONITORING & TELEMETRY PANE -->
+          <!-- ================================================================= -->
+          <div class="port-pane" id="portPaneMonitoring">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div>
+                <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Full-Spectrum Telemetry & Infrastructure Health</h4>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Live host CPU, memory, disk I/O, site latency, and Edge CDN uptime.</p>
+              </div>
+              <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.78rem; padding: 4px 10px; border-radius: 10px;">Streaming SSE Active</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 16px;">
+              <div class="port-panel-card">
+                <span class="port-stat-label">Host CPU Cores</span>
+                <div class="port-stat-num" id="telemCpuDetail">28.4%</div>
+                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">Delta calculated via Node.js os.cpus()</div>
+              </div>
+              <div class="port-panel-card">
+                <span class="port-stat-label">Process Memory (RSS)</span>
+                <div class="port-stat-num" id="telemMemDetail">44.7 MB</div>
+                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">V8 Heap & Active Node Buffers</div>
+              </div>
+              <div class="port-panel-card">
+                <span class="port-stat-label">Production Site Probe</span>
+                <div class="port-stat-num" style="color: #34d399;">200 OK</div>
+                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">raghulraja.is-a.dev (~118ms latency)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================= -->
+          <!-- 5. PROJECTS MANAGER PANE -->
+          <!-- ================================================================= -->
+          <div class="port-pane" id="portPaneProjects">
+            <div class="card" style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+              <h4 style="font-size: 0.95rem; color: #60a5fa; margin: 0 0 6px 0;">⚡ Autonomous GitHub Project Analyzer & Importer</h4>
+              <p style="font-size: 0.82rem; color: #94a3b8; margin: 0 0 12px 0;">
+                Enter any GitHub repository name (e.g. <code style="color: #a5f3fc;">raghul692/LinkedIn-AI-Growth-Operating-System</code>) to inspect its README, commit history, and tech stack, then automatically generate a high-converting showcase card draft.
               </p>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="inputAnalyzeRepoName" class="port-input" placeholder="e.g. raghul692/LinkedIn-AI-Growth-Operating-System" style="flex: 1; padding: 8px 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; font-size: 0.84rem;">
+                <button type="button" class="btn btn-primary" id="btnAnalyzeRepoSubmit" style="white-space: nowrap; padding: 8px 16px; font-size: 0.84rem;">
+                  <span>Analyze & Generate Showcase</span>
+                </button>
+              </div>
+              <div id="repoAnalysisProgress" style="display: none; margin-top: 10px; font-size: 0.82rem; color: #fbbf24;"></div>
             </div>
-            <div class="port-hero-actions">
-              <button type="button" class="btn btn-primary btn-sm" id="btnQuickNewProject" style="display: inline-flex; align-items: center; gap: 6px;">
-                <span>✨ Analyze GitHub Repo</span>
-              </button>
-              <button type="button" class="btn btn-secondary btn-sm" id="btnQuickDeploy" style="display: inline-flex; align-items: center; gap: 6px;">
-                <span>🚀 Redeploy</span>
-              </button>
+
+            <h4 style="font-size: 0.9rem; color: #fff; margin: 16px 0 10px 0;">Featured Portfolio Projects</h4>
+            <div class="port-projects-grid" id="portProjectsGrid">
+              <!-- Populated via app.js -->
             </div>
           </div>
 
-          <!-- Key Metrics Grid -->
-          <div class="port-metrics-grid">
-            <div class="port-metric-card">
-              <div class="port-metric-header">
-                <span class="port-metric-title">Frontend Status</span>
-                <span class="status-dot online"></span>
-              </div>
-              <div class="port-metric-val" style="color: #34d399;">200 OK</div>
-              <div class="port-metric-sub">Vercel Edge CDN • 142ms latency</div>
-            </div>
-            <div class="port-metric-card">
-              <div class="port-metric-header">
-                <span class="port-metric-title">Backend API</span>
-                <span class="status-dot online"></span>
-              </div>
-              <div class="port-metric-val" style="color: #38bdf8;">Render API</div>
-              <div class="port-metric-sub">FastAPI • Production Ready</div>
-            </div>
-            <div class="port-metric-card">
-              <div class="port-metric-header">
-                <span class="port-metric-title">Supabase Database</span>
-                <span class="status-dot online"></span>
-              </div>
-              <div class="port-metric-val" style="color: #a78bfa;">PG 17 Vector</div>
-              <div class="port-metric-sub">4 active tables • Contact & Analytics</div>
-            </div>
-            <div class="port-metric-card">
-              <div class="port-metric-header">
-                <span class="port-metric-title">Continuous Workflows</span>
-                <span class="status-dot online"></span>
-              </div>
-              <div class="port-metric-val" style="color: #fbbf24;">8 Active</div>
-              <div class="port-metric-sub">Auto health, sync & reporting</div>
-            </div>
-          </div>
-
-          <!-- Quick System Diagnostic & Activity -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px;">
-            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px;">
-              <h4 style="font-size: 0.9rem; color: #fff; margin: 0 0 10px 0; display: flex; align-items: center; justify-content: space-between;">
-                <span>Live Component Diagnostics</span>
-                <button type="button" class="btn btn-secondary btn-sm" id="btnRunHealthCheck" style="font-size: 0.75rem; padding: 3px 8px;">Run Health</button>
-              </h4>
-              <div id="portHealthCheckResults" style="display: flex; flex-direction: column; gap: 8px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; padding: 6px 10px; background: rgba(0,0,0,0.25); border-radius: 6px;">
-                  <span style="color: var(--text-primary);">Frontend (raghulraja.is-a.dev)</span>
-                  <span style="color: #34d399; font-weight: 600;">Healthy (200 OK)</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; padding: 6px 10px; background: rgba(0,0,0,0.25); border-radius: 6px;">
-                  <span style="color: var(--text-primary);">Backend (Render FastAPI)</span>
-                  <span style="color: #34d399; font-weight: 600;">Healthy</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; padding: 6px 10px; background: rgba(0,0,0,0.25); border-radius: 6px;">
-                  <span style="color: var(--text-primary);">Supabase PostgreSQL 17</span>
-                  <span style="color: #34d399; font-weight: 600;">Connected (pgvector enabled)</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; padding: 6px 10px; background: rgba(0,0,0,0.25); border-radius: 6px;">
-                  <span style="color: var(--text-primary);">Portfolio MCP Gateway</span>
-                  <span style="color: #34d399; font-weight: 600;">24/24 Tools Ready</span>
-                </div>
+          <!-- ================================================================= -->
+          <!-- 6. KNOWLEDGE ENGINE PANE -->
+          <!-- ================================================================= -->
+          <div class="port-pane" id="portPaneKnowledge">
+            <div class="card" style="background: rgba(167, 139, 250, 0.05); border: 1px solid rgba(167, 139, 250, 0.2); border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+              <h4 style="font-size: 0.95rem; color: #c4b5fd; margin: 0 0 6px 0;">🧠 Grounded Portfolio RAG & Knowledge Engine</h4>
+              <p style="font-size: 0.82rem; color: #94a3b8; margin: 0 0 12px 0;">
+                Ask any question about Raghul's projects, technical skills, architecture patterns, or contact info. Answers are strictly grounded in repository markdown, commit logs, and database schemas.
+              </p>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="inputKnowledgeQuestion" class="port-input" placeholder="e.g. What is Raghul's architecture for the AI growth system and what are his top skills?" style="flex: 1; padding: 8px 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; font-size: 0.84rem;">
+                <button type="button" class="btn btn-primary" id="btnAskKnowledgeSubmit" style="white-space: nowrap; padding: 8px 16px; font-size: 0.84rem;">
+                  <span>Ask Portfolio AI</span>
+                </button>
               </div>
             </div>
 
-            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px;">
-              <h4 style="font-size: 0.9rem; color: #fff; margin: 0 0 10px 0;">Portfolio Quick Information</h4>
-              <div style="font-size: 0.8rem; color: #94a3b8; display: flex; flex-direction: column; gap: 6px;">
-                <div><strong>Owner:</strong> RAGHUL RAJA M (@raghul692)</div>
-                <div><strong>Email:</strong> raghulraja2006@gmail.com</div>
-                <div><strong>Target Repo:</strong> raghul692/raghulraja_portfolio</div>
-                <div><strong>Stack:</strong> React / Vite / FastAPI / Supabase PostgreSQL / Tailwind</div>
-                <div><strong>Deployment:</strong> Vercel (Frontend) + Render (API)</div>
+            <div id="knowledgeAnswerCard" class="card" style="display: none; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <strong style="color: #a78bfa; font-size: 0.88rem;">Grounded AI Answer</strong>
+                <span id="knowledgeAnswerConfidence" class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.74rem; padding: 2px 6px; border-radius: 4px;">High Confidence</span>
+              </div>
+              <div id="knowledgeAnswerText" style="font-size: 0.85rem; color: var(--text-primary); line-height: 1.6; white-space: pre-wrap;"></div>
+              <div id="knowledgeCitationsBox" style="margin-top: 10px; font-size: 0.76rem; color: var(--text-secondary); border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;"></div>
+            </div>
+
+            <h5 style="font-size: 0.85rem; color: #fff; margin: 12px 0 8px 0;">Indexed Portfolio Documents</h5>
+            <div id="portKnowledgeDocsList" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Populated via app.js -->
+            </div>
+          </div>
+
+          <!-- ================================================================= -->
+          <!-- 7. SUPABASE & DATABASE PANE -->
+          <!-- ================================================================= -->
+          <div class="port-pane" id="portPaneDatabase">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div>
+                <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Supabase PostgreSQL 17 Database</h4>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Schema and data store powering raghulraja.is-a.dev.</p>
+              </div>
+              <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.78rem; padding: 3px 8px; border-radius: 4px;">pgvector Enabled</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 16px;">
+              <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+                <strong style="color: #38bdf8; font-family: monospace; font-size: 0.85rem;">contact_submissions</strong>
+                <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 4px;">Stores user messages, email, status, timestamp.</div>
+                <div style="margin-top: 6px; font-size: 0.78rem; color: #34d399;">RLS Protected • Auto-encrypted</div>
+              </div>
+              <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+                <strong style="color: #38bdf8; font-family: monospace; font-size: 0.85rem;">visitor_analytics</strong>
+                <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 4px;">Logs visitor sessions, page views, and referrers.</div>
+                <div style="margin-top: 6px; font-size: 0.78rem; color: #34d399;">Time-series indexed</div>
+              </div>
+              <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+                <strong style="color: #38bdf8; font-family: monospace; font-size: 0.85rem;">portfolio_documents</strong>
+                <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 4px;">Source knowledge documents and markdown.</div>
+                <div style="margin-top: 6px; font-size: 0.78rem; color: #a78bfa;">Metadata indexed</div>
+              </div>
+              <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+                <strong style="color: #38bdf8; font-family: monospace; font-size: 0.85rem;">document_chunks</strong>
+                <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 4px;">Chunks with 768-dim embeddings for vector search.</div>
+                <div style="margin-top: 6px; font-size: 0.78rem; color: #a78bfa;">HNSW cosine index</div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- 2. WEBSITE & PAGES PANE -->
-        <div class="port-pane" id="portPaneWebsite">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <div>
-              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Portfolio Website Structure & Sections</h4>
-              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Inspect, verify, and update sections on raghulraja.is-a.dev.</p>
-            </div>
-            <a href="https://raghulraja.is-a.dev/" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="text-decoration: none;">View Live Site ↗</a>
-          </div>
-          <div class="port-sections-grid" id="portSectionsGrid">
-            <!-- Populated via app.js -->
-          </div>
-        </div>
-
-        <!-- 3. CONTENT & DRAFTS STUDIO PANE -->
-        <div class="port-pane" id="portPaneDrafts">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <div>
-              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Content Drafts & Approval Staging</h4>
-              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Draft content updates before safe publishing to GitHub.</p>
-            </div>
-            <button type="button" class="btn btn-primary btn-sm" id="btnCreateNewDraftManual">
-              <span>+ New Content Draft</span>
-            </button>
-          </div>
-
-          <!-- Drafts List -->
-          <div id="portDraftsListContainer" style="display: flex; flex-direction: column; gap: 10px;">
-            <!-- Populated via app.js -->
-          </div>
-        </div>
-
-        <!-- 4. PROJECTS MANAGER PANE -->
-        <div class="port-pane" id="portPaneProjects">
-          <div class="card" style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 10px; padding: 16px; margin-bottom: 16px;">
-            <h4 style="font-size: 0.95rem; color: #60a5fa; margin: 0 0 6px 0;">⚡ Autonomous GitHub Project Analyzer & Importer</h4>
-            <p style="font-size: 0.82rem; color: #94a3b8; margin: 0 0 12px 0;">
-              Enter any GitHub repository name (e.g. <code style="color: #a5f3fc;">raghul692/LinkedIn-AI-Growth-Operating-System</code>) to inspect its README, commit history, and tech stack, then automatically generate a high-converting showcase card draft.
-            </p>
-            <div style="display: flex; gap: 8px;">
-              <input type="text" id="inputAnalyzeRepoName" class="port-input" placeholder="e.g. raghul692/LinkedIn-AI-Growth-Operating-System" style="flex: 1; padding: 8px 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; font-size: 0.84rem;">
-              <button type="button" class="btn btn-primary" id="btnAnalyzeRepoSubmit" style="white-space: nowrap; padding: 8px 16px; font-size: 0.84rem;">
-                <span>Analyze & Generate Showcase</span>
+          <!-- ================================================================= -->
+          <!-- 8. DEPLOYMENTS CENTER PANE -->
+          <!-- ================================================================= -->
+          <div class="port-pane" id="portPaneDeployments">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div>
+                <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Multi-Cloud Deployment Pipeline</h4>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Manage Vercel Frontend and Render Backend deployments.</p>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" id="btnTriggerRedeployAction">
+                <span>🚀 Trigger Production Redeploy</span>
               </button>
             </div>
-            <div id="repoAnalysisProgress" style="display: none; margin-top: 10px; font-size: 0.82rem; color: #fbbf24;"></div>
-          </div>
 
-          <h4 style="font-size: 0.9rem; color: #fff; margin: 16px 0 10px 0;">Featured Portfolio Projects</h4>
-          <div class="port-projects-grid" id="portProjectsGrid">
-            <!-- Populated via app.js -->
-          </div>
-        </div>
-
-        <!-- 5. GITHUB SYNC PANE -->
-        <div class="port-pane" id="portPaneGithub">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <div>
-              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Synchronized Repository: raghul692/raghulraja_portfolio</h4>
-              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Connected via Official GitHub MCP Server with write permissions.</p>
-            </div>
-            <a href="https://github.com/raghul692/raghulraja_portfolio" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="text-decoration: none;">Open on GitHub ↗</a>
-          </div>
-
-          <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.84rem; margin-bottom: 8px;">
-              <span style="color: var(--text-secondary);">Default Branch:</span>
-              <strong style="color: #38bdf8; font-family: monospace;">main</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.84rem; margin-bottom: 8px;">
-              <span style="color: var(--text-secondary);">Last Sync Check:</span>
-              <span style="color: #34d399;" id="ghLastSyncTime">Just now</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.84rem;">
-              <span style="color: var(--text-secondary);">Repo Status:</span>
-              <span style="color: #34d399; font-weight: 600;">Active & Synchronized</span>
-            </div>
-          </div>
-
-          <h5 style="font-size: 0.85rem; color: #fff; margin: 12px 0 8px 0;">Recent Portfolio Commits</h5>
-          <div id="portGithubCommitsList" style="display: flex; flex-direction: column; gap: 8px;">
-            <!-- Populated via app.js -->
-          </div>
-        </div>
-
-        <!-- 6. DEPLOYMENT CENTER PANE -->
-        <div class="port-pane" id="portPaneDeployments">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <div>
-              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Multi-Cloud Deployment Pipeline</h4>
-              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Manage Vercel Frontend and Render Backend deployments.</p>
-            </div>
-            <button type="button" class="btn btn-primary btn-sm" id="btnTriggerRedeployAction">
-              <span>🚀 Trigger Production Redeploy</span>
-            </button>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <strong style="color: #fff; font-size: 0.9rem;">Vercel Production Edge</strong>
-                <span class="status-dot online"></span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+              <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <strong style="color: #fff; font-size: 0.9rem;">Vercel Production Edge</strong>
+                  <span class="status-dot online"></span>
+                </div>
+                <div style="font-size: 0.8rem; color: #38bdf8; font-family: monospace;">raghulraja.is-a.dev</div>
+                <div style="font-size: 0.74rem; color: #94a3b8; margin-top: 4px;">Branch: main • Framework: React Vite • Status: READY</div>
               </div>
-              <div style="font-size: 0.8rem; color: #38bdf8; font-family: monospace;">raghulraja.is-a.dev</div>
-              <div style="font-size: 0.74rem; color: #94a3b8; margin-top: 4px;">Branch: main • Framework: React Vite • Status: READY</div>
-            </div>
-            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <strong style="color: #fff; font-size: 0.9rem;">Render Web Service API</strong>
-                <span class="status-dot online"></span>
-              </div>
-              <div style="font-size: 0.8rem; color: #a78bfa; font-family: monospace;">raghulraja-portfolio.onrender.com</div>
-              <div style="font-size: 0.74rem; color: #94a3b8; margin-top: 4px;">Environment: Python FastAPI • Status: LIVE</div>
-            </div>
-          </div>
-
-          <h5 style="font-size: 0.85rem; color: #fff; margin: 12px 0 8px 0;">Deployment History</h5>
-          <div id="portDeploymentsTable" style="display: flex; flex-direction: column; gap: 8px;">
-            <!-- Populated via app.js -->
-          </div>
-        </div>
-
-        <!-- 7. VISITOR ANALYTICS PANE -->
-        <div class="port-pane" id="portPaneAnalytics">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <div>
-              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Portfolio Visitor Analytics & Insights</h4>
-              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Grounded traffic metrics from Supabase <code style="color: #38bdf8;">visitor_analytics</code>.</p>
-            </div>
-            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.78rem; padding: 3px 8px; border-radius: 4px;">Telemetry Active</span>
-          </div>
-
-          <div class="port-metrics-grid">
-            <div class="port-metric-card">
-              <span class="port-metric-title">Unique Visitors</span>
-              <div class="port-metric-val" id="valAnalyticVisitors" style="color: #38bdf8;">1,420</div>
-              <div class="port-metric-sub">+18.4% this month</div>
-            </div>
-            <div class="port-metric-card">
-              <span class="port-metric-title">Total Pageviews</span>
-              <div class="port-metric-val" id="valAnalyticViews" style="color: #34d399;">4,890</div>
-              <div class="port-metric-sub">3.44 views / session</div>
-            </div>
-            <div class="port-metric-card">
-              <span class="port-metric-title">Avg Duration</span>
-              <div class="port-metric-val" style="color: #fbbf24;">2m 45s</div>
-              <div class="port-metric-sub">High engagement</div>
-            </div>
-            <div class="port-metric-card">
-              <span class="port-metric-title">Inquiries Submitted</span>
-              <div class="port-metric-val" id="valAnalyticContacts" style="color: #f472b6;">14</div>
-              <div class="port-metric-sub">Lead conversion: 0.98%</div>
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px;">
-            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
-              <h5 style="font-size: 0.85rem; color: #fff; margin: 0 0 10px 0;">Top Traffic Sources</h5>
-              <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem;">
-                <div style="display: flex; justify-content: space-between;"><span>GitHub Profile / Repos</span><strong style="color: #38bdf8;">48%</strong></div>
-                <div style="display: flex; justify-content: space-between;"><span>LinkedIn / Direct</span><strong style="color: #38bdf8;">32%</strong></div>
-                <div style="display: flex; justify-content: space-between;"><span>Google Search</span><strong style="color: #38bdf8;">14%</strong></div>
-                <div style="display: flex; justify-content: space-between;"><span>Other Referral</span><strong style="color: #38bdf8;">6%</strong></div>
+              <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <strong style="color: #fff; font-size: 0.9rem;">Render Web Service API</strong>
+                  <span class="status-dot online"></span>
+                </div>
+                <div style="font-size: 0.8rem; color: #a78bfa; font-family: monospace;">raghulraja-portfolio.onrender.com</div>
+                <div style="font-size: 0.74rem; color: #94a3b8; margin-top: 4px;">Environment: Python FastAPI • Status: LIVE</div>
               </div>
             </div>
-            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
-              <h5 style="font-size: 0.85rem; color: #fff; margin: 0 0 10px 0;">Most Viewed Sections</h5>
-              <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem;">
-                <div style="display: flex; justify-content: space-between;"><span>#projects (AI Operating System, Chatbot)</span><strong style="color: #34d399;">44%</strong></div>
-                <div style="display: flex; justify-content: space-between;"><span>#hero (Landing Intro)</span><strong style="color: #34d399;">26%</strong></div>
-                <div style="display: flex; justify-content: space-between;"><span>#experience & skills</span><strong style="color: #34d399;">18%</strong></div>
-                <div style="display: flex; justify-content: space-between;"><span>#contact form</span><strong style="color: #34d399;">12%</strong></div>
+
+            <h5 style="font-size: 0.85rem; color: #fff; margin: 12px 0 8px 0;">Deployment History</h5>
+            <div id="portDeploymentsTable" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Populated via app.js -->
+            </div>
+          </div>
+
+          <!-- ================================================================= -->
+          <!-- 9. VISITOR ANALYTICS PANE -->
+          <!-- ================================================================= -->
+          <div class="port-pane" id="portPaneAnalytics">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div>
+                <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Portfolio Visitor Analytics & Insights</h4>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Grounded traffic metrics from Supabase <code style="color: #38bdf8;">visitor_analytics</code>.</p>
+              </div>
+              <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.78rem; padding: 3px 8px; border-radius: 4px;">Telemetry Active</span>
+            </div>
+
+            <div class="port-stat-cards-5" style="grid-template-columns: repeat(4, 1fr);">
+              <div class="port-stat-card">
+                <span class="port-stat-label">Unique Visitors</span>
+                <div class="port-stat-num" id="valAnalyticVisitors" style="color: #38bdf8;">1,420</div>
+                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">+18.4% this month</div>
+              </div>
+              <div class="port-stat-card">
+                <span class="port-stat-label">Total Pageviews</span>
+                <div class="port-stat-num" id="valAnalyticViews" style="color: #34d399;">4,890</div>
+                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">3.44 views / session</div>
+              </div>
+              <div class="port-stat-card">
+                <span class="port-stat-label">Avg Duration</span>
+                <div class="port-stat-num" style="color: #fbbf24;">2m 45s</div>
+                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">High engagement</div>
+              </div>
+              <div class="port-stat-card">
+                <span class="port-stat-label">Inquiries Submitted</span>
+                <div class="port-stat-num" id="valAnalyticContacts" style="color: #f472b6;">14</div>
+                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">Lead conversion: 0.98%</div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- 8. CONTACT SUBMISSIONS PANE -->
-        <div class="port-pane" id="portPaneContacts">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <div>
-              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Portfolio Inquiries & Contact Submissions</h4>
-              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Stored securely in Supabase <code style="color: #38bdf8;">contact_submissions</code> table.</p>
+          <!-- ================================================================= -->
+          <!-- 10. SECURITY & AUDITS PANE -->
+          <!-- ================================================================= -->
+          <div class="port-pane" id="portPaneSecurity">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div>
+                <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Security Posture & Human-in-the-Loop Governance</h4>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Guaranteed boundary protections and immutable audit trails.</p>
+              </div>
+              <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.78rem; padding: 3px 8px; border-radius: 4px;">Protected</span>
             </div>
-            <button type="button" class="btn btn-secondary btn-sm" id="btnRefreshContacts">
-              <span>↻ Refresh Inquiries</span>
-            </button>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+                <strong style="color: #34d399; font-size: 0.85rem;">🛡️ Zero Client Secret Leaks</strong>
+                <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px;">All Vercel tokens, Render keys, and Supabase service roles stay isolated in server environment. Responses redact sensitive keys.</div>
+              </div>
+              <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+                <strong style="color: #38bdf8; font-size: 0.85rem;">🔒 Human-in-the-Loop Approval Boundary</strong>
+                <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px;">Direct commits to <code style="color: #a5f3fc;">raghulraja_portfolio</code> main branch or live deployment triggers require explicit user confirmation.</div>
+              </div>
+              <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+                <strong style="color: #a78bfa; font-size: 0.85rem;">📝 Immutable Audit Trail</strong>
+                <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px;">All draft creations, publications, and deployment events are logged in SQLite table <code style="color: #cbd5e1;">audit_logs</code>.</div>
+              </div>
+            </div>
           </div>
 
-          <div id="portContactsListContainer" style="display: flex; flex-direction: column; gap: 10px;">
-            <!-- Populated via app.js -->
+          <!-- ================================================================= -->
+          <!-- 11. SETTINGS & CONFIG PANE -->
+          <!-- ================================================================= -->
+          <div class="port-pane" id="portPaneSettings">
+            <h4 style="font-size: 0.95rem; color: #fff; margin: 0 0 14px 0;">Portfolio System Configuration</h4>
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
+              <div style="font-size: 0.82rem; color: #cbd5e1; display: flex; flex-direction: column; gap: 8px;">
+                <div><strong>Domain:</strong> <code>https://raghulraja.is-a.dev/</code></div>
+                <div><strong>GitHub Target:</strong> <code>raghul692/raghulraja_portfolio</code> (main branch)</div>
+                <div><strong>Production API:</strong> <code>https://raghulraja-portfolio.onrender.com</code></div>
+                <div><strong>Database:</strong> Supabase Cloud PostgreSQL 17</div>
+                <div><strong>Autonomous Cadence:</strong> 15-minute health check, 30-minute GitHub sync</div>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <!-- 9. KNOWLEDGE ENGINE PANE -->
-        <div class="port-pane" id="portPaneKnowledge">
-          <div class="card" style="background: rgba(167, 139, 250, 0.05); border: 1px solid rgba(167, 139, 250, 0.2); border-radius: 10px; padding: 16px; margin-bottom: 16px;">
-            <h4 style="font-size: 0.95rem; color: #c4b5fd; margin: 0 0 6px 0;">🧠 Grounded Portfolio RAG & Knowledge Engine</h4>
-            <p style="font-size: 0.82rem; color: #94a3b8; margin: 0 0 12px 0;">
-              Ask any question about Raghul's projects, technical skills, architecture patterns, or contact info. Answers are strictly grounded in repository markdown, commit logs, and database schemas.
-            </p>
-            <div style="display: flex; gap: 8px;">
-              <input type="text" id="inputKnowledgeQuestion" class="port-input" placeholder="e.g. What is Raghul's architecture for the AI growth system and what are his top skills?" style="flex: 1; padding: 8px 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; font-size: 0.84rem;">
-              <button type="button" class="btn btn-primary" id="btnAskKnowledgeSubmit" style="white-space: nowrap; padding: 8px 16px; font-size: 0.84rem;">
-                <span>Ask Portfolio AI</span>
+          <!-- ================================================================= -->
+          <!-- 12. PORTFOLIO MCP TOOLS PANE (24 TOOLS) -->
+          <!-- ================================================================= -->
+          <div class="port-pane" id="portPaneTools">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div>
+                <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Portfolio MCP Tools Registry</h4>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">24 standardized tools powering autonomous portfolio workflows.</p>
+              </div>
+              <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-size: 0.8rem; padding: 3px 8px; border-radius: 4px;">24 Active Tools</span>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+              <input type="text" id="portToolsFilterInput" placeholder="Filter portfolio tools by name or description..." style="width: 100%; padding: 8px 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; font-size: 0.84rem;">
+            </div>
+            <div class="gh-tools-catalog-grid" id="portToolsCatalogGrid">
+              <!-- Populated via app.js -->
+            </div>
+          </div>
+
+          <!-- ================================================================= -->
+          <!-- 13. WEBSITE & PAGES PANE -->
+          <!-- ================================================================= -->
+          <div class="port-pane" id="portPaneWebsite">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div>
+                <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Portfolio Website Structure & Sections</h4>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Inspect, verify, and update sections on raghulraja.is-a.dev.</p>
+              </div>
+              <a href="https://raghulraja.is-a.dev/" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="text-decoration: none;">View Live Site ↗</a>
+            </div>
+            <div class="port-sections-grid" id="portSectionsGrid">
+              <!-- Populated via app.js -->
+            </div>
+          </div>
+
+          <!-- ================================================================= -->
+          <!-- 14. CONTENT DRAFTS STUDIO PANE -->
+          <!-- ================================================================= -->
+          <div class="port-pane" id="portPaneDrafts">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div>
+                <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Content Drafts & Approval Staging</h4>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Draft content updates before safe publishing to GitHub.</p>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" id="btnCreateNewDraftManual">
+                <span>+ New Content Draft</span>
               </button>
             </div>
-          </div>
-
-          <div id="knowledgeAnswerCard" class="card" style="display: none; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 16px; margin-bottom: 16px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-              <strong style="color: #a78bfa; font-size: 0.88rem;">Grounded AI Answer</strong>
-              <span id="knowledgeAnswerConfidence" class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.74rem; padding: 2px 6px; border-radius: 4px;">High Confidence</span>
+            <div id="portDraftsListContainer" style="display: flex; flex-direction: column; gap: 10px;">
+              <!-- Populated via app.js -->
             </div>
-            <div id="knowledgeAnswerText" style="font-size: 0.85rem; color: var(--text-primary); line-height: 1.6; white-space: pre-wrap;"></div>
-            <div id="knowledgeCitationsBox" style="margin-top: 10px; font-size: 0.76rem; color: var(--text-secondary); border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;"></div>
           </div>
 
-          <h5 style="font-size: 0.85rem; color: #fff; margin: 12px 0 8px 0;">Indexed Portfolio Documents</h5>
-          <div id="portKnowledgeDocsList" style="display: flex; flex-direction: column; gap: 8px;">
-            <!-- Populated via app.js -->
+          <!-- ================================================================= -->
+          <!-- 15. CONTACT SUBMISSIONS PANE -->
+          <!-- ================================================================= -->
+          <div class="port-pane" id="portPaneContacts">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div>
+                <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Portfolio Inquiries & Contact Submissions</h4>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Stored securely in Supabase <code style="color: #38bdf8;">contact_submissions</code> table.</p>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnRefreshContacts">
+                <span>↻ Refresh Inquiries</span>
+              </button>
+            </div>
+            <div id="portContactsListContainer" style="display: flex; flex-direction: column; gap: 10px;">
+              <!-- Populated via app.js -->
+            </div>
           </div>
+
+          <!-- Hidden legacy badges for counter synchronization -->
+          <span id="portDraftsCount" style="display: none;">0</span>
+          <span id="portContactsCount" style="display: none;">0</span>
+          <span id="ghLastSyncTime" style="display: none;">Just now</span>
+          <div id="portGithubCommitsList" style="display: none;"></div>
+          <button type="button" id="btnRunSeoAudit" style="display: none;"></button>
         </div>
 
-        <!-- 10. AUTOMATIONS PANE -->
-        <div class="port-pane" id="portPaneAutomations">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <div>
-              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Portfolio Autonomous Workflows (8 Continuous Engines)</h4>
-              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Autonomous background monitoring, GitHub sync, project discovery, and reporting.</p>
-            </div>
-            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.78rem; padding: 3px 8px; border-radius: 4px;">8 Active</span>
+        <!-- Operational Footer Bar (Ref 1, 2) -->
+        <footer class="port-footer">
+          <div class="port-footer-left">
+            <span class="port-live-dot"></span>
+            <span>All systems operational &bull; Last updated: <span id="portFooterLastUpdated">Just now</span></span>
           </div>
-
-          <div id="portAutomationsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 12px;">
-            <!-- Populated via app.js -->
+          <div class="port-footer-integrations">
+            <span>🐙 GitHub</span> &bull;
+            <span>▲ Vercel</span> &bull;
+            <span>⚡ Supabase</span> &bull;
+            <span>🌐 Render</span> &bull;
+            <span>☁️ Google Cloud</span>
           </div>
-        </div>
-
-        <!-- 11. SUPABASE & DATABASE PANE -->
-        <div class="port-pane" id="portPaneDatabase">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <div>
-              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Supabase PostgreSQL 17 Database</h4>
-              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Schema and data store powering raghulraja.is-a.dev.</p>
-            </div>
-            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.78rem; padding: 3px 8px; border-radius: 4px;">pgvector Enabled</span>
-          </div>
-
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 16px;">
-            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
-              <strong style="color: #38bdf8; font-family: monospace; font-size: 0.85rem;">contact_submissions</strong>
-              <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 4px;">Stores user messages, email, status, timestamp.</div>
-              <div style="margin-top: 6px; font-size: 0.78rem; color: #34d399;">RLS Protected • Auto-encrypted</div>
-            </div>
-            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
-              <strong style="color: #38bdf8; font-family: monospace; font-size: 0.85rem;">visitor_analytics</strong>
-              <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 4px;">Logs visitor sessions, page views, and referrers.</div>
-              <div style="margin-top: 6px; font-size: 0.78rem; color: #34d399;">Time-series indexed</div>
-            </div>
-            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
-              <strong style="color: #38bdf8; font-family: monospace; font-size: 0.85rem;">portfolio_documents</strong>
-              <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 4px;">Source knowledge documents and markdown.</div>
-              <div style="margin-top: 6px; font-size: 0.78rem; color: #a78bfa;">Metadata indexed</div>
-            </div>
-            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
-              <strong style="color: #38bdf8; font-family: monospace; font-size: 0.85rem;">document_chunks</strong>
-              <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 4px;">Chunks with 768-dim embeddings for vector search.</div>
-              <div style="margin-top: 6px; font-size: 0.78rem; color: #a78bfa;">HNSW cosine index</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 12. PERFORMANCE LAB PANE -->
-        <div class="port-pane" id="portPanePerformance">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <div>
-              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Performance, SEO & Core Web Vitals</h4>
-              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Lighthouse & PageSpeed metrics for raghulraja.is-a.dev.</p>
-            </div>
-            <button type="button" class="btn btn-secondary btn-sm" id="btnRunSeoAudit">Run SEO Audit</button>
-          </div>
-
-          <div class="port-metrics-grid">
-            <div class="port-metric-card">
-              <span class="port-metric-title">Performance Score</span>
-              <div class="port-metric-val" style="color: #34d399;">98 / 100</div>
-              <div class="port-metric-sub">Fast Vercel Edge response</div>
-            </div>
-            <div class="port-metric-card">
-              <span class="port-metric-title">SEO Score</span>
-              <div class="port-metric-val" style="color: #34d399;">100 / 100</div>
-              <div class="port-metric-sub">OpenGraph & Meta complete</div>
-            </div>
-            <div class="port-metric-card">
-              <span class="port-metric-title">Largest Contentful Paint (LCP)</span>
-              <div class="port-metric-val" style="color: #38bdf8;">0.8s</div>
-              <div class="port-metric-sub">Good (&lt; 2.5s)</div>
-            </div>
-            <div class="port-metric-card">
-              <span class="port-metric-title">Cumulative Layout Shift (CLS)</span>
-              <div class="port-metric-val" style="color: #34d399;">0.002</div>
-              <div class="port-metric-sub">Zero visual drift</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 13. SECURITY & AUDITS PANE -->
-        <div class="port-pane" id="portPaneSecurity">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <div>
-              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Security Posture & Human-in-the-Loop Governance</h4>
-              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Guaranteed boundary protections and immutable audit trails.</p>
-            </div>
-            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.78rem; padding: 3px 8px; border-radius: 4px;">Protected</span>
-          </div>
-
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
-              <strong style="color: #34d399; font-size: 0.85rem;">🛡️ Zero Client Secret Leaks</strong>
-              <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px;">All Vercel tokens, Render keys, and Supabase service roles stay isolated in server environment. Responses redact sensitive keys.</div>
-            </div>
-            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
-              <strong style="color: #38bdf8; font-size: 0.85rem;">🔒 Human-in-the-Loop Approval Boundary</strong>
-              <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px;">Direct commits to <code style="color: #a5f3fc;">raghulraja_portfolio</code> main branch or live deployment triggers require explicit user confirmation.</div>
-            </div>
-            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
-              <strong style="color: #a78bfa; font-size: 0.85rem;">📝 Immutable Audit Trail</strong>
-              <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px;">All draft creations, publications, and deployment events are logged in SQLite table <code style="color: #cbd5e1;">audit_logs</code>.</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 14. PORTFOLIO MCP TOOLS PANE -->
-        <div class="port-pane" id="portPaneTools">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <div>
-              <h4 style="font-size: 0.95rem; color: #fff; margin: 0;">Portfolio MCP Tools Registry</h4>
-              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">24 standardized tools powering autonomous portfolio workflows.</p>
-            </div>
-            <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-size: 0.8rem; padding: 3px 8px; border-radius: 4px;">24 Active Tools</span>
-          </div>
-
-          <div style="margin-bottom: 12px;">
-            <input type="text" id="portToolsFilterInput" placeholder="Filter portfolio tools by name or description..." style="width: 100%; padding: 8px 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; font-size: 0.84rem;">
-          </div>
-          <div class="gh-tools-catalog-grid" id="portToolsCatalogGrid">
-            <!-- Populated via app.js -->
-          </div>
-        </div>
-
+          <div class="port-footer-badge">Portfolio OS v3.0 🚀</div>
+        </footer>
       </div>
     </div>
   </div>
@@ -3138,7 +4077,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=20261111_2"></script>
+  <script src="app.js?v=20261111_3"></script>
   <script src="studioIde.js?v=20261110_2"></script>
 </body>
 </html>

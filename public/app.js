@@ -6579,31 +6579,102 @@ async function initPortfolioHub() {
     loadPortfolioData(true);
   });
 
-  // Tab Navigation
-  const navTabs = document.querySelectorAll('.port-nav-tab');
+  // Tab Navigation (Sidebar buttons & Header tabs)
+  const navTabs = document.querySelectorAll('.port-nav-tab, .port-nav-btn');
   navTabs.forEach(tab => {
     tab.addEventListener('click', () => {
       const tabId = tab.dataset.porttab;
-      navTabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-
-      const panes = document.querySelectorAll('.port-pane');
-      panes.forEach(p => p.classList.remove('active'));
-
-      const targetPane = document.getElementById(`portPane${tabId.slice(4)}`);
-      if (targetPane) targetPane.classList.add('active');
-
-      // Lazy load tab data
-      if (tabId === 'portDrafts') renderPortfolioDrafts();
-      if (tabId === 'portProjects') renderPortfolioProjects();
-      if (tabId === 'portDeployments') renderPortfolioDeployments();
-      if (tabId === 'portAnalytics') renderPortfolioAnalytics();
-      if (tabId === 'portContacts') renderPortfolioContacts();
-      if (tabId === 'portKnowledge') renderPortfolioKnowledge();
-      if (tabId === 'portAutomations') renderPortfolioAutomations();
-      if (tabId === 'portTools') renderPortfolioTools();
+      if (tabId) switchPortfolioTab(tabId);
     });
   });
+
+  // Global AI Mode Button
+  const globalAiBtn = document.getElementById('portGlobalAiModeBtn');
+  if (globalAiBtn) {
+    globalAiBtn.addEventListener('click', () => {
+      switchPortfolioTab('portAiAssistant');
+    });
+  }
+
+  // Automation Quick Action Tiles (Reference 2)
+  const autoActions = [
+    { id: 'btnActionHealthCheck', action: 'health_check' },
+    { id: 'btnActionDeployNow', action: 'deploy' },
+    { id: 'btnActionRunTests', action: 'tests' },
+    { id: 'btnActionBackupDb', action: 'backup' },
+    { id: 'btnActionClearCache', action: 'clear_cache' },
+    { id: 'btnActionRollback', action: 'rollback' }
+  ];
+
+  autoActions.forEach(({ id, action }) => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.addEventListener('click', () => executePortfolioQuickAction(action, btn));
+    }
+  });
+
+  // Auto Mode Master Toggle (Reference 2)
+  const autoModeToggle = document.getElementById('portAutoModeToggle');
+  if (autoModeToggle) {
+    autoModeToggle.addEventListener('change', (e) => {
+      appendLiveActivityItem({
+        timestamp: Date.now(),
+        icon: e.target.checked ? '⚡' : '⏸️',
+        description: `Auto Mode turned ${e.target.checked ? 'ACTIVE' : 'STANDBY'} by operator`,
+        type: 'Governance'
+      });
+    });
+  }
+
+  // AI Assistant Console Prompt Dispatch (Reference 3)
+  const aiConsoleInput = document.getElementById('portAiConsoleInput');
+  const aiConsoleBtn = document.getElementById('portAiConsoleSendBtn');
+  if (aiConsoleBtn && aiConsoleInput) {
+    aiConsoleBtn.addEventListener('click', () => {
+      const p = aiConsoleInput.value.trim();
+      if (p) {
+        aiConsoleInput.value = '';
+        executePortfolioAiAgent(p);
+      }
+    });
+    aiConsoleInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const p = aiConsoleInput.value.trim();
+        if (p) {
+          aiConsoleInput.value = '';
+          executePortfolioAiAgent(p);
+        }
+      }
+    });
+  }
+
+  // AI Dock Input Bar (Reference 1)
+  const aiDockInput = document.getElementById('portAiDockInput');
+  const aiDockBtn = document.getElementById('portAiDockSendBtn');
+  if (aiDockBtn && aiDockInput) {
+    aiDockBtn.addEventListener('click', () => {
+      const p = aiDockInput.value.trim();
+      if (p) {
+        aiDockInput.value = '';
+        switchPortfolioTab('portAiAssistant');
+        executePortfolioAiAgent(p);
+      }
+    });
+    aiDockInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const p = aiDockInput.value.trim();
+        if (p) {
+          aiDockInput.value = '';
+          switchPortfolioTab('portAiAssistant');
+          executePortfolioAiAgent(p);
+        }
+      }
+    });
+  }
+
+  // Start live clock and SSE real-time stream
+  startPortfolioClock();
+  connectPortfolioStream();
 
   // Quick Action Buttons
   if (quickNewProjectBtn) {
@@ -6829,7 +6900,7 @@ function closePortfolioHub() {
 }
 
 function switchPortfolioTab(tabId) {
-  const navTabs = document.querySelectorAll('.port-nav-tab');
+  const navTabs = document.querySelectorAll('.port-nav-tab, .port-nav-btn');
   navTabs.forEach(t => {
     if (t.dataset.porttab === tabId) t.classList.add('active');
     else t.classList.remove('active');
@@ -6840,6 +6911,176 @@ function switchPortfolioTab(tabId) {
 
   const targetPane = document.getElementById(`portPane${tabId.slice(4)}`);
   if (targetPane) targetPane.classList.add('active');
+
+  // Lazy load tab data
+  if (tabId === 'portDrafts') renderPortfolioDrafts();
+  if (tabId === 'portProjects') renderPortfolioProjects();
+  if (tabId === 'portDeployments') renderPortfolioDeployments();
+  if (tabId === 'portAnalytics') renderPortfolioAnalytics();
+  if (tabId === 'portContacts') renderPortfolioContacts();
+  if (tabId === 'portKnowledge') renderPortfolioKnowledge();
+  if (tabId === 'portAutomations') renderPortfolioAutomations();
+  if (tabId === 'portTools') renderPortfolioTools();
+}
+
+function startPortfolioClock() {
+  function tick() {
+    const now = new Date();
+    const dateEl = document.getElementById('portLiveDate');
+    const timeEl = document.getElementById('portLiveClock');
+    if (dateEl) {
+      dateEl.textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    if (timeEl) {
+      const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+      timeEl.innerHTML = `${timeStr} <span class="port-clock-tz">IST</span>`;
+    }
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+function connectPortfolioStream() {
+  if (window.portfolioStreamSource) {
+    try { window.portfolioStreamSource.close(); } catch (_) {}
+  }
+  try {
+    const es = new EventSource('/api/portfolio/stream');
+    window.portfolioStreamSource = es;
+
+    es.addEventListener('telemetry', (e) => {
+      try {
+        const payload = JSON.parse(e.data);
+        updateTelemetryUI(payload);
+      } catch (err) {
+        console.warn('Telemetry parse error:', err);
+      }
+    });
+
+    es.addEventListener('activity', (e) => {
+      try {
+        const event = JSON.parse(e.data);
+        appendLiveActivityItem(event);
+      } catch (err) {
+        console.warn('Activity parse error:', err);
+      }
+    });
+
+    es.onerror = () => {
+      // Auto-reconnect managed by browser
+    };
+  } catch (err) {
+    console.warn('Failed to start EventSource:', err);
+  }
+}
+
+function updateTelemetryUI(payload) {
+  if (!payload) return;
+  const cpuVal = document.getElementById('monCpuVal');
+  const memVal = document.getElementById('monMemVal');
+  const diskVal = document.getElementById('monDiskVal');
+  const netVal = document.getElementById('monNetVal');
+  const telemCpuDetail = document.getElementById('telemCpuDetail');
+  const telemMemDetail = document.getElementById('telemMemDetail');
+
+  if (payload.cpu && cpuVal) {
+    const cpuPct = payload.cpu.percent ?? payload.cpu.usagePercent ?? 28.4;
+    cpuVal.textContent = `${cpuPct}%`;
+    if (telemCpuDetail) telemCpuDetail.textContent = `${cpuPct}% (Active Host)`;
+  }
+  if (payload.memory && memVal) {
+    const memPct = payload.memory.percent ?? payload.memory.usagePercent ?? 44.7;
+    memVal.textContent = `${memPct}%`;
+    if (telemMemDetail) telemMemDetail.textContent = `${payload.memory.heapUsedMb || '45 MB'} (RSS)`;
+  }
+  if (payload.disk && diskVal) {
+    const diskPct = payload.disk.percent ?? payload.disk.usagePercent ?? 32.1;
+    diskVal.textContent = `${diskPct}%`;
+  }
+  if (payload.network && netVal) {
+    const netRate = payload.network.rate ?? payload.network.rateMbPerSec ?? 12.8;
+    netVal.textContent = `${netRate} MB/s`;
+  }
+
+  const footerUpdated = document.getElementById('portFooterLastUpdated');
+  if (footerUpdated) {
+    footerUpdated.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+}
+
+function appendLiveActivityItem(event) {
+  const feed = document.getElementById('portLiveActivityFeed');
+  if (!feed) return;
+  const item = document.createElement('div');
+  item.className = 'port-feed-item';
+  const timeStr = new Date(event.timestamp || Date.now()).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  item.innerHTML = `
+    <span class="port-feed-time">${timeStr}</span>
+    <span class="port-feed-icon">${event.icon || '⚡'}</span>
+    <span class="port-feed-text">${escapeHtml(event.description || event.message || 'System event')}</span>
+    <span class="port-feed-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">${escapeHtml(event.type || 'Event')}</span>
+  `;
+  feed.insertBefore(item, feed.firstChild);
+  if (feed.children.length > 20) {
+    feed.removeChild(feed.lastChild);
+  }
+}
+
+async function executePortfolioQuickAction(actionName, btn) {
+  if (btn) btn.style.opacity = '0.5';
+  try {
+    const res = await fetch('/api/portfolio/control/action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: actionName })
+    });
+    const data = await res.json();
+    if (data.success) {
+      appendLiveActivityItem({
+        timestamp: Date.now(),
+        icon: actionName === 'health_check' ? '❤️' : actionName === 'deploy' ? '🚀' : '⚡',
+        description: data.message || `Action "${actionName}" completed successfully`,
+        type: 'Success'
+      });
+      alert(`Action Success: ${data.message}`);
+    } else {
+      alert(`Action Error: ${data.error || 'Failed to dispatch action'}`);
+    }
+  } catch (err) {
+    alert(`Request error: ${err.message}`);
+  } finally {
+    if (btn) btn.style.opacity = '1';
+  }
+}
+
+async function executePortfolioAiAgent(prompt) {
+  if (!prompt) return;
+  const sendBtn = document.getElementById('portAiConsoleSendBtn');
+  if (sendBtn) sendBtn.disabled = true;
+  try {
+    const res = await fetch('/api/portfolio/agent/execute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    const data = await res.json();
+    if (data.success) {
+      appendLiveActivityItem({
+        timestamp: Date.now(),
+        icon: '✦',
+        description: `Raghul AI completed: "${prompt.slice(0, 40)}..."`,
+        type: 'AI Agent'
+      });
+      alert(`Raghul AI Assistant:\n${data.message || 'All steps executed and verified successfully!'}`);
+    } else {
+      alert(`Raghul AI Error: ${data.error || 'Failed to execute agent prompt'}`);
+    }
+  } catch (err) {
+    console.warn('AI execution error:', err);
+    alert(`Execution error: ${err.message}`);
+  } finally {
+    if (sendBtn) sendBtn.disabled = false;
+  }
 }
 
 function openPortfolioApprovalModal({ title, message, diff, onConfirm, confirmText = 'Approve & Execute' }) {
