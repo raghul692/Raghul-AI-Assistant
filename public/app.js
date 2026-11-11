@@ -7996,24 +7996,38 @@ function initDeepResearchWorkspace() {
     if (e.key === 'Escape' && modal.style.display !== 'none') closeModal();
   });
 
-  // Tab Switching
+  // Clean Tab Switching (CSS class driven)
+  function switchResearchTab(targetId) {
+    tabs.forEach(t => {
+      t.classList.toggle('active', t.dataset.drtab === targetId);
+    });
+    document.querySelectorAll('.dr-tab-pane').forEach(p => {
+      p.style.display = (p.id === targetId) ? 'block' : 'none';
+    });
+    if (targetId === 'drTabHistory') loadResearchHistory();
+  }
+
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
-      tabs.forEach(t => {
-        t.classList.remove('active');
-        t.style.background = 'transparent';
-        t.style.color = '#94a3b8';
+      switchResearchTab(tab.dataset.drtab);
+    });
+  });
+
+  // Claims Filter Switching
+  const filterBtns = document.querySelectorAll('.dr-claim-filter-btn');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.claimfilter || 'ALL';
+      const rows = document.querySelectorAll('.dr-claim-row');
+      rows.forEach(r => {
+        if (filter === 'ALL' || r.dataset.status === filter) {
+          r.style.display = '';
+        } else {
+          r.style.display = 'none';
+        }
       });
-      tab.classList.add('active');
-      tab.style.background = 'rgba(99,102,241,0.18)';
-      tab.style.color = '#818cf8';
-
-      const targetId = tab.dataset.drtab;
-      document.querySelectorAll('.dr-tab-pane').forEach(p => p.style.display = 'none');
-      const targetPane = document.getElementById(targetId);
-      if (targetPane) targetPane.style.display = 'block';
-
-      if (targetId === 'drTabHistory') loadResearchHistory();
     });
   });
 
@@ -8036,7 +8050,13 @@ function initDeepResearchWorkspace() {
       const reportType = reportTypeSelect ? reportTypeSelect.value : 'technical';
 
       launchBtn.disabled = true;
-      launchBtn.innerHTML = '<span>⏳</span> Initializing Research...';
+      launchBtn.innerHTML = `
+        <svg class="dr-icon-launch dr-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+          <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path>
+        </svg>
+        <span>Initializing Research Pipeline...</span>
+      `;
 
       try {
         const res = await fetch('/api/research/start', {
@@ -8053,7 +8073,13 @@ function initDeepResearchWorkspace() {
         alert('Failed to launch research job: ' + err.message);
       } finally {
         launchBtn.disabled = false;
-        launchBtn.innerHTML = '<span>🚀</span> Launch Autonomous Multi-Agent Research';
+        launchBtn.innerHTML = `
+          <svg class="dr-icon-launch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m5 12 7-7 7 7"></path>
+            <path d="M12 19V5"></path>
+          </svg>
+          <span>Launch Autonomous Multi-Agent Research</span>
+        `;
       }
     });
   }
@@ -8067,8 +8093,16 @@ function initDeepResearchWorkspace() {
       const content = document.getElementById('drDossierContent');
       if (content) {
         navigator.clipboard.writeText(content.innerText);
-        copyMdBtn.textContent = '✅ Copied!';
-        setTimeout(() => copyMdBtn.textContent = '📋 Copy Markdown', 2000);
+        copyMdBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          copyMdBtn.innerHTML = `
+            <svg class="dr-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span>Copy Markdown</span>
+          `;
+        }, 2000);
       }
     });
   }
@@ -8085,7 +8119,9 @@ function connectResearchStream(jobId) {
   const jobIdTag = document.getElementById('drLiveJobIdTag');
 
   if (jobIdTag) jobIdTag.textContent = `Job: ${jobId}`;
-  if (logContainer) logContainer.innerHTML = `<div style="color: #818cf8;">[Stream] Connected to live SSE research stream for ${jobId}</div>`;
+  if (logContainer) {
+    logContainer.innerHTML = `<div class="dr-log-row"><span class="dr-log-badge">[Stream Connected]</span> Listening to real-time agent telemetry for ${escapeHtml(jobId)}...</div>`;
+  }
 
   activeResearchEventSource = new EventSource(`/api/research/jobs/${jobId}/stream`);
 
@@ -8096,7 +8132,7 @@ function connectResearchStream(jobId) {
 
       // Update progress
       if (typeof data.progress === 'number' && progressBar) {
-        progressBar.style.width = `${data.progress}%`;
+        progressBar.style.width = `${Math.min(100, Math.max(0, data.progress))}%`;
       }
 
       // Update stage text
@@ -8107,9 +8143,9 @@ function connectResearchStream(jobId) {
       // Append log entry
       if (logContainer && (data.message || data.step)) {
         const row = document.createElement('div');
-        row.style.marginBottom = '4px';
+        row.className = 'dr-log-row';
         const badge = data.badge || data.step || 'EVENT';
-        row.innerHTML = `<span style="color: #818cf8; font-weight: 600;">${escapeHtml(badge)}:</span> ${escapeHtml(data.message || '')}`;
+        row.innerHTML = `<span class="dr-log-badge">[${escapeHtml(badge)}]</span> ${escapeHtml(data.message || '')}`;
         logContainer.appendChild(row);
         logContainer.scrollTop = logContainer.scrollHeight;
       }
@@ -8149,31 +8185,42 @@ function connectResearchStream(jobId) {
   };
 }
 
-async function loadJobDetailsIntoWorkspace(jobId) {
+async function loadJobDetailsIntoWorkspace(jobId, shouldSwitchToDossier = false) {
   try {
     const res = await fetch(`/api/research/jobs/${jobId}`);
     if (!res.ok) return;
     const data = await res.json();
 
-    // Populate Sources
+    // 1. Populate Sources Explorer
     const sourcesContainer = document.getElementById('drSourcesListContainer');
+    const sourcesCountBadge = document.getElementById('drSourcesCount');
     if (sourcesContainer && Array.isArray(data.sources)) {
+      if (sourcesCountBadge) sourcesCountBadge.textContent = data.sources.length;
       if (data.sources.length === 0) {
-        sourcesContainer.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px;">No sources recorded.</p>';
+        sourcesContainer.innerHTML = `
+          <div class="dr-empty-box">
+            <svg class="dr-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            <p>No sources recorded for this research investigation.</p>
+          </div>
+        `;
       } else {
         sourcesContainer.innerHTML = data.sources.map(s => `
-          <div style="background: #18191e; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+          <div class="dr-source-card">
             <div>
-              <div style="font-weight: 600; color: #f1f5f9; font-size: 0.88rem;">${escapeHtml(s.title || s.domain)}</div>
-              <div style="font-size: 0.76rem; color: #94a3b8; display: flex; gap: 8px; margin-top: 4px;">
-                <span>${escapeHtml(s.domain)}</span> • 
+              <div class="dr-source-title">${escapeHtml(s.title || s.domain)}</div>
+              <div class="dr-source-meta">
+                <span>${escapeHtml(s.domain || 'Domain')}</span> • 
                 <span>${escapeHtml(s.published_date || 'n.d.')}</span>
-                ${s.is_primary_source ? '<span style="color: #818cf8; font-weight: 600;">Primary Source</span>' : ''}
+                ${s.is_primary_source ? ' • <span class="dr-source-primary-tag">Primary Literature</span>' : ''}
               </div>
             </div>
-            <div style="text-align: right;">
-              <span style="background: rgba(16,185,129,0.15); color: #10b981; font-weight: 700; font-size: 0.75rem; padding: 3px 8px; border-radius: 4px;">
-                ${Math.round((s.credibility_score || 0.5) * 100)}% Authority
+            <div>
+              <span class="dr-source-authority">
+                ${Math.round((s.credibility_score || 0.75) * 100)}% Authority
               </span>
             </div>
           </div>
@@ -8181,32 +8228,43 @@ async function loadJobDetailsIntoWorkspace(jobId) {
       }
     }
 
-    // Populate Claims Table
+    // 2. Populate Claims Table
     const claimsContainer = document.getElementById('drClaimsTableContainer');
+    const claimsCountBadge = document.getElementById('drClaimsCount');
     if (claimsContainer && Array.isArray(data.claims)) {
+      if (claimsCountBadge) claimsCountBadge.textContent = data.claims.length;
       if (data.claims.length === 0) {
-        claimsContainer.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px;">No claims recorded.</p>';
+        claimsContainer.innerHTML = `
+          <div class="dr-empty-box">
+            <svg class="dr-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg>
+            <p>No atomic claims recorded for this job.</p>
+          </div>
+        `;
       } else {
         let tableHtml = `
-          <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem; text-align: left;">
+          <table class="dr-table">
             <thead>
-              <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); color: #cbd5e1;">
-                <th style="padding: 10px 12px;">Assertion Statement</th>
-                <th style="padding: 10px 12px;">Category</th>
-                <th style="padding: 10px 12px;">Verification Status</th>
-                <th style="padding: 10px 12px;">Confidence</th>
+              <tr>
+                <th>Assertion Statement</th>
+                <th>Category</th>
+                <th>Verification Status</th>
+                <th>Confidence</th>
               </tr>
             </thead>
             <tbody>
         `;
         data.claims.forEach(c => {
-          const statusColor = c.verification_status === 'SUPPORTED' ? '#10b981' : (c.verification_status === 'DISPUTED' ? '#f43f5e' : '#94a3b8');
+          const status = (c.verification_status || 'UNVERIFIED').toUpperCase();
+          const pillClass = status === 'SUPPORTED' ? 'dr-pill-supported' : (status === 'DISPUTED' ? 'dr-pill-disputed' : 'dr-pill-unverified');
           tableHtml += `
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-              <td style="padding: 10px 12px; color: #f1f5f9; font-weight: 500;">${escapeHtml(c.statement)}</td>
-              <td style="padding: 10px 12px; color: #94a3b8;">${escapeHtml(c.category)}</td>
-              <td style="padding: 10px 12px;"><span style="color: ${statusColor}; font-weight: 700;">${escapeHtml(c.verification_status)}</span></td>
-              <td style="padding: 10px 12px; color: #cbd5e1;">${Math.round((c.confidence_score || 0.5) * 100)}%</td>
+            <tr class="dr-claim-row" data-status="${escapeHtml(status)}">
+              <td style="font-weight: 500; color: #f1f5f9;">${escapeHtml(c.statement)}</td>
+              <td style="font-family: monospace; font-size: 0.74rem; color: #94a3b8;">${escapeHtml(c.category || 'general')}</td>
+              <td><span class="${pillClass}">${escapeHtml(status)}</span></td>
+              <td style="font-family: monospace; font-variant-numeric: tabular-nums; color: #f1f5f9;">${Math.round((c.confidence_score || 0.5) * 100)}%</td>
             </tr>
           `;
         });
@@ -8215,23 +8273,80 @@ async function loadJobDetailsIntoWorkspace(jobId) {
       }
     }
 
-    // Populate Dossier
+    // 3. Populate Contradictions
+    const contraContainer = document.getElementById('drContradictionsContainer');
+    const contraCountBadge = document.getElementById('drContradictionsCount');
+    if (contraContainer) {
+      const contradictions = Array.isArray(data.contradictions) ? data.contradictions : [];
+      if (contraCountBadge) contraCountBadge.textContent = contradictions.length;
+      if (contradictions.length === 0) {
+        contraContainer.innerHTML = `
+          <div class="dr-empty-box">
+            <svg class="dr-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+              <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+              <path d="M7 21h10"></path>
+              <path d="M12 3v18"></path>
+            </svg>
+            <p>Zero unresolved contradictions or evidence divergences recorded.</p>
+          </div>
+        `;
+      } else {
+        contraContainer.innerHTML = contradictions.map(item => `
+          <div class="dr-contra-card">
+            <div class="dr-contra-header">
+              <span class="dr-contra-topic">${escapeHtml(item.disputed_topic || 'Contradiction Point')}</span>
+              <span class="dr-pill-disputed">${escapeHtml(item.final_disposition || 'DISPUTED')}</span>
+            </div>
+            <div class="dr-contra-grid">
+              <div class="dr-contra-box">
+                <div style="font-weight: 600; color: #38bdf8; margin-bottom: 4px;">Source Assertion A</div>
+                <div>${escapeHtml(item.source_a_assertion || 'N/A')}</div>
+              </div>
+              <div class="dr-contra-box">
+                <div style="font-weight: 600; color: #f43f5e; margin-bottom: 4px;">Source Assertion B</div>
+                <div>${escapeHtml(item.source_b_assertion || 'N/A')}</div>
+              </div>
+            </div>
+            ${item.resolution_strategy ? `<div style="font-size: 0.74rem; color: #94a3b8; font-family: monospace;">Resolution Strategy: <strong>${escapeHtml(item.resolution_strategy)}</strong></div>` : ''}
+          </div>
+        `).join('');
+      }
+    }
+
+    // 4. Populate Dossier
     const dossierContent = document.getElementById('drDossierContent');
     const dossierTitle = document.getElementById('drDossierTitle');
+    const dossierMeta = document.getElementById('drDossierMeta');
     if (dossierTitle && data.job?.title) dossierTitle.textContent = data.job.title;
+    if (dossierMeta && data.job?.created_at) {
+      dossierMeta.textContent = `Completed on ${new Date(data.job.created_at).toLocaleString()} • Mode: ${data.job.mode || 'Standard'}`;
+    }
     if (dossierContent && data.job?.final_report_markdown) {
       dossierContent.innerHTML = parseMarkdown(data.job.final_report_markdown);
+    }
+
+    // 5. If requested, switch to Dossier tab smoothly
+    if (shouldSwitchToDossier) {
+      const tabs = document.querySelectorAll('.dr-nav-tab');
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.drtab === 'drTabDossier'));
+      document.querySelectorAll('.dr-tab-pane').forEach(p => {
+        p.style.display = (p.id === 'drTabDossier') ? 'block' : 'none';
+      });
     }
   } catch (e) {
     console.warn('Failed to load job details into workspace:', e);
   }
 }
 
+// Make accessible to inline onclick
+window.loadJobDetailsIntoWorkspace = loadJobDetailsIntoWorkspace;
+
 async function loadResearchHistory() {
   const container = document.getElementById('drHistoryContainer');
   if (!container) return;
 
-  container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px;">Fetching research history...</p>';
+  container.innerHTML = '<div class="dr-empty-box"><p>Fetching persistent research investigations...</p></div>';
 
   try {
     const res = await fetch('/api/research/jobs');
@@ -8240,28 +8355,37 @@ async function loadResearchHistory() {
     const jobs = data.jobs || [];
 
     if (jobs.length === 0) {
-      container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 30px;">No research jobs recorded yet.</p>';
+      container.innerHTML = `
+        <div class="dr-empty-box">
+          <svg class="dr-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <p>No research investigations recorded in SQLite audit ledger.</p>
+        </div>
+      `;
       return;
     }
 
     container.innerHTML = `
-      <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="dr-history-container">
         ${jobs.map(j => {
           const dateStr = new Date(j.created_at).toLocaleString();
-          const statusBadgeColor = j.status === 'COMPLETED' ? '#10b981' : (j.status === 'FAILED' ? '#f43f5e' : '#818cf8');
+          const status = (j.status || 'UNKNOWN').toUpperCase();
+          const pillClass = status === 'COMPLETED' ? 'dr-pill-supported' : (status === 'FAILED' ? 'dr-pill-disputed' : 'dr-pill-unverified');
           return `
-            <div style="background: #18191e; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+            <div class="dr-history-card">
               <div>
-                <div style="font-weight: 600; color: #f1f5f9; font-size: 0.9rem;">${escapeHtml(j.user_query || j.title || 'Untitled Research')}</div>
-                <div style="font-size: 0.75rem; color: #94a3b8; display: flex; gap: 8px; margin-top: 4px;">
+                <div class="dr-history-title">${escapeHtml(j.user_query || j.title || 'Untitled Research')}</div>
+                <div class="dr-history-meta">
                   <span>Mode: <strong>${escapeHtml(j.mode)}</strong></span> • 
-                  <span>Claims: <strong>${j.claims_count}</strong></span> • 
+                  <span>Claims: <strong>${j.claims_count || 0}</strong></span> • 
                   <span>${dateStr}</span>
                 </div>
               </div>
               <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 0.75rem; font-weight: 700; color: ${statusBadgeColor};">${escapeHtml(j.status)}</span>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="loadJobDetailsIntoWorkspace('${j.id}')" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 0.78rem; cursor: pointer;">
+                <span class="${pillClass}">${escapeHtml(status)}</span>
+                <button type="button" class="dr-btn-inspect" onclick="loadJobDetailsIntoWorkspace('${j.id}', true)">
                   Open Dossier
                 </button>
               </div>
@@ -8271,7 +8395,7 @@ async function loadResearchHistory() {
       </div>
     `;
   } catch (err) {
-    container.innerHTML = `<p style="color: #f43f5e; text-align: center; padding: 20px;">Failed to load history: ${escapeHtml(err.message)}</p>`;
+    container.innerHTML = `<div class="dr-empty-box"><p style="color: #f43f5e;">Failed to load history: ${escapeHtml(err.message)}</p></div>`;
   }
 }
 

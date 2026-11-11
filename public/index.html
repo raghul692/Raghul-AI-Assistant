@@ -28,7 +28,7 @@
   <!-- Monaco Editor AMD Loader (VS Code Engine) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
   
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20261111_1">
 </head>
 <body>
   <div class="app-layout">
@@ -2743,203 +2743,368 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- DEEP RESEARCH INTELLIGENCE WORKSPACE (ENTERPRISE MODAL)                   -->
+  <!-- DEEP RESEARCH INTELLIGENCE WORKSPACE (PROFESSIONAL ANTI-SLOP LAB CONSOLE)  -->
   <!-- ========================================================================= -->
-  <div class="artifact-modal-backdrop" id="deepResearchWorkspaceModal" aria-hidden="true" style="display:none; z-index: 10001;">
-    <div class="artifact-modal-dialog research-workspace-dialog" style="max-width: 1100px; width: 94vw; max-height: 90vh; display: flex; flex-direction: column; background: #121316; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,0.6);">
+  <div class="artifact-modal-backdrop dr-modal-backdrop" id="deepResearchWorkspaceModal" aria-hidden="true" style="display:none; z-index: 10001;">
+    <div class="artifact-modal-dialog research-workspace-dialog dr-dialog" role="dialog" aria-labelledby="drDialogTitle">
       
-      <!-- Top Header -->
-      <div class="artifact-modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); background: #18191e;">
-        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-          <div style="background: rgba(99,102,241,0.18); color: #818cf8; padding: 5px 12px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
-            <span>🔬</span>
-            <span>DEEP RESEARCH WORKSPACE</span>
+      <!-- Top Instrumentation Header -->
+      <div class="dr-header">
+        <div class="dr-header-left">
+          <div class="dr-brand-pill">
+            <svg class="dr-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M10 2v7.31"></path>
+              <path d="M14 9.3V1.99"></path>
+              <path d="M8.5 2h7"></path>
+              <path d="M14 9.3a6.5 6.5 0 1 1-4 0"></path>
+              <path d="M5.52 16h12.96"></path>
+            </svg>
+            <span class="dr-brand-text">DEEP RESEARCH WORKSPACE</span>
           </div>
-          <span style="color: #f1f5f9; font-weight: 600; font-size: 0.95rem;">Tier-1 Autonomous Multi-Agent Intelligence Engine</span>
-          <span style="font-size: 0.75rem; color: #10b981; background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); padding: 2px 8px; border-radius: 12px;" id="drEngineStatusBadge">● Evidence Ledger Active</span>
+          <div class="dr-header-meta">
+            <span class="dr-header-title" id="drDialogTitle">Autonomous Multi-Agent Intelligence Engine</span>
+            <span class="dr-header-badge" id="drEngineStatusBadge">
+              <span class="dr-status-dot"></span>
+              <span class="dr-status-label">Evidence Ledger Active</span>
+            </span>
+          </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <button type="button" class="btn btn-secondary btn-sm" id="refreshResearchJobsBtn" title="Sync Recent Jobs" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #e2e8f0; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;">
-            🔄 Refresh
+
+        <div class="dr-header-right">
+          <button type="button" class="dr-btn-ghost" id="refreshResearchJobsBtn" title="Sync Recent Jobs">
+            <svg class="dr-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+              <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path>
+              <path d="M16 21h5v-5"></path>
+            </svg>
+            <span>Sync</span>
           </button>
-          <button type="button" class="modal-close-icon" id="closeDeepResearchModalBtn" style="background: none; border: none; color: #94a3b8; font-size: 1.6rem; cursor: pointer; padding: 0 4px; line-height: 1;" title="Close">&times;</button>
+          <button type="button" class="modal-close-icon dr-btn-close" id="closeDeepResearchModalBtn" title="Close Workspace (Esc)" aria-label="Close dialog">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
-      <div class="research-nav-bar" style="display: flex; gap: 4px; padding: 8px 16px; background: #15161b; border-bottom: 1px solid rgba(255,255,255,0.06); overflow-x: auto;">
-        <button type="button" class="dr-nav-tab active" data-drtab="drTabLaunch" style="background: rgba(99,102,241,0.18); color: #818cf8; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">🚀 Launch & Monitor</button>
-        <button type="button" class="dr-nav-tab" data-drtab="drTabSources" style="background: transparent; color: #94a3b8; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">🌐 Sources Explorer (<span id="drSourcesCount">0</span>)</button>
-        <button type="button" class="dr-nav-tab" data-drtab="drTabClaims" style="background: transparent; color: #94a3b8; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">🧬 Claims & Verification (<span id="drClaimsCount">0</span>)</button>
-        <button type="button" class="dr-nav-tab" data-drtab="drTabContradictions" style="background: transparent; color: #94a3b8; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">⚖️ Contradictions (<span id="drContradictionsCount">0</span>)</button>
-        <button type="button" class="dr-nav-tab" data-drtab="drTabDossier" style="background: transparent; color: #94a3b8; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">📑 Report & PDF Dossier</button>
-        <button type="button" class="dr-nav-tab" data-drtab="drTabHistory" style="background: transparent; color: #94a3b8; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">🕒 Past Jobs</button>
-      </div>
+      <!-- Segmented Navigation Bar -->
+      <nav class="research-nav-bar dr-nav-bar" aria-label="Research Workspace Navigation">
+        <button type="button" class="dr-nav-tab active" data-drtab="drTabLaunch">
+          <svg class="dr-icon-tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          <span>Investigation & Telemetry</span>
+        </button>
+        <button type="button" class="dr-nav-tab" data-drtab="drTabSources">
+          <svg class="dr-icon-tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <span>Sources Explorer</span>
+          <span class="dr-tab-count" id="drSourcesCount">0</span>
+        </button>
+        <button type="button" class="dr-nav-tab" data-drtab="drTabClaims">
+          <svg class="dr-icon-tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <path d="m9 12 2 2 4-4"></path>
+          </svg>
+          <span>Claims & Verification</span>
+          <span class="dr-tab-count" id="drClaimsCount">0</span>
+        </button>
+        <button type="button" class="dr-nav-tab" data-drtab="drTabContradictions">
+          <svg class="dr-icon-tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+            <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+            <path d="M7 21h10"></path>
+            <path d="M12 3v18"></path>
+            <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>
+          </svg>
+          <span>Contradictions</span>
+          <span class="dr-tab-count" id="drContradictionsCount">0</span>
+        </button>
+        <button type="button" class="dr-nav-tab" data-drtab="drTabDossier">
+          <svg class="dr-icon-tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <span>Report & PDF Dossier</span>
+        </button>
+        <button type="button" class="dr-nav-tab" data-drtab="drTabHistory">
+          <svg class="dr-icon-tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span>Past Jobs</span>
+        </button>
+      </nav>
 
-      <!-- Tab Content Area -->
-      <div class="research-modal-body" style="flex: 1; overflow-y: auto; padding: 20px; background: #0f1013;">
+      <!-- Workspace Body Panes -->
+      <div class="research-modal-body dr-modal-body">
         
-        <!-- Tab 1: Launch & Live Monitor -->
-        <div class="dr-tab-pane" id="drTabLaunch" style="display: block;">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <!-- Left: Launch Parameters -->
-            <div style="background: #18191e; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 18px;">
-              <h4 style="margin: 0 0 12px 0; color: #f8fafc; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
-                <span>🎯</span> Launch New Research Investigation
-              </h4>
-              <div style="margin-bottom: 12px;">
-                <label style="display: block; font-size: 0.78rem; color: #94a3b8; margin-bottom: 6px; font-weight: 600;">RESEARCH TOPIC OR HYPOTHESIS</label>
-                <textarea id="drQueryInput" rows="3" placeholder="e.g., Comparative analysis of WebAssembly Component Model vs Docker containers in edge computing 2026..." style="width: 100%; box-sizing: border-box; background: #0d0e11; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #f1f5f9; padding: 10px; font-size: 0.85rem; resize: vertical;"></textarea>
-              </div>
-
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-                <div>
-                  <label style="display: block; font-size: 0.78rem; color: #94a3b8; margin-bottom: 6px; font-weight: 600;">SEARCH DEPTH</label>
-                  <select id="drModeSelect" style="width: 100%; background: #0d0e11; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #f1f5f9; padding: 8px; font-size: 0.82rem;">
-                    <option value="deep" selected>Deep Research (15+ Sources, Standard)</option>
-                    <option value="quick">Quick Investigation (5+ Sources)</option>
-                    <option value="exhaustive">Exhaustive Literature (25+ Sources)</option>
-                  </select>
+        <!-- Tab 1: Launch & Live Telemetry -->
+        <div class="dr-tab-pane" id="drTabLaunch">
+          <div class="dr-launch-layout">
+            
+            <!-- Left: Hypothesis & Execution Configuration -->
+            <div class="dr-card dr-form-card">
+              <div class="dr-card-header">
+                <div class="dr-card-title-group">
+                  <svg class="dr-icon-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="m4.93 4.93 4.24 4.24"></path>
+                    <path d="m14.83 9.17 4.24-4.24"></path>
+                    <path d="m14.83 14.83 4.24 4.24"></path>
+                    <path d="m9.17 14.83-4.24 4.24"></path>
+                    <circle cx="12" cy="12" r="4"></circle>
+                  </svg>
+                  <h4 class="dr-card-title">Launch New Investigation</h4>
                 </div>
-                <div>
-                  <label style="display: block; font-size: 0.78rem; color: #94a3b8; margin-bottom: 6px; font-weight: 600;">DOMAIN SPECIALIZATION</label>
-                  <select id="drDomainSelect" style="width: 100%; background: #0d0e11; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #f1f5f9; padding: 8px; font-size: 0.82rem;">
-                    <option value="ai_systems" selected>AI & Distributed Systems</option>
-                    <option value="cybersecurity">Cybersecurity & AppSec</option>
-                    <option value="systems_engineering">Systems & Cloud Architecture</option>
-                    <option value="life_sciences">Biomedical & Life Sciences</option>
-                    <option value="general">General Cross-Domain</option>
-                  </select>
+                <span class="dr-badge-muted">Autonomous Multi-Hop</span>
+              </div>
+
+              <div class="dr-form-content">
+                <div class="dr-field-group">
+                  <div class="dr-label-row">
+                    <label class="dr-field-label" for="drQueryInput">RESEARCH TOPIC OR HYPOTHESIS</label>
+                    <span class="dr-field-hint">Natural language scope</span>
+                  </div>
+                  <textarea id="drQueryInput" class="dr-textarea" rows="3" placeholder="e.g., Comparative analysis of WebAssembly Component Model vs Docker containers in edge computing 2026, evaluating cold-start latency, memory isolation, and developer experience..."></textarea>
                 </div>
-              </div>
 
-              <div style="margin-bottom: 16px;">
-                <label style="display: block; font-size: 0.78rem; color: #94a3b8; margin-bottom: 6px; font-weight: 600;">REPORT FORMAT SPECIFICATION</label>
-                <select id="drReportTypeSelect" style="width: 100%; background: #0d0e11; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #f1f5f9; padding: 8px; font-size: 0.82rem;">
-                  <option value="technical" selected>Technical Systems Architecture Report</option>
-                  <option value="executive">Executive Decision Briefing</option>
-                  <option value="academic">Academic Literature Review</option>
-                  <option value="comparative">Comparative Benchmark Matrix</option>
-                  <option value="security">Security Threat & CVE Analysis</option>
-                </select>
-              </div>
+                <div class="dr-form-row">
+                  <div class="dr-field-group">
+                    <label class="dr-field-label" for="drModeSelect">SEARCH DEPTH</label>
+                    <div class="dr-select-wrap">
+                      <select id="drModeSelect" class="dr-select">
+                        <option value="deep" selected>Deep Research (15+ Sources, Standard)</option>
+                        <option value="quick">Quick Investigation (5+ Sources)</option>
+                        <option value="exhaustive">Exhaustive Literature (25+ Sources)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="dr-field-group">
+                    <label class="dr-field-label" for="drDomainSelect">DOMAIN SPECIALIZATION</label>
+                    <div class="dr-select-wrap">
+                      <select id="drDomainSelect" class="dr-select">
+                        <option value="ai_systems" selected>AI & Distributed Systems</option>
+                        <option value="cybersecurity">Cybersecurity & AppSec</option>
+                        <option value="systems_engineering">Systems & Cloud Architecture</option>
+                        <option value="life_sciences">Biomedical & Life Sciences</option>
+                        <option value="general">General Cross-Domain</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
 
-              <button type="button" id="drLaunchBtn" style="width: 100%; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; border: none; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <span>🚀</span> Launch Autonomous Multi-Agent Research
-              </button>
+                <div class="dr-field-group">
+                  <label class="dr-field-label" for="drReportTypeSelect">REPORT FORMAT SPECIFICATION</label>
+                  <div class="dr-select-wrap">
+                    <select id="drReportTypeSelect" class="dr-select">
+                      <option value="technical" selected>Technical Systems Architecture Report</option>
+                      <option value="executive">Executive Decision Briefing</option>
+                      <option value="academic">Academic Literature Review</option>
+                      <option value="comparative">Comparative Benchmark Matrix</option>
+                      <option value="security">Security Threat & CVE Analysis</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button type="button" id="drLaunchBtn" class="dr-btn-launch">
+                  <svg class="dr-icon-launch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m5 12 7-7 7 7"></path>
+                    <path d="M12 19V5"></path>
+                  </svg>
+                  <span>Launch Autonomous Multi-Agent Research</span>
+                </button>
+              </div>
             </div>
 
-            <!-- Right: Real-Time Execution Monitor -->
-            <div style="background: #18191e; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 18px; display: flex; flex-direction: column;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h4 style="margin: 0; color: #f8fafc; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
-                  <span>📡</span> Live Execution State
-                </h4>
-                <span id="drLiveJobIdTag" style="font-size: 0.75rem; color: #94a3b8; font-family: monospace;">No Active Job</span>
+            <!-- Right: Real-Time Execution Telemetry -->
+            <div class="dr-card dr-telemetry-card">
+              <div class="dr-card-header">
+                <div class="dr-card-title-group">
+                  <svg class="dr-icon-accent dr-spin-slow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"></path>
+                    <path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"></path>
+                    <circle cx="12" cy="12" r="2"></circle>
+                    <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"></path>
+                    <path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"></path>
+                  </svg>
+                  <h4 class="dr-card-title">Live Execution State</h4>
+                </div>
+                <span id="drLiveJobIdTag" class="dr-tag-mono">No Active Job</span>
               </div>
 
-              <!-- Progress Bar -->
-              <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; margin-bottom: 12px;">
-                <div id="drProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #6366f1, #10b981); transition: width 0.4s ease;"></div>
+              <!-- Progress Bar Track -->
+              <div class="dr-progress-track">
+                <div id="drProgressBar" class="dr-progress-bar" style="width: 0%;"></div>
               </div>
 
               <!-- Current Stage Banner -->
-              <div id="drCurrentStageBanner" style="padding: 10px 14px; background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); border-radius: 8px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px;">
-                <span class="status-dot-pulse online" style="width: 8px; height: 8px; background: #818cf8; border-radius: 50%;"></span>
-                <span id="drCurrentStageText" style="font-size: 0.82rem; color: #cbd5e1; font-weight: 500;">Ready to initialize research workflow...</span>
+              <div id="drCurrentStageBanner" class="dr-stage-banner">
+                <span class="status-dot-pulse online dr-pulse-point"></span>
+                <span id="drCurrentStageText" class="dr-stage-text">Ready to initialize research workflow...</span>
               </div>
 
-              <!-- Metric Badges Grid -->
-              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px;">
-                <div style="background: #0d0e11; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); text-align: center;">
-                  <div id="drMetricSources" style="font-size: 1.25rem; font-weight: 700; color: #38bdf8;">0</div>
-                  <div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase;">Sources</div>
+              <!-- Live Metrics Ribbon -->
+              <div class="dr-metrics-grid">
+                <div class="dr-metric-tile">
+                  <div class="dr-metric-value dr-val-cyan" id="drMetricSources">0</div>
+                  <div class="dr-metric-label">Sources</div>
                 </div>
-                <div style="background: #0d0e11; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); text-align: center;">
-                  <div id="drMetricClaims" style="font-size: 1.25rem; font-weight: 700; color: #818cf8;">0</div>
-                  <div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase;">Claims</div>
+                <div class="dr-metric-tile">
+                  <div class="dr-metric-value dr-val-indigo" id="drMetricClaims">0</div>
+                  <div class="dr-metric-label">Claims</div>
                 </div>
-                <div style="background: #0d0e11; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); text-align: center;">
-                  <div id="drMetricVerified" style="font-size: 1.25rem; font-weight: 700; color: #10b981;">0</div>
-                  <div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase;">Verified</div>
+                <div class="dr-metric-tile">
+                  <div class="dr-metric-value dr-val-emerald" id="drMetricVerified">0</div>
+                  <div class="dr-metric-label">Verified</div>
                 </div>
               </div>
 
               <!-- Live Execution Event Stream -->
-              <div id="drLiveLogContainer" style="flex: 1; min-height: 140px; max-height: 200px; background: #0a0b0d; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 10px; overflow-y: auto; font-family: monospace; font-size: 0.75rem; color: #94a3b8;">
-                <div style="color: #64748b;">[System] Standing by for research prompt...</div>
+              <div class="dr-terminal-card">
+                <div class="dr-terminal-bar">
+                  <div class="dr-terminal-leds">
+                    <span class="dr-led dr-led-red"></span>
+                    <span class="dr-led dr-led-amber"></span>
+                    <span class="dr-led dr-led-green"></span>
+                  </div>
+                  <span class="dr-terminal-title">AGENT TELEMETRY CONSOLE</span>
+                  <span class="dr-terminal-status">SSE STREAM</span>
+                </div>
+                <div id="drLiveLogContainer" class="dr-terminal-stream">
+                  <div class="dr-log-system">[System] Standing by for research prompt...</div>
+                </div>
               </div>
             </div>
+
           </div>
         </div>
 
         <!-- Tab 2: Sources Explorer -->
         <div class="dr-tab-pane" id="drTabSources" style="display: none;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <h4 style="margin: 0; color: #f8fafc; font-size: 0.95rem;">🌐 Discovered & Extracted Evidence Sources</h4>
-            <span style="font-size: 0.8rem; color: #94a3b8;">Multi-source authority ranking</span>
+          <div class="dr-pane-header">
+            <div>
+              <h4 class="dr-pane-title">Discovered & Extracted Evidence Sources</h4>
+              <p class="dr-pane-subtitle">Multi-source authority ranking, primary literature flags, and verification status</p>
+            </div>
+            <div class="dr-pane-badge">Authority Scored</div>
           </div>
-          <div id="drSourcesListContainer" style="display: grid; grid-template-columns: 1fr; gap: 10px;">
-            <p style="color: #64748b; text-align: center; padding: 30px;">No sources discovered yet. Launch an investigation to inspect sources.</p>
+          <div id="drSourcesListContainer" class="dr-sources-grid">
+            <div class="dr-empty-box">
+              <svg class="dr-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+              <p>No sources discovered yet. Launch an investigation to inspect sources.</p>
+            </div>
           </div>
         </div>
 
         <!-- Tab 3: Claims & Verification Matrix -->
         <div class="dr-tab-pane" id="drTabClaims" style="display: none;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
-            <h4 style="margin: 0; color: #f8fafc; font-size: 0.95rem;">🧬 Forensic Atomic Claims & Verification Ledger</h4>
-            <div style="display: flex; gap: 6px;">
-              <button type="button" class="dr-claim-filter-btn active" data-claimfilter="ALL" style="background: rgba(255,255,255,0.1); color: #fff; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">All</button>
-              <button type="button" class="dr-claim-filter-btn" data-claimfilter="SUPPORTED" style="background: transparent; color: #10b981; border: 1px solid rgba(16,185,129,0.3); padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Supported</button>
-              <button type="button" class="dr-claim-filter-btn" data-claimfilter="DISPUTED" style="background: transparent; color: #f43f5e; border: 1px solid rgba(244,63,94,0.3); padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Disputed</button>
-              <button type="button" class="dr-claim-filter-btn" data-claimfilter="UNVERIFIED" style="background: transparent; color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Unverified</button>
+          <div class="dr-pane-header">
+            <div>
+              <h4 class="dr-pane-title">Forensic Atomic Claims & Verification Ledger</h4>
+              <p class="dr-pane-subtitle">Extracted assertion claims cross-verified across authoritative literature</p>
+            </div>
+            <div class="dr-filter-group" role="group" aria-label="Claims Filter">
+              <button type="button" class="dr-claim-filter-btn active" data-claimfilter="ALL">All</button>
+              <button type="button" class="dr-claim-filter-btn dr-filter-supported" data-claimfilter="SUPPORTED">Supported</button>
+              <button type="button" class="dr-claim-filter-btn dr-filter-disputed" data-claimfilter="DISPUTED">Disputed</button>
+              <button type="button" class="dr-claim-filter-btn dr-filter-unverified" data-claimfilter="UNVERIFIED">Unverified</button>
             </div>
           </div>
-          <div id="drClaimsTableContainer" style="overflow-x: auto; background: #14151a; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
-            <p style="color: #64748b; text-align: center; padding: 30px;">No atomic claims extracted yet.</p>
+          <div id="drClaimsTableContainer" class="dr-table-wrapper">
+            <div class="dr-empty-box">
+              <svg class="dr-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <path d="m9 12 2 2 4-4"></path>
+              </svg>
+              <p>No atomic claims extracted yet.</p>
+            </div>
           </div>
         </div>
 
         <!-- Tab 4: Contradictions -->
         <div class="dr-tab-pane" id="drTabContradictions" style="display: none;">
-          <div style="margin-bottom: 14px;">
-            <h4 style="margin: 0; color: #f8fafc; font-size: 0.95rem;">⚖️ Cross-Source Contradictions & Divergences</h4>
-            <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0 0 0;">Incompatible assertions detected across independent documentation sources.</p>
+          <div class="dr-pane-header">
+            <div>
+              <h4 class="dr-pane-title">Cross-Source Contradictions & Divergences</h4>
+              <p class="dr-pane-subtitle">Incompatible assertions detected across independent documentation sources</p>
+            </div>
+            <div class="dr-pane-badge dr-badge-amber">Forensic Discrepancy Gate</div>
           </div>
-          <div id="drContradictionsContainer">
-            <p style="color: #64748b; text-align: center; padding: 30px;">Zero unresolved contradictions recorded.</p>
+          <div id="drContradictionsContainer" class="dr-contradictions-container">
+            <div class="dr-empty-box">
+              <svg class="dr-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+                <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+                <path d="M7 21h10"></path>
+                <path d="M12 3v18"></path>
+              </svg>
+              <p>Zero unresolved contradictions recorded.</p>
+            </div>
           </div>
         </div>
 
         <!-- Tab 5: Report & PDF Dossier -->
         <div class="dr-tab-pane" id="drTabDossier" style="display: none;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+          <div class="dr-pane-header">
             <div>
-              <h4 id="drDossierTitle" style="margin: 0; color: #f8fafc; font-size: 1.05rem;">Research Dossier</h4>
-              <span id="drDossierMeta" style="font-size: 0.78rem; color: #94a3b8;">Publication Preview</span>
+              <h4 id="drDossierTitle" class="dr-pane-title">Research Dossier</h4>
+              <span id="drDossierMeta" class="dr-pane-subtitle">Publication Preview & Comprehensive Citations</span>
             </div>
-            <div style="display: flex; gap: 8px;">
-              <a id="drDownloadPdfBtn" href="#" download class="btn btn-primary btn-sm" style="display: none; align-items: center; gap: 6px; text-decoration: none; padding: 6px 14px; background: #6366f1; color: #fff; border-radius: 6px; font-weight: 600; font-size: 0.82rem;">
-                📥 Download A4 PDF
+            <div class="dr-header-actions">
+              <a id="drDownloadPdfBtn" href="#" download class="dr-btn-primary" style="display: none;">
+                <svg class="dr-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Download A4 PDF</span>
               </a>
-              <button type="button" id="drCopyMarkdownBtn" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #e2e8f0; padding: 6px 12px; border-radius: 6px; font-size: 0.82rem; cursor: pointer;">
-                📋 Copy Markdown
+              <button type="button" id="drCopyMarkdownBtn" class="dr-btn-ghost">
+                <svg class="dr-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Copy Markdown</span>
               </button>
             </div>
           </div>
-          <div id="drDossierContent" style="background: #14151a; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 22px; max-height: 55vh; overflow-y: auto; color: #e2e8f0; line-height: 1.6; font-size: 0.9rem;">
-            <p style="color: #64748b; text-align: center; padding: 30px;">No research dossier generated yet. Run an investigation to produce publication deliverables.</p>
+          <div id="drDossierContent" class="dr-dossier-body">
+            <div class="dr-empty-box">
+              <svg class="dr-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <p>No research dossier generated yet. Run an investigation to produce publication deliverables.</p>
+            </div>
           </div>
         </div>
 
         <!-- Tab 6: Past Jobs -->
         <div class="dr-tab-pane" id="drTabHistory" style="display: none;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <h4 style="margin: 0; color: #f8fafc; font-size: 0.95rem;">🕒 Past Research Investigations</h4>
-            <span style="font-size: 0.8rem; color: #94a3b8;">Persistent SQLite audit records</span>
+          <div class="dr-pane-header">
+            <div>
+              <h4 class="dr-pane-title">Past Research Investigations</h4>
+              <p class="dr-pane-subtitle">Persistent SQLite audit records across all agent sessions</p>
+            </div>
+            <div class="dr-pane-badge">Audit Trail</div>
           </div>
-          <div id="drHistoryContainer">
-            <p style="color: #64748b; text-align: center; padding: 30px;">Loading research jobs history...</p>
+          <div id="drHistoryContainer" class="dr-history-container">
+            <div class="dr-empty-box">
+              <p>Loading research jobs history...</p>
+            </div>
           </div>
         </div>
 
@@ -2973,7 +3138,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=20261110_2"></script>
+  <script src="app.js?v=20261111_2"></script>
   <script src="studioIde.js?v=20261110_2"></script>
 </body>
 </html>

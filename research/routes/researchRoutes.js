@@ -69,10 +69,49 @@ researchRouter.post('/start', async (req, res) => {
     }
 
     // Otherwise, immediately execute autonomous research in background
+    const jobId = `job_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    researchRepository.createJob({
+      id: jobId,
+      title: topic.slice(0, 100),
+      originalQuery: topic,
+      mode,
+      config: JSON.stringify({ requirePlanApproval: false })
+    });
+
     res.json({
       success: true,
-      jobId: 'pending',
-      status: 'started'
+      jobId,
+      status: 'running'
+    });
+
+    // Run autonomous research loop in background with progress streaming
+    researchOrchestrator.startJob(
+      topic,
+      { mode },
+      (progressEvent) => {
+        broadcastJobEvent(jobId, progressEvent);
+      }
+    ).then(async (result) => {
+      try {
+        const pdfResult = await generateAndValidateReportPdf(jobId, result.reportMarkdown, {
+          title: topic.slice(0, 100),
+          sourcesCount: result.sourcesCount || 0,
+          citationsCount: result.citations ? result.citations.length : 0
+        });
+        broadcastJobEvent(jobId, {
+          step: 'pdf_ready',
+          message: 'A4 PDF report generated and validated.',
+          pdfUrl: pdfResult.url,
+          validation: pdfResult.validation
+        });
+      } catch (e) {
+        console.warn('[ResearchRouter] PDF build notice:', e.message);
+      }
+    }).catch((err) => {
+      broadcastJobEvent(jobId, {
+        step: 'failed',
+        error: err.message
+      });
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -162,6 +201,8 @@ researchRouter.get('/jobs/:id', (req, res) => {
   const sources = researchRepository.getSources(req.params.id);
   const claims = researchRepository.getClaims(req.params.id);
   const sections = researchRepository.getSections(req.params.id);
+  const contradictions = researchRepository.getContradictionsByJobId ? researchRepository.getContradictionsByJobId(req.params.id) : [];
+  const qualityCheck = researchRepository.getQualityCheckByJobId ? researchRepository.getQualityCheckByJobId(req.params.id) : null;
 
   res.json({
     success: true,
@@ -169,7 +210,9 @@ researchRouter.get('/jobs/:id', (req, res) => {
     plan,
     sources,
     claims,
-    sections
+    sections,
+    contradictions,
+    qualityCheck
   });
 });
 
