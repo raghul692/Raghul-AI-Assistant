@@ -1277,6 +1277,48 @@ export function listPortfolioEvents(limit = 100) {
   return db.prepare('SELECT * FROM portfolio_analytics_events ORDER BY created_at DESC LIMIT ?').all(limit);
 }
 
+export function getPortfolioAnalyticsSummary() {
+  const totalEvents = db.prepare('SELECT COUNT(*) as count FROM portfolio_analytics_events').get()?.count || 0;
+  const pageViews = db.prepare("SELECT COUNT(*) as count FROM portfolio_analytics_events WHERE event_type = 'pageview'").get()?.count || 0;
+  const clicks = db.prepare("SELECT COUNT(*) as count FROM portfolio_analytics_events WHERE event_type = 'click'").get()?.count || 0;
+  const uniqueVisitors = db.prepare("SELECT COUNT(DISTINCT ip_hash) as count FROM portfolio_analytics_events").get()?.count || 0;
+  
+  const topPaths = db.prepare(`
+    SELECT path, COUNT(*) as count
+    FROM portfolio_analytics_events
+    WHERE path IS NOT NULL AND path != ''
+    GROUP BY path
+    ORDER BY count DESC
+    LIMIT 5
+  `).all();
+
+  const topCountries = db.prepare(`
+    SELECT country, country_code, COUNT(*) as count
+    FROM portfolio_analytics_events
+    WHERE country IS NOT NULL AND country != ''
+    GROUP BY country, country_code
+    ORDER BY count DESC
+    LIMIT 5
+  `).all();
+
+  const recentEvents = db.prepare(`
+    SELECT * FROM portfolio_analytics_events
+    ORDER BY created_at DESC
+    LIMIT 15
+  `).all();
+
+  return {
+    totalEvents,
+    pageViews,
+    clicks,
+    uniqueVisitors,
+    topPaths,
+    topCountries,
+    recentEvents,
+    isAwaitingBeacon: totalEvents === 0
+  };
+}
+
 export function recordLiveActivity({
   type = 'pageview',
   title,

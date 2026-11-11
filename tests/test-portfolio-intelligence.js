@@ -124,6 +124,53 @@ async function runPortfolioTests() {
     assert.ok(Array.isArray(data.pipelineNodes), 'pipelineNodes missing');
   });
 
+  await testAsync('GET /api/portfolio/integrations returns all 4 configured providers', async () => {
+    const res = await fetch(`${BASE_URL}/api/portfolio/integrations`);
+    assert.strictEqual(res.status, 200);
+    const data = await res.json();
+    assert.ok(data.providers, 'providers missing');
+    assert.ok(data.providers.github, 'github integration missing');
+    assert.ok(data.providers.vercel, 'vercel integration missing');
+    assert.ok(data.providers.render, 'render integration missing');
+    assert.ok(data.providers.supabase, 'supabase integration missing');
+  });
+
+  await testAsync('GET /api/portfolio/jobs and emergency stop operate correctly', async () => {
+    const res = await fetch(`${BASE_URL}/api/portfolio/jobs`);
+    assert.strictEqual(res.status, 200);
+    const data = await res.json();
+    assert.strictEqual(data.success, true);
+    assert.ok(data.stats, 'queue stats missing');
+
+    const stopRes = await fetch(`${BASE_URL}/api/portfolio/emergency-stop`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled: false })
+    });
+    assert.strictEqual(stopRes.status, 200);
+    const stopData = await stopRes.json();
+    assert.strictEqual(stopData.status.emergencyStop, false);
+  });
+
+  await testAsync('GET /api/portfolio/analytics/summary reports first-party metrics without fake numbers', async () => {
+    const res = await fetch(`${BASE_URL}/api/portfolio/analytics/summary`);
+    assert.strictEqual(res.status, 200);
+    const data = await res.json();
+    assert.strictEqual(data.success, true);
+    assert.ok(typeof data.summary.totalEvents === 'number', 'totalEvents not a number');
+    assert.ok(typeof data.summary.pageViews === 'number', 'pageViews not a number');
+    assert.ok(Array.isArray(data.summary.topPaths), 'topPaths not array');
+  });
+
+  await testAsync('GET /api/portfolio/database/overview returns database inspection', async () => {
+    const res = await fetch(`${BASE_URL}/api/portfolio/database/overview`);
+    assert.strictEqual(res.status, 200);
+    const data = await res.json();
+    assert.strictEqual(data.success, true);
+    assert.ok(data.local.tableCount > 0, 'No local tables found');
+    assert.ok(data.production.url, 'Production URL missing');
+  });
+
   // 2. DOM Architecture & Anti-Slop Visual Hierarchy Verification
   console.log('\n2. DOM Architecture & Visual Hierarchy (Reference 1, 2, 3)');
 
