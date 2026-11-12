@@ -400,6 +400,315 @@ class IntegrationManager {
     };
   }
 
+  // =========================================================================
+  // 5. OPERATIONAL VERCEL METHODS
+  // =========================================================================
+  async getLatestVercelDeployments(limit = 5) {
+    const creds = this.getCredentials().vercel;
+    if (!creds.token || !creds.projectId) {
+      throw new Error('Vercel credentials missing in .env');
+    }
+
+    const teamParam = creds.teamId ? `&teamId=${creds.teamId}` : '';
+    const url = `https://api.vercel.com/v6/deployments?projectId=${creds.projectId}&limit=${limit}${teamParam}`;
+    const res = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${creds.token}` }
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Vercel deployments fetch failed [HTTP ${res.status}]: ${errText}`);
+    }
+
+    const data = await res.json();
+    return (data.deployments || []).map(d => ({
+      id: d.uid,
+      name: d.name,
+      url: d.url ? `https://${d.url}` : null,
+      state: d.state,
+      ready: d.readyState,
+      createdAt: d.created,
+      creator: d.creator ? d.creator.username : 'Unknown',
+      target: d.target || 'production',
+      branch: d.meta?.githubCommitRef || 'main',
+      commitSha: d.meta?.githubCommitSha || null,
+      commitMessage: d.meta?.githubCommitMessage || null
+    }));
+  }
+
+  // =========================================================================
+  // 6. OPERATIONAL RENDER METHODS
+  // =========================================================================
+  async getLatestRenderDeployments(limit = 5) {
+    const creds = this.getCredentials().render;
+    if (!creds.apiKey || !creds.serviceId) {
+      throw new Error('Render credentials missing in .env');
+    }
+
+    const url = `https://api.render.com/v1/services/${creds.serviceId}/deploys?limit=${limit}`;
+    const res = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${creds.apiKey}`,
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Render deploys fetch failed [HTTP ${res.status}]: ${errText}`);
+    }
+
+    const data = await res.json();
+    const list = Array.isArray(data) ? data : (data.deploys || []);
+    return list.map(d => {
+      const deploy = d.deploy || d;
+      return {
+        id: deploy.id,
+        status: deploy.status,
+        createdAt: deploy.createdAt,
+        updatedAt: deploy.updatedAt,
+        finishedAt: deploy.finishedAt,
+        commit: deploy.commit ? {
+          id: deploy.commit.id,
+          message: deploy.commit.message
+        } : null
+      };
+    });
+  }
+
+  // =========================================================================
+  // 7. OPERATIONAL PRODUCTION HEALTH PROBE
+  // =========================================================================
+  async verifyProductionHealth(targetUrl = 'https://raghulraja.is-a.dev/') {
+    const start = Date.now();
+    try {
+      const probe = await this._probeUrl(targetUrl, {
+        headers: {
+          'User-Agent': 'RaghulAI-PortfolioOS-HealthProbe/1.0',
+          'Cache-Control': 'no-cache'
+        }
+      }, 7000);
+
+      const latencyMs = Date.now() - start;
+      return {
+        success: probe.ok,
+        url: targetUrl,
+        status: probe.status,
+        latencyMs,
+        ssl: targetUrl.startsWith('https://'),
+        timestamp: Date.now(),
+        headers: probe.response ? {
+          server: probe.response.headers.get('server') || 'Vercel Edge',
+          contentType: probe.response.headers.get('content-type'),
+          age: probe.response.headers.get('age')
+        } : null,
+        error: probe.error
+      };
+    } catch (e) {
+      return {
+        success: false,
+        url: targetUrl,
+        status: 0,
+        latencyMs: Date.now() - start,
+        ssl: targetUrl.startsWith('https://'),
+        timestamp: Date.now(),
+        error: { code: 'PROBE_FAILED', message: e.message }
+      };
+    }
+  }
+
+  // =========================================================================
+  // 8. OPERATIONAL GITHUB METHODS (AUTONOMOUS BRANCH, COMMIT, PR, MERGE)
+  // =========================================================================
+  async getGitHubRepoDetails() {
+    const creds = this.getCredentials().github;
+    if (!creds.token) throw new Error('GITHUB_TOKEN missing in .env');
+
+    const res = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}`, {
+      headers: {
+        'Authorization': `Bearer ${creds.token}`,
+        'User-Agent': 'RaghulAI-PortfolioOS',
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+
+    if (!res.ok) throw new Error(`GitHub repo query failed [HTTP ${res.status}]`);
+    const data = await res.json();
+    return {
+      fullName: data.full_name,
+      defaultBranch: data.default_branch,
+      visibility: data.visibility,
+      description: data.description,
+      openIssues: data.open_issues_count,
+      pushedAt: data.pushed_at,
+      updatedAt: data.updated_at
+    };
+  }
+
+  async createGitHubBranch(branchName, baseBranch = 'main') {
+    const creds = this.getCredentials().github;
+    if (!creds.token) throw new Error('GITHUB_TOKEN missing in .env');
+
+    // 1. Get base branch SHA
+    const refRes = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}/git/ref/heads/${baseBranch}`, {
+      headers: {
+        'Authorization': `Bearer ${creds.token}`,
+        'User-Agent': 'RaghulAI-PortfolioOS',
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    if (!refRes.ok) throw new Error(`Base branch ${baseBranch} ref lookup failed [HTTP ${refRes.status}]`);
+    const refData = await refRes.json();
+    const sha = refData.object.sha;
+
+    // 2. Create new branch ref
+    const createRes = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}/git/refs`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${creds.token}`,
+        'User-Agent': 'RaghulAI-PortfolioOS',
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ref: `refs/heads/${branchName}`,
+        sha
+      })
+    });
+
+    if (!createRes.ok) {
+      const err = await createRes.text();
+      throw new Error(`Branch creation failed [HTTP ${createRes.status}]: ${err}`);
+    }
+
+    const createdData = await createRes.json();
+    return {
+      success: true,
+      branch: branchName,
+      ref: createdData.ref,
+      sha: createdData.object.sha
+    };
+  }
+
+  async commitGitHubFile({ branch, path, content, message }) {
+    const creds = this.getCredentials().github;
+    if (!creds.token) throw new Error('GITHUB_TOKEN missing in .env');
+
+    // Check if file already exists on this branch to obtain SHA
+    let existingSha = null;
+    try {
+      const getFileRes = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}/contents/${path}?ref=${branch}`, {
+        headers: {
+          'Authorization': `Bearer ${creds.token}`,
+          'User-Agent': 'RaghulAI-PortfolioOS',
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      if (getFileRes.ok) {
+        const fileData = await getFileRes.json();
+        existingSha = fileData.sha;
+      }
+    } catch (_) {}
+
+    const payload = {
+      message: message || `Autonomous commit: update ${path}`,
+      content: Buffer.from(content, 'utf-8').toString('base64'),
+      branch
+    };
+    if (existingSha) payload.sha = existingSha;
+
+    const putRes = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}/contents/${path}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${creds.token}`,
+        'User-Agent': 'RaghulAI-PortfolioOS',
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!putRes.ok) {
+      const err = await putRes.text();
+      throw new Error(`Commit file failed [HTTP ${putRes.status}]: ${err}`);
+    }
+
+    const resData = await putRes.json();
+    return {
+      success: true,
+      path,
+      branch,
+      commitSha: resData.commit.sha,
+      contentSha: resData.content.sha,
+      htmlUrl: resData.content.html_url
+    };
+  }
+
+  async createGitHubPullRequest({ title, head, base = 'main', body }) {
+    const creds = this.getCredentials().github;
+    if (!creds.token) throw new Error('GITHUB_TOKEN missing in .env');
+
+    const prRes = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}/pulls`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${creds.token}`,
+        'User-Agent': 'RaghulAI-PortfolioOS',
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title,
+        head,
+        base,
+        body: body || 'Autonomous Pull Request created by Raghul AI Portfolio OS.'
+      })
+    });
+
+    if (!prRes.ok) {
+      const err = await prRes.text();
+      throw new Error(`PR creation failed [HTTP ${prRes.status}]: ${err}`);
+    }
+
+    const prData = await prRes.json();
+    return {
+      success: true,
+      number: prData.number,
+      title: prData.title,
+      htmlUrl: prData.html_url,
+      state: prData.state,
+      head: prData.head.ref,
+      base: prData.base.ref
+    };
+  }
+
+  async closeGitHubPullRequest(pullNumber) {
+    const creds = this.getCredentials().github;
+    if (!creds.token) throw new Error('GITHUB_TOKEN missing in .env');
+
+    const patchRes = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}/pulls/${pullNumber}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${creds.token}`,
+        'User-Agent': 'RaghulAI-PortfolioOS',
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ state: 'closed' })
+    });
+
+    if (!patchRes.ok) {
+      const err = await patchRes.text();
+      throw new Error(`PR close failed [HTTP ${patchRes.status}]: ${err}`);
+    }
+
+    const prData = await patchRes.json();
+    return {
+      success: true,
+      number: prData.number,
+      state: prData.state
+    };
+  }
+
   getStatus() {
     return {
       timestamp: Date.now(),
@@ -409,3 +718,4 @@ class IntegrationManager {
 }
 
 export const integrationManager = new IntegrationManager();
+
