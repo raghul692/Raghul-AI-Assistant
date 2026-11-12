@@ -3,6 +3,8 @@
  */
 
 import express from 'express';
+import fs from 'fs';
+import path from 'path';
 import { portfolioMcpGateway } from './portfolioMcpGateway.js';
 import { portfolioKnowledgeEngine } from './portfolioKnowledgeEngine.js';
 import { portfolioAutomationEngine } from './portfolioAutomationEngine.js';
@@ -38,7 +40,19 @@ import {
   recordPortfolioEvent,
   recordLiveActivity,
   listLiveActivity,
-  getPortfolioAnalyticsSummary
+  getPortfolioAnalyticsSummary,
+  createPortfolioNotification,
+  listPortfolioNotifications,
+  markPortfolioNotificationRead,
+  markAllPortfolioNotificationsRead,
+  clearReadPortfolioNotifications,
+  getPortfolioNotificationCount,
+  createPortfolioIncident,
+  listPortfolioIncidents,
+  resolvePortfolioIncident,
+  getPortfolioUserSettings,
+  setPortfolioUserSetting,
+  bulkSetPortfolioUserSettings
 } from './db.js';
 
 const router = express.Router();
@@ -486,9 +500,9 @@ router.post('/control/action', async (req, res) => {
 
 // Autonomous Multi-Step AI Agent Task Execution (Genuine 7-Stage Pipeline)
 router.post('/agent/execute', async (req, res) => {
-  const { prompt } = req.body;
+  const prompt = req.body.prompt || req.body.goal;
   if (!prompt || !prompt.trim()) {
-    return res.status(400).json({ error: 'Prompt is required' });
+    return res.status(400).json({ error: 'Prompt or goal is required' });
   }
 
   try {
@@ -810,7 +824,14 @@ router.get('/governance/pending-approvals', (req, res) => {
 router.get('/governance/audit-integrity', (req, res) => {
   try {
     const ledger = verifyAuditLedgerIntegrity();
-    res.json({ success: true, ledger });
+    res.json({
+      success: true,
+      valid: ledger.valid,
+      totalRecords: ledger.auditedCount,
+      latestBlockHash: ledger.latestBlockHash,
+      ledger,
+      operatorPublicKey: getOperatorPublicKey()
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -973,6 +994,282 @@ router.get('/tools', (req, res) => {
   try {
     const tools = portfolioMcpGateway.listTools();
     res.json({ toolsCount: tools.length, tools });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// =========================================================================
+// 9. PORTFOLIO OS NOTIFICATIONS ENDPOINTS
+// =========================================================================
+router.get('/notifications', (req, res) => {
+  try {
+    const unreadOnly = req.query.unread === 'true';
+    const limit = parseInt(req.query.limit, 10) || 50;
+    const category = req.query.category || null;
+    const notifications = listPortfolioNotifications({ limit, unreadOnly, category });
+    const counts = getPortfolioNotificationCount();
+    res.json({ success: true, notifications, total: counts.total, unreadCount: counts.unread });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/notifications/:id/read', (req, res) => {
+  try {
+    const updated = markPortfolioNotificationRead(req.params.id);
+    res.json({ success: true, updated });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/notifications/read-all', (req, res) => {
+  try {
+    const count = markAllPortfolioNotificationsRead();
+    res.json({ success: true, markedCount: count });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/notifications/clear-read', (req, res) => {
+  try {
+    const count = clearReadPortfolioNotifications();
+    res.json({ success: true, clearedCount: count });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/notifications/create', (req, res) => {
+  try {
+    const { title, message, severity, category, entity_id, entity_type } = req.body;
+    if (!title || !message) return res.status(400).json({ error: 'title and message are required' });
+    const notif = createPortfolioNotification({ title, message, severity, category, entity_id, entity_type });
+    res.json({ success: true, notification: notif });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// =========================================================================
+// 10. PORTFOLIO OS INCIDENTS & RELIABILITY ENDPOINTS
+// =========================================================================
+router.get('/incidents', (req, res) => {
+  try {
+    const status = req.query.status || null;
+    const limit = parseInt(req.query.limit, 10) || 50;
+    const incidents = listPortfolioIncidents({ limit, status });
+    res.json({ success: true, incidents });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/incidents/create', (req, res) => {
+  try {
+    const { title, service, severity, status, error_code, error_stack, resolution_notes } = req.body;
+    if (!title || !service) return res.status(400).json({ error: 'title and service are required' });
+    const inc = createPortfolioIncident({ title, service, severity, status, error_code, error_stack, resolution_notes });
+    res.json({ success: true, incident: inc });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/incidents/:id/resolve', (req, res) => {
+  try {
+    const { resolution_notes } = req.body;
+    const updated = resolvePortfolioIncident(req.params.id, resolution_notes);
+    res.json({ success: true, updated });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// =========================================================================
+// 11. GITHUB DIRECT OPERATIONS (COMMITS, BRANCHES, PULLS, REPO)
+// =========================================================================
+router.get('/github/repo', async (req, res) => {
+  try {
+    const details = await integrationManager.getGitHubRepoDetails();
+    res.json({ success: true, repo: details });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/github/commits', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 15;
+    const commits = await integrationManager.listGitHubCommits(limit);
+    res.json({ success: true, commits });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/github/branches', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const branches = await integrationManager.listGitHubBranches(limit);
+    res.json({ success: true, branches });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/github/pulls', async (req, res) => {
+  try {
+    const state = req.query.state || 'all';
+    const limit = parseInt(req.query.limit, 10) || 15;
+    const pulls = await integrationManager.listGitHubPullRequests(state, limit);
+    res.json({ success: true, pulls });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/github/branches', async (req, res) => {
+  try {
+    const { branchName, baseBranch = 'main' } = req.body;
+    if (!branchName) return res.status(400).json({ error: 'branchName is required' });
+    const result = await integrationManager.createGitHubBranch(branchName, baseBranch);
+    res.json({ success: true, branch: result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// =========================================================================
+// 12. PORTFOLIO OS USER SETTINGS
+// =========================================================================
+router.get('/settings', (req, res) => {
+  try {
+    const settings = getPortfolioUserSettings();
+    res.json({ success: true, settings });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/settings', (req, res) => {
+  try {
+    const updates = req.body;
+    if (!updates || typeof updates !== 'object') {
+      return res.status(400).json({ error: 'Invalid settings object' });
+    }
+    const settings = bulkSetPortfolioUserSettings(updates);
+    res.json({ success: true, settings });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// =========================================================================
+// 13. DATABASE INSPECTION & SNAPSHOT BACKUP
+// =========================================================================
+router.get('/database/tables', (req, res) => {
+  try {
+    const tables = [
+      'portfolio_config',
+      'portfolio_content_drafts',
+      'portfolio_deployments',
+      'portfolio_analytics_cache',
+      'portfolio_knowledge_index',
+      'portfolio_contacts_cache',
+      'portfolio_analytics_events',
+      'portfolio_live_activity',
+      'portfolio_automation_tasks',
+      'portfolio_notifications',
+      'portfolio_incidents',
+      'portfolio_user_settings',
+      'portfolio_job_queue',
+      'portfolio_audit_ledger',
+      'portfolio_system_state'
+    ];
+
+    const results = [];
+    for (const t of tables) {
+      try {
+        const count = db.prepare(`SELECT COUNT(*) as count FROM ${t}`).get()?.count || 0;
+        const info = db.prepare(`PRAGMA table_info(${t})`).all();
+        results.push({ name: t, rowCount: count, columns: info.map(c => c.name) });
+      } catch (tableErr) {
+        // Table may not exist yet
+      }
+    }
+    res.json({ success: true, tables: results });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/database/backup', (req, res) => {
+  try {
+    const backupDir = path.join(process.cwd(), 'data', 'backups');
+    if (!fs.existsSync(backupDir)) {
+      fs.mkdirSync(backupDir, { recursive: true });
+    }
+    const backupFile = `nexus_backup_${Date.now()}.db`;
+    const backupPath = path.join(backupDir, backupFile);
+    
+    db.backup(backupPath).then(() => {
+      const stats = fs.statSync(backupPath);
+      createPortfolioNotification({
+        title: 'Database Snapshot Created',
+        message: `Snapshot ${backupFile} (${(stats.size / 1024).toFixed(1)} KB) saved.`,
+        severity: 'success',
+        category: 'system'
+      });
+      res.json({ success: true, filename: backupFile, path: backupPath, sizeBytes: stats.size });
+    }).catch(err => {
+      res.status(500).json({ error: 'Backup failed: ' + err.message });
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// =========================================================================
+// 14. DEEP MONITORING STATUS & MULTI-CLOUD TELEMETRY
+// =========================================================================
+router.get('/monitoring/services', async (req, res) => {
+  try {
+    const mem = process.memoryUsage();
+    const uptimeSec = Math.floor(process.uptime());
+    
+    let siteStatus = 'UNKNOWN';
+    let siteLatency = null;
+    try {
+      const start = Date.now();
+      const siteRes = await fetch('https://raghulraja.is-a.dev/', { method: 'HEAD', signal: AbortSignal.timeout(5000) });
+      siteLatency = Date.now() - start;
+      siteStatus = siteRes.ok ? 'HEALTHY' : `HTTP_${siteRes.status}`;
+    } catch (e) {
+      siteStatus = 'OFFLINE';
+    }
+
+    const integrations = integrationManager.getAllStatuses();
+
+    res.json({
+      success: true,
+      timestamp: Date.now(),
+      system: {
+        uptimeSec,
+        memoryRssMb: (mem.rss / 1024 / 1024).toFixed(1),
+        memoryHeapUsedMb: (mem.heapUsed / 1024 / 1024).toFixed(1),
+        nodeVersion: process.version,
+        platform: process.platform
+      },
+      portfolioSite: {
+        url: 'https://raghulraja.is-a.dev/',
+        status: siteStatus,
+        latencyMs: siteLatency
+      },
+      integrations
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

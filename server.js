@@ -161,6 +161,11 @@ app.use(express.static(path.join(__dirname, 'public'), {
   etag: true
 }));
 
+// Dedicated Full-Page Route for Raghul AI — Portfolio Operating System
+app.get(['/os', '/portfolio-os'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'os.html'));
+});
+
 // Security: Rate Limiting across API endpoints
 app.use('/api/', rateLimiterMiddleware(120, 60000));
 

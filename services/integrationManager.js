@@ -838,6 +838,76 @@ class IntegrationManager {
     };
   }
 
+  async listGitHubCommits(limit = 15) {
+    const creds = this.getCredentials().github;
+    if (!creds.token) throw new Error('GITHUB_TOKEN missing in .env');
+
+    const res = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}/commits?per_page=${limit}`, {
+      headers: {
+        'Authorization': `Bearer ${creds.token}`,
+        'User-Agent': 'RaghulAI-PortfolioOS',
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    if (!res.ok) throw new Error(`GitHub commits query failed [HTTP ${res.status}]`);
+    const data = await res.json();
+    return data.map(c => ({
+      sha: c.sha,
+      shortSha: c.sha.substring(0, 7),
+      message: c.commit.message,
+      author: c.commit.author.name,
+      authorAvatar: c.author?.avatar_url,
+      date: c.commit.author.date,
+      htmlUrl: c.html_url
+    }));
+  }
+
+  async listGitHubBranches(limit = 20) {
+    const creds = this.getCredentials().github;
+    if (!creds.token) throw new Error('GITHUB_TOKEN missing in .env');
+
+    const res = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}/branches?per_page=${limit}`, {
+      headers: {
+        'Authorization': `Bearer ${creds.token}`,
+        'User-Agent': 'RaghulAI-PortfolioOS',
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    if (!res.ok) throw new Error(`GitHub branches query failed [HTTP ${res.status}]`);
+    const data = await res.json();
+    return data.map(b => ({
+      name: b.name,
+      commitSha: b.commit.sha,
+      protected: b.protected
+    }));
+  }
+
+  async listGitHubPullRequests(state = 'all', limit = 15) {
+    const creds = this.getCredentials().github;
+    if (!creds.token) throw new Error('GITHUB_TOKEN missing in .env');
+
+    const res = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}/pulls?state=${encodeURIComponent(state)}&per_page=${limit}`, {
+      headers: {
+        'Authorization': `Bearer ${creds.token}`,
+        'User-Agent': 'RaghulAI-PortfolioOS',
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    if (!res.ok) throw new Error(`GitHub pulls query failed [HTTP ${res.status}]`);
+    const data = await res.json();
+    return data.map(pr => ({
+      number: pr.number,
+      title: pr.title,
+      state: pr.state,
+      user: pr.user?.login,
+      userAvatar: pr.user?.avatar_url,
+      head: pr.head?.ref,
+      base: pr.base?.ref,
+      createdAt: pr.created_at,
+      htmlUrl: pr.html_url
+    }));
+  }
+
   // =========================================================================
   // 9. OPERATIONAL DEPLOYMENT TRIGGERS (RENDER & VERCEL)
   // =========================================================================
@@ -917,6 +987,10 @@ class IntegrationManager {
     sanitized = sanitized.replace(/Bearer\s+([A-Za-z0-9_\-\.]{15,})/g, 'Bearer ***REDACTED***');
 
     return typeof textOrObj === 'string' ? sanitized : JSON.parse(sanitized);
+  }
+
+  getAllStatuses() {
+    return this.statusCache;
   }
 
   getStatus() {

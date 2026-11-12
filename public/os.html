@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raghul AI — Portfolio Operating System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/os.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+<body>
+  <div class="os-container">
+    <!-- LEFT SIDEBAR -->
+    <aside class="os-sidebar">
+      <div class="os-brand">
+        <div class="os-brand-logo">R</div>
+        <div class="os-brand-info">
+          <h1>Raghul AI</h1>
+          <div class="tagline">
+            <span class="status-dot"></span> Portfolio OS v8.0
+          </div>
+        </div>
+      </div>
+
+      <nav class="os-nav" id="osSidebarNav">
+        <div class="os-nav-section-title">Core & Intelligence</div>
+        <div class="os-nav-item active" data-view="overview">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          <span>Overview</span>
+        </div>
+        <div class="os-nav-item" data-view="ai-assistant">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path><rect x="4" y="8" width="16" height="12" rx="2"></rect><path d="M9 13v2"></path><path d="M15 13v2"></path></svg>
+          <span>AI Assistant</span>
+          <span class="os-nav-badge" id="navBadgeAgent">7-Stage</span>
+        </div>
+        <div class="os-nav-item" data-view="analytics">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          <span>Visitor Analytics</span>
+        </div>
+        <div class="os-nav-item" data-view="monitoring">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          <span>System Monitoring</span>
+          <span class="os-nav-badge" id="navBadgeHealth">Healthy</span>
+        </div>
+
+        <div class="os-nav-section-title">Developer Operations</div>
+        <div class="os-nav-item" data-view="github">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><circle cx="18" cy="6" r="3"></circle><path d="M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9"></path><path d="M12 12v3"></path></svg>
+          <span>GitHub Manager</span>
+        </div>
+        <div class="os-nav-item" data-view="deployments">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 19 21 12 17 5 21 12 2"></polygon></svg>
+          <span>Deployments</span>
+          <span class="os-nav-badge" id="navBadgeDeploy">Live</span>
+        </div>
+        <div class="os-nav-item" data-view="database">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+          <span>Database & Sync</span>
+        </div>
+        <div class="os-nav-item" data-view="automations">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+          <span>Workflow Center</span>
+          <span class="os-nav-badge" id="navBadgeJobs">0 active</span>
+        </div>
+        <div class="os-nav-item" data-view="incidents">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          <span>Incidents</span>
+          <span class="os-nav-badge" id="navBadgeIncidents">0 active</span>
+        </div>
+
+        <div class="os-nav-section-title">Portfolio Knowledge</div>
+        <div class="os-nav-item" data-view="knowledge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          <span>Knowledge Base</span>
+        </div>
+        <div class="os-nav-item" data-view="integrations">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v8"></path><path d="M17 5l-5 5"></path><path d="M7 5l5 5"></path><circle cx="12" cy="16" r="6"></circle></svg>
+          <span>Integrations</span>
+        </div>
+
+        <div class="os-nav-section-title">Governance & Settings</div>
+        <div class="os-nav-item" data-view="security">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+          <span>Permissions & HITL</span>
+          <span class="os-nav-badge" id="navBadgeApprovals">0</span>
+        </div>
+        <div class="os-nav-item" data-view="audit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span>Activity & Audit</span>
+        </div>
+        <div class="os-nav-item" data-view="settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span>Settings</span>
+        </div>
+      </nav>
+
+      <div class="os-sidebar-footer">
+        <a href="/" class="os-switch-chat-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <span>Switch to AI Chatbot ↗</span>
+        </a>
+        <div class="os-user-pill">
+          <div class="os-user-avatar">RR</div>
+          <div class="os-user-meta">
+            <div class="os-user-name">Raghul Raja M</div>
+            <div class="os-user-role">System Owner</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN APP AREA -->
+    <main class="os-main">
+      <!-- TOP BAR -->
+      <header class="os-topbar">
+        <div class="os-breadcrumbs">
+          <span>Portfolio OS</span>
+          <span>/</span>
+          <span class="active-crumb" id="currentBreadcrumb">Overview</span>
+        </div>
+
+        <div class="os-topbar-actions">
+          <div class="os-command-search" id="cmdSearchTrigger">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Search or command...</span>
+            <span class="os-command-kbd">Ctrl+K</span>
+          </div>
+
+          <div class="os-live-stream-badge" id="osLiveStreamBadge">
+            <span class="os-stream-dot" id="osStreamDot"></span>
+            <span id="osStreamText">Live</span>
+          </div>
+
+          <button class="os-emergency-stop-btn" id="osEmergencyStopBtn" title="Immediately freeze all autonomous actions">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
+            <span id="osEmergencyStopLabel">Emergency Stop</span>
+          </button>
+
+          <button class="os-icon-btn" id="osRefreshBtn" title="Refresh current view">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          </button>
+
+          <button class="os-icon-btn" id="osNotifBtn" title="Notifications">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <span class="os-badge-bubble" id="osNotifBadge" style="display:none;">0</span>
+          </button>
+
+          <button class="os-icon-btn" id="osThemeBtn" title="Toggle theme">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="osThemeIcon"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- CONTENT VIEWS -->
+      <div class="os-content" id="osContentContainer">
+
+        <!-- ==============================================================
+             VIEW 1: OVERVIEW
+             ============================================================== -->
+        <section class="os-view active" id="view-overview">
+          <div class="os-site-hero">
+            <div class="os-site-hero-left">
+              <div class="os-site-icon-box">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+              </div>
+              <div class="os-site-hero-info">
+                <h3>raghulraja.is-a.dev</h3>
+                <a href="https://raghulraja.is-a.dev/" target="_blank" rel="noopener noreferrer">https://raghulraja.is-a.dev/ ↗</a>
+              </div>
+            </div>
+            <div class="os-site-hero-badges">
+              <span class="os-pill os-pill-success" id="heroSiteStatus">HTTP 200 OK</span>
+              <span class="os-pill os-pill-info" id="heroSiteLatency">Latency: 271ms</span>
+              <span class="os-pill os-pill-neutral mono" id="heroGitBranch">branch: main</span>
+            </div>
+          </div>
+
+          <div class="os-stats-grid">
+            <div class="os-stat-card">
+              <div class="os-stat-label">Total Recorded Events <span class="mono">analytics</span></div>
+              <div class="os-stat-value num" id="statTotalEvents">...</div>
+              <div class="os-stat-sub">From persistent SQLite analytics</div>
+            </div>
+            <div class="os-stat-card">
+              <div class="os-stat-label">Unique Visitors <span class="mono">distinct</span></div>
+              <div class="os-stat-value num" id="statUniqueVisitors">...</div>
+              <div class="os-stat-sub">SHA-256 hashed IP sessions</div>
+            </div>
+            <div class="os-stat-card">
+              <div class="os-stat-label">Deployments <span class="mono">cloud</span></div>
+              <div class="os-stat-value num" id="statDeploymentsCount">...</div>
+              <div class="os-stat-sub">Vercel & Render production logs</div>
+            </div>
+            <div class="os-stat-card">
+              <div class="os-stat-label">Autonomous Health <span class="mono">sla</span></div>
+              <div class="os-stat-value" id="statSystemHealth">100%</div>
+              <div class="os-stat-sub">Zero unmitigated incidents</div>
+            </div>
+          </div>
+
+          <div class="os-grid-2col">
+            <div class="os-card">
+              <div class="os-card-header">
+                <h3>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                  Real-Time Visitor Activity Feed
+                </h3>
+                <button class="os-btn-secondary os-btn-sm" id="btnSimulatePing">+ Simulate Ping</button>
+              </div>
+              <div class="os-card-body" style="padding:0;">
+                <div class="os-table-container">
+                  <table class="os-table" id="tableOverviewActivity">
+                    <thead>
+                      <tr>
+                        <th>Time</th>
+                        <th>Type</th>
+                        <th>Origin</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tbodyOverviewActivity">
+                      <tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Loading activity...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="os-card">
+              <div class="os-card-header">
+                <h3>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                  Latest Production Deployments
+                </h3>
+                <button class="os-btn-secondary os-btn-sm" onclick="osEngine.navigateTo('deployments')">View All</button>
+              </div>
+              <div class="os-card-body" style="padding:0;">
+                <div class="os-table-container">
+                  <table class="os-table" id="tableOverviewDeployments">
+                    <thead>
+                      <tr>
+                        <th>Target</th>
+                        <th>Commit</th>
+                        <th>Status</th>
+                        <th>Triggered By</th>
+                        <th>Time</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tbodyOverviewDeployments">
+                      <tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Loading deployments...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                Autonomous Quick Actions
+              </h3>
+            </div>
+            <div class="os-card-body" style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="os-btn-primary" id="btnQuickHealthCheck">Run System Health Check</button>
+              <button class="os-btn-secondary" id="btnQuickSyncDb">Sync Supabase & Reconcile Drift</button>
+              <button class="os-btn-secondary" id="btnQuickBackupDb">Create Instant DB Snapshot</button>
+              <button class="os-btn-secondary" onclick="osEngine.navigateTo('ai-assistant')">Open AI Assistant Console ↗</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             VIEW 2: AI ASSISTANT (AUTONOMOUS 7-STAGE PIPELINE)
+             ============================================================== -->
+        <section class="os-view" id="view-ai-assistant">
+          <div class="os-view-header">
+            <div class="os-view-title">
+              <h2>Autonomous AI Engineering Agent</h2>
+              <p>7-Stage execution pipeline with cryptographic human approval gates and full execution lineage</p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="os-btn-secondary os-btn-sm" id="btnAgentClearTerminal">Clear Terminal</button>
+            </div>
+          </div>
+
+          <div class="os-timeline" id="agentTimeline">
+            <div class="os-timeline-step completed" data-step="1">
+              <div class="os-timeline-circle">1</div>
+              <span>Plan</span>
+            </div>
+            <div class="os-timeline-step" data-step="2">
+              <div class="os-timeline-circle">2</div>
+              <span>Inspect</span>
+            </div>
+            <div class="os-timeline-step" data-step="3">
+              <div class="os-timeline-circle">3</div>
+              <span>Modify</span>
+            </div>
+            <div class="os-timeline-step" data-step="4">
+              <div class="os-timeline-circle">4</div>
+              <span>Verify</span>
+            </div>
+            <div class="os-timeline-step" data-step="5">
+              <div class="os-timeline-circle">5</div>
+              <span>Audit</span>
+            </div>
+            <div class="os-timeline-step" data-step="6">
+              <div class="os-timeline-circle">6</div>
+              <span>Approve</span>
+            </div>
+            <div class="os-timeline-step" data-step="7">
+              <div class="os-timeline-circle">7</div>
+              <span>Deploy</span>
+            </div>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>Agent Command Center</h3>
+              <span class="os-pill os-pill-neutral mono" id="agentExecutionStatus">IDLE</span>
+            </div>
+            <div class="os-card-body">
+              <div style="display:flex; gap:10px; margin-bottom:12px;">
+                <input type="text" class="os-palette-input" id="agentGoalInput" placeholder="Describe the engineering goal (e.g., Audit Supabase sync drift, Deploy hotfix to Vercel)..." style="background:var(--bg-elevated); border:1px solid var(--border); padding:10px 14px; border-radius:var(--radius-sm);">
+                <button class="os-btn-primary" id="btnAgentExecute" style="flex-shrink:0;">Execute Pipeline</button>
+              </div>
+
+              <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;">
+                <span style="font-size:11px; color:var(--text-muted); align-self:center;">Quick Suggestions:</span>
+                <button class="os-btn-secondary os-btn-sm quick-agent-prompt" data-prompt="Audit Supabase sync drift and verify database consistency">Audit Supabase Sync Drift</button>
+                <button class="os-btn-secondary os-btn-sm quick-agent-prompt" data-prompt="Run comprehensive security and cryptographic audit">Cryptographic Security Audit</button>
+                <button class="os-btn-secondary os-btn-sm quick-agent-prompt" data-prompt="Check GitHub repository and latest commit status">GitHub Repo Status Check</button>
+                <button class="os-btn-secondary os-btn-sm quick-agent-prompt" data-prompt="Verify live Render and Vercel production deployment health">Verify Deployments Health</button>
+              </div>
+
+              <div class="os-terminal" id="agentTerminal">
+                <div class="log-line">
+                  <span class="log-time">[00:00:00]</span>
+                  <span class="log-stage">[SYS]</span>
+                  <span class="log-msg">Autonomous AI Engineering Agent ready. Waiting for task dispatch...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             VIEW 3: VISITOR ANALYTICS
+             ============================================================== -->
+        <section class="os-view" id="view-analytics">
+          <div class="os-view-header">
+            <div class="os-view-title">
+              <h2>Visitor Analytics & Traffic Intelligence</h2>
+              <p>Zero fake data. Real event logging from portfolio interactions stored in SQLite</p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="os-btn-secondary os-btn-sm" id="btnAnalyticsRefresh">Refresh Data</button>
+            </div>
+          </div>
+
+          <div class="os-stats-grid">
+            <div class="os-stat-card">
+              <div class="os-stat-label">Total Events</div>
+              <div class="os-stat-value num" id="analyticsTotalEvents">0</div>
+              <div class="os-stat-sub">Page views, clicks, interactions</div>
+            </div>
+            <div class="os-stat-card">
+              <div class="os-stat-label">Pageviews</div>
+              <div class="os-stat-value num" id="analyticsPageviews">0</div>
+              <div class="os-stat-sub">Direct URL visits</div>
+            </div>
+            <div class="os-stat-card">
+              <div class="os-stat-label">Button Clicks</div>
+              <div class="os-stat-value num" id="analyticsClicks">0</div>
+              <div class="os-stat-sub">Interactive CTA clicks</div>
+            </div>
+            <div class="os-stat-card">
+              <div class="os-stat-label">Unique IP Hashes</div>
+              <div class="os-stat-value num" id="analyticsUniqueVisitors">0</div>
+              <div class="os-stat-sub">Distinct visitor sessions</div>
+            </div>
+          </div>
+
+          <div class="os-grid-2col">
+            <div class="os-card">
+              <div class="os-card-header">
+                <h3>Top Referrers</h3>
+              </div>
+              <div class="os-card-body" style="padding:0;">
+                <table class="os-table" id="tableTopReferrers">
+                  <thead><tr><th>Referrer Source</th><th>Visits</th></tr></thead>
+                  <tbody id="tbodyTopReferrers">
+                    <tr><td colspan="2" style="text-align:center; color:var(--text-muted);">No referrers logged</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="os-card">
+              <div class="os-card-header">
+                <h3>Visitor Countries</h3>
+              </div>
+              <div class="os-card-body" style="padding:0;">
+                <table class="os-table" id="tableTopCountries">
+                  <thead><tr><th>Country</th><th>Events</th></tr></thead>
+                  <tbody id="tbodyTopCountries">
+                    <tr><td colspan="2" style="text-align:center; color:var(--text-muted);">No country data</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>Recent Raw Events</h3>
+            </div>
+            <div class="os-card-body" style="padding:0;">
+              <table class="os-table" id="tableRawEvents">
+                <thead><tr><th>Time</th><th>Type</th><th>Path / Target</th><th>Referrer</th><th>Country</th></tr></thead>
+                <tbody id="tbodyRawEvents">
+                  <tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Loading raw events...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             VIEW 4: SYSTEM MONITORING
+             ============================================================== -->
+        <section class="os-view" id="view-monitoring">
+          <div class="os-view-header">
+            <div class="os-view-title">
+              <h2>System Monitoring & Multi-Cloud Health</h2>
+              <p>Process telemetry, memory consumption, latency probes, and infrastructure status</p>
+            </div>
+            <button class="os-btn-secondary os-btn-sm" id="btnMonitoringProbe">Probe All Services</button>
+          </div>
+
+          <div class="os-stats-grid">
+            <div class="os-stat-card">
+              <div class="os-stat-label">Process Uptime</div>
+              <div class="os-stat-value num" id="monUptime">...</div>
+              <div class="os-stat-sub">Node.js server process</div>
+            </div>
+            <div class="os-stat-card">
+              <div class="os-stat-label">RSS Memory</div>
+              <div class="os-stat-value num" id="monMemoryRss">...</div>
+              <div class="os-stat-sub">Resident set size</div>
+            </div>
+            <div class="os-stat-card">
+              <div class="os-stat-label">Heap Memory</div>
+              <div class="os-stat-value num" id="monMemoryHeap">...</div>
+              <div class="os-stat-sub">V8 allocated heap</div>
+            </div>
+            <div class="os-stat-card">
+              <div class="os-stat-label">Runtime Environment</div>
+              <div class="os-stat-value mono" id="monNodeVer" style="font-size:16px;">...</div>
+              <div class="os-stat-sub" id="monPlatform">Windows / x64</div>
+            </div>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>Service Infrastructure Latency & Health</h3>
+            </div>
+            <div class="os-card-body" style="padding:0;">
+              <table class="os-table" id="tableMonitoringServices">
+                <thead><tr><th>Service</th><th>Target URL / Provider</th><th>Status</th><th>Latency</th><th>Last Checked</th><th>Action</th></tr></thead>
+                <tbody id="tbodyMonitoringServices">
+                  <tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Loading services...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             VIEW 5: GITHUB MANAGER
+             ============================================================== -->
+        <section class="os-view" id="view-github">
+          <div class="os-view-header">
+            <div class="os-view-title">
+              <h2>GitHub Repository Manager</h2>
+              <p>Live repository integration: <strong class="mono" id="githubRepoFullName">raghul692/raghulraja_portfolio</strong></p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="os-btn-secondary os-btn-sm" id="btnGithubRefresh">Refresh Commits</button>
+              <button class="os-btn-primary os-btn-sm" id="btnGithubNewBranch">+ New Branch</button>
+            </div>
+          </div>
+
+          <div class="os-site-hero">
+            <div class="os-site-hero-left">
+              <div class="os-site-icon-box">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+              </div>
+              <div class="os-site-hero-info">
+                <h3 id="githubHeroTitle">raghul692/raghulraja_portfolio</h3>
+                <span id="githubHeroVisibility" class="os-pill os-pill-neutral">PUBLIC</span>
+              </div>
+            </div>
+            <div class="os-site-hero-badges">
+              <span class="os-pill os-pill-info mono" id="githubHeroDefaultBranch">default: main</span>
+              <span class="os-pill os-pill-neutral" id="githubHeroOpenIssues">0 open issues</span>
+            </div>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>Recent Commits on Remote</h3>
+            </div>
+            <div class="os-card-body" style="padding:0;">
+              <table class="os-table" id="tableGithubCommits">
+                <thead><tr><th>Commit SHA</th><th>Message</th><th>Author</th><th>Date</th></tr></thead>
+                <tbody id="tbodyGithubCommits">
+                  <tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Loading commits...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>Active Branches</h3>
+            </div>
+            <div class="os-card-body" style="padding:0;">
+              <table class="os-table" id="tableGithubBranches">
+                <thead><tr><th>Branch Name</th><th>Head SHA</th><th>Protection</th></tr></thead>
+                <tbody id="tbodyGithubBranches">
+                  <tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Loading branches...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             VIEW 6: DEPLOYMENTS
+             ============================================================== -->
+        <section class="os-view" id="view-deployments">
+          <div class="os-view-header">
+            <div class="os-view-title">
+              <h2>Deployments & Release Engineering</h2>
+              <p>Dual-cloud delivery tracking across Vercel and Render environments</p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="os-btn-secondary os-btn-sm" id="btnDeploymentsRefresh">Refresh Logs</button>
+              <button class="os-btn-primary os-btn-sm" id="btnDeployTriggerGated">Dispatch Deployment</button>
+            </div>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>Deployment History</h3>
+            </div>
+            <div class="os-card-body" style="padding:0;">
+              <table class="os-table" id="tableDeployments">
+                <thead><tr><th>Target</th><th>Deployment ID</th><th>Commit SHA</th><th>Status</th><th>Verified Live</th><th>Triggered By</th><th>Created At</th></tr></thead>
+                <tbody id="tbodyDeployments">
+                  <tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Loading deployments...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             VIEW 7: DATABASE & SYNC
+             ============================================================== -->
+        <section class="os-view" id="view-database">
+          <div class="os-view-header">
+            <div class="os-view-title">
+              <h2>Database Architecture & Cloud Sync</h2>
+              <p>SQLite WAL local storage reconciled against Supabase PostgreSQL 17</p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="os-btn-primary os-btn-sm" id="btnTriggerDbSync">Trigger Bi-Directional Sync</button>
+              <button class="os-btn-secondary os-btn-sm" id="btnCreateDbBackup">Create Instant Backup</button>
+            </div>
+          </div>
+
+          <div class="os-stats-grid">
+            <div class="os-stat-card">
+              <div class="os-stat-label">SQLite Tables</div>
+              <div class="os-stat-value num" id="dbTablesCount">15</div>
+              <div class="os-stat-sub">WAL journal mode enabled</div>
+            </div>
+            <div class="os-stat-card">
+              <div class="os-stat-label">Supabase Parity</div>
+              <div class="os-stat-value" id="dbSyncParity">VERIFIED</div>
+              <div class="os-stat-sub">35 contacts reconciled</div>
+            </div>
+            <div class="os-stat-card">
+              <div class="os-stat-label">Fingerprint Drift</div>
+              <div class="os-stat-value num" id="dbDriftCount">0</div>
+              <div class="os-stat-sub">Zero content discrepancy</div>
+            </div>
+            <div class="os-stat-card">
+              <div class="os-stat-label">Latest Snapshot</div>
+              <div class="os-stat-value mono" id="dbLatestBackup" style="font-size:13px;">None</div>
+              <div class="os-stat-sub">Safe atomic file copy</div>
+            </div>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>SQLite Tables Schema & Row Counts</h3>
+            </div>
+            <div class="os-card-body" style="padding:0;">
+              <table class="os-table" id="tableDatabaseTables">
+                <thead><tr><th>Table Name</th><th>Row Count</th><th>Columns</th></tr></thead>
+                <tbody id="tbodyDatabaseTables">
+                  <tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Loading tables...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             VIEW 8: WORKFLOW CENTER
+             ============================================================== -->
+        <section class="os-view" id="view-automations">
+          <div class="os-view-header">
+            <div class="os-view-title">
+              <h2>Workflow Center & Autonomous Jobs</h2>
+              <p>Persistent job queue with retry loops, idempotency keys, and crash recovery</p>
+            </div>
+            <button class="os-btn-secondary os-btn-sm" id="btnRefreshJobs">Refresh Queue</button>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>Persistent Automation Tasks</h3>
+            </div>
+            <div class="os-card-body" style="padding:0;">
+              <table class="os-table" id="tableAutomationTasks">
+                <thead><tr><th>Task Name</th><th>Status</th><th>Progress</th><th>Current Step</th><th>Started</th></tr></thead>
+                <tbody id="tbodyAutomationTasks">
+                  <tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Loading tasks...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>Registered Automations</h3>
+            </div>
+            <div class="os-card-body">
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px;" id="gridAutomationWorkflows">
+                <!-- Injected via osEngine.js -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             VIEW 9: INCIDENTS & RELIABILITY
+             ============================================================== -->
+        <section class="os-view" id="view-incidents">
+          <div class="os-view-header">
+            <div class="os-view-title">
+              <h2>Incidents & Reliability Center</h2>
+              <p>Production failure capture, error stack traces, and SLA incident mitigation</p>
+            </div>
+            <button class="os-btn-primary os-btn-sm" id="btnLogIncident">+ Log Incident</button>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>Incident Log</h3>
+            </div>
+            <div class="os-card-body" style="padding:0;">
+              <table class="os-table" id="tableIncidents">
+                <thead><tr><th>Incident ID</th><th>Title</th><th>Service</th><th>Severity</th><th>Status</th><th>Created</th><th>Action</th></tr></thead>
+                <tbody id="tbodyIncidents">
+                  <tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Loading incidents...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             VIEW 10: KNOWLEDGE BASE
+             ============================================================== -->
+        <section class="os-view" id="view-knowledge">
+          <div class="os-view-header">
+            <div class="os-view-title">
+              <h2>Grounded Portfolio Knowledge Base</h2>
+              <p>Indexed portfolio documentation, resume data, and full-text search index</p>
+            </div>
+            <button class="os-btn-secondary os-btn-sm" id="btnKnowledgeSync">Re-index Codebase</button>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>Search Knowledge Documents</h3>
+            </div>
+            <div class="os-card-body">
+              <div style="display:flex; gap:10px; margin-bottom:14px;">
+                <input type="text" class="os-palette-input" id="knowledgeSearchInput" placeholder="Search knowledge (e.g., SKP Engineering College, skills, Supabase, projects)..." style="background:var(--bg-elevated); border:1px solid var(--border); padding:8px 12px; border-radius:var(--radius-sm);">
+                <button class="os-btn-primary os-btn-sm" id="btnKnowledgeSearch">Search</button>
+              </div>
+
+              <table class="os-table" id="tableKnowledge">
+                <thead><tr><th>Title</th><th>Category</th><th>Source Path</th><th>Token Count</th><th>Action</th></tr></thead>
+                <tbody id="tbodyKnowledge">
+                  <tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Loading knowledge index...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             VIEW 11: INTEGRATIONS
+             ============================================================== -->
+        <section class="os-view" id="view-integrations">
+          <div class="os-view-header">
+            <div class="os-view-title">
+              <h2>Cloud & Platform Integrations</h2>
+              <p>Zero fake connections. Real live probes of GitHub, Vercel, Render, and Supabase</p>
+            </div>
+            <button class="os-btn-secondary os-btn-sm" id="btnIntegrationsProbeAll">Probe All Integrations</button>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;" id="gridIntegrations">
+            <!-- Injected via osEngine.js -->
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             VIEW 12: PERMISSIONS & GOVERNANCE
+             ============================================================== -->
+        <section class="os-view" id="view-security">
+          <div class="os-view-header">
+            <div class="os-view-title">
+              <h2>Security, Cryptographic Governance & HITL</h2>
+              <p>Ed25519 asymmetric digital signatures for human-in-the-loop authorization gates</p>
+            </div>
+            <button class="os-btn-secondary os-btn-sm" id="btnSecurityRefresh">Refresh Approvals</button>
+          </div>
+
+          <div class="os-site-hero">
+            <div class="os-site-hero-left">
+              <div class="os-site-icon-box">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              </div>
+              <div class="os-site-hero-info">
+                <h3>Operator Key: Authorized Identity</h3>
+                <span class="mono" id="secOperatorPubKey" style="font-size:11px; color:var(--text-secondary);">Loading key...</span>
+              </div>
+            </div>
+            <div class="os-site-hero-badges">
+              <span class="os-pill os-pill-success">ED25519 ACTIVE</span>
+              <span class="os-pill os-pill-neutral">ATOMIC CONSUMPTION</span>
+            </div>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>Pending Approvals (Human-in-the-Loop Gate)</h3>
+            </div>
+            <div class="os-card-body" style="padding:0;">
+              <table class="os-table" id="tablePendingApprovals">
+                <thead><tr><th>Ticket ID</th><th>Action</th><th>Requested By</th><th>Payload Digest</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="tbodyPendingApprovals">
+                  <tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No pending approvals. System running cleanly.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             VIEW 13: ACTIVITY & AUDIT
+             ============================================================== -->
+        <section class="os-view" id="view-audit">
+          <div class="os-view-header">
+            <div class="os-view-title">
+              <h2>Immutable Audit Ledger</h2>
+              <p>Cryptographically linked SHA-256 Merkle chain with signed external checkpoints</p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="os-btn-secondary os-btn-sm" id="btnVerifyAuditIntegrity">Verify SHA-256 Ledger</button>
+              <button class="os-btn-primary os-btn-sm" id="btnCreateAuditCheckpoint">Create Signed Checkpoint</button>
+            </div>
+          </div>
+
+          <div class="os-stats-grid">
+            <div class="os-stat-card">
+              <div class="os-stat-label">Ledger Integrity</div>
+              <div class="os-stat-value" id="auditLedgerStatus">VERIFIED</div>
+              <div class="os-stat-sub">Zero broken links or hash tampering</div>
+            </div>
+            <div class="os-stat-card">
+              <div class="os-stat-label">Total Audit Records</div>
+              <div class="os-stat-value num" id="auditRecordsCount">...</div>
+              <div class="os-stat-sub">Immutable append-only entries</div>
+            </div>
+            <div class="os-stat-card">
+              <div class="os-stat-label">Signed Checkpoints</div>
+              <div class="os-stat-value num" id="auditCheckpointsCount">...</div>
+              <div class="os-stat-sub">Ed25519 anchored snapshots</div>
+            </div>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>Audit Records Log</h3>
+            </div>
+            <div class="os-card-body" style="padding:0;">
+              <table class="os-table" id="tableAuditLedger">
+                <thead><tr><th>Record ID</th><th>Actor</th><th>Action</th><th>Payload Hash</th><th>Prev Hash</th><th>Time</th></tr></thead>
+                <tbody id="tbodyAuditLedger">
+                  <tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Loading audit records...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             VIEW 14: SETTINGS
+             ============================================================== -->
+        <section class="os-view" id="view-settings">
+          <div class="os-view-header">
+            <div class="os-view-title">
+              <h2>Portfolio OS Configuration & Settings</h2>
+              <p>Persisted in SQLite. Controls UI theme, telemetry interval, notifications, and safeguards</p>
+            </div>
+            <button class="os-btn-primary os-btn-sm" id="btnSaveSettings">Save Changes</button>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>Display & Appearance</h3>
+            </div>
+            <div class="os-card-body" style="display:flex; flex-direction:column; gap:16px;">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div>
+                  <div style="font-weight:600;">Theme Mode</div>
+                  <div style="font-size:11px; color:var(--text-muted);">Select light or dark interface theme</div>
+                </div>
+                <select id="settingTheme" style="background:var(--bg-elevated); color:var(--text-primary); border:1px solid var(--border); padding:6px 12px; border-radius:var(--radius-sm);">
+                  <option value="dark">Dark Theme (Default)</option>
+                  <option value="light">Light Theme</option>
+                </select>
+              </div>
+
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div>
+                  <div style="font-weight:600;">Layout Density</div>
+                  <div style="font-size:11px; color:var(--text-muted);">Adjust padding and spacing across tables and metrics</div>
+                </div>
+                <select id="settingDensity" style="background:var(--bg-elevated); color:var(--text-primary); border:1px solid var(--border); padding:6px 12px; border-radius:var(--radius-sm);">
+                  <option value="compact">Compact (High Information Density)</option>
+                  <option value="spacious">Spacious (Relaxed)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>Telemetry & Refresh Policies</h3>
+            </div>
+            <div class="os-card-body" style="display:flex; flex-direction:column; gap:16px;">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div>
+                  <div style="font-weight:600;">Auto-Refresh Telemetry</div>
+                  <div style="font-size:11px; color:var(--text-muted);">Periodically query cloud services for live health metrics</div>
+                </div>
+                <input type="checkbox" id="settingAutoRefresh" checked>
+              </div>
+
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div>
+                  <div style="font-weight:600;">Refresh Interval (seconds)</div>
+                  <div style="font-size:11px; color:var(--text-muted);">Time between telemetry polling passes</div>
+                </div>
+                <input type="number" id="settingRefreshInterval" value="30" min="10" max="300" style="width:80px; background:var(--bg-elevated); color:var(--text-primary); border:1px solid var(--border); padding:6px 10px; border-radius:var(--radius-sm);">
+              </div>
+            </div>
+          </div>
+
+          <div class="os-card">
+            <div class="os-card-header">
+              <h3>Emergency & Danger Zone</h3>
+            </div>
+            <div class="os-card-body" style="display:flex; align-items:center; justify-content:space-between;">
+              <div>
+                <div style="font-weight:600; color:var(--status-error);">Global Emergency Stop</div>
+                <div style="font-size:11px; color:var(--text-muted);">Immediately blocks all autonomous commits, PRs, and deployment dispatches</div>
+              </div>
+              <button class="os-btn-secondary" id="btnToggleEmergencyStopSettings" style="color:var(--status-error); border-color:rgba(239,68,68,0.3);">Toggle Emergency Stop</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- NOTIFICATION DRAWER -->
+  <aside class="os-drawer" id="osNotificationDrawer">
+    <div class="os-drawer-header">
+      <h3 style="font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        Notifications
+      </h3>
+      <div style="display:flex; gap:6px;">
+        <button class="os-btn-secondary os-btn-sm" id="btnNotifMarkAllRead">Mark All Read</button>
+        <button class="os-icon-btn" id="btnCloseNotifDrawer" style="width:26px; height:26px;">✕</button>
+      </div>
+    </div>
+    <div class="os-drawer-body" id="osNotifList">
+      <div style="text-align:center; color:var(--text-muted); padding:20px;">No notifications yet</div>
+    </div>
+  </aside>
+
+  <!-- COMMAND PALETTE MODAL -->
+  <div class="os-modal-overlay" id="osCommandPaletteModal">
+    <div class="os-palette-box">
+      <div class="os-palette-search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" class="os-palette-input" id="cmdPaletteInput" placeholder="Type a command or jump to module..." autocomplete="off">
+        <span class="os-command-kbd">ESC</span>
+      </div>
+      <div class="os-palette-results" id="cmdPaletteResults">
+        <!-- Injected via osEngine.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRMATION / ACTION MODAL -->
+  <div class="os-modal-overlay" id="osConfirmModal">
+    <div class="os-modal-box">
+      <div class="os-card-header">
+        <h3 id="confirmModalTitle">Action Required</h3>
+        <button class="os-icon-btn" id="btnConfirmModalClose" style="width:24px; height:24px;">✕</button>
+      </div>
+      <div class="os-card-body" id="confirmModalBody">
+        Are you sure you want to proceed?
+      </div>
+      <div style="padding:12px 18px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px;">
+        <button class="os-btn-secondary" id="btnConfirmModalCancel">Cancel</button>
+        <button class="os-btn-primary" id="btnConfirmModalConfirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OS CLIENT SCRIPT -->
+  <script src="/osEngine.js"></script>
+</body>
+</html>
