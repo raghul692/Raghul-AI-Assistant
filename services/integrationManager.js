@@ -16,6 +16,7 @@
  */
 
 import 'dotenv/config';
+import { db } from '../db.js';
 
 class IntegrationManager {
   constructor() {
@@ -93,10 +94,39 @@ class IntegrationManager {
     };
   }
 
+  isEmergencyStopActive() {
+    try {
+      const row = db.prepare("SELECT value FROM portfolio_system_state WHERE key = 'emergency_stop'").get();
+      return row?.value === 'true';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  validateSafeTargetUrl(targetUrl) {
+    try {
+      const parsed = new URL(targetUrl);
+      if (!['http:', 'https:'].includes(parsed.protocol)) {
+        throw new Error(`SSRF_GUARD_BLOCKED: Protocol ${parsed.protocol} is disallowed`);
+      }
+      const hostname = parsed.hostname.toLowerCase();
+      if (
+        hostname === '169.254.169.254' ||
+        hostname.endsWith('.internal')
+      ) {
+        throw new Error(`SSRF_GUARD_BLOCKED: Target host ${hostname} is restricted`);
+      }
+      return true;
+    } catch (err) {
+      throw new Error(`SSRF_GUARD_BLOCKED: ${err.message}`);
+    }
+  }
+
   /**
    * Helper to execute fetch with strict timeout & categorized diagnostics
    */
   async _probeUrl(url, options = {}, timeoutMs = 6000) {
+    this.validateSafeTargetUrl(url);
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
     const start = Date.now();
@@ -458,7 +488,9 @@ class IntegrationManager {
       throw new Error(`Render deploys fetch failed [HTTP ${res.status}]: ${errText}`);
     }
 
-    const data = await res.json();
+    const text = await res.text();
+    let data = [];
+    try { data = text ? JSON.parse(text) : []; } catch (_) { data = []; }
     const list = Array.isArray(data) ? data : (data.deploys || []);
     return list.map(d => {
       const deploy = d.deploy || d;
@@ -546,6 +578,9 @@ class IntegrationManager {
   }
 
   async createGitHubBranch(branchName, baseBranch = 'main') {
+    if (this.isEmergencyStopActive()) {
+      throw new Error('EMERGENCY_STOP_BLOCKED: All mutations paused by emergency stop');
+    }
     const creds = this.getCredentials().github;
     if (!creds.token) throw new Error('GITHUB_TOKEN missing in .env');
 
@@ -807,6 +842,9 @@ class IntegrationManager {
   // 9. OPERATIONAL DEPLOYMENT TRIGGERS (RENDER & VERCEL)
   // =========================================================================
   async triggerRenderDeploy({ clearCache = 'do_not_clear' } = {}) {
+    if (this.isEmergencyStopActive()) {
+      throw new Error('EMERGENCY_STOP_BLOCKED: All mutations paused by emergency stop');
+    }
     const creds = this.getCredentials().render;
     if (!creds.apiKey || !creds.serviceId) {
       throw new Error('Render credentials missing in .env');
@@ -827,14 +865,32 @@ class IntegrationManager {
       throw new Error(`Render deployment trigger failed [HTTP ${res.status}]: ${err}`);
     }
 
-    const data = await res.json();
-    const deploy = data.deploy || data;
+    const text = await res.text();
+    let data = {};
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch (_) {
+      data = {};
+    }
+
+    let deploy = data.deploy || data;
+    // When Render returns HTTP 202 Accepted with empty body, fetch the active/queued deployment
+    if (!deploy.id) {
+      try {
+        const latest = await this.getLatestRenderDeployments(1);
+        if (latest.length > 0) {
+          deploy = latest[0];
+        }
+      } catch (_) {}
+    }
+
     return {
       success: true,
-      id: deploy.id,
-      status: deploy.status,
-      createdAt: deploy.createdAt,
-      commit: deploy.commit
+      httpStatus: res.status,
+      id: deploy.id || 'dep_accepted',
+      status: deploy.status || 'queued',
+      createdAt: deploy.createdAt || new Date().toISOString(),
+      commit: deploy.commit || null
     };
   }
 

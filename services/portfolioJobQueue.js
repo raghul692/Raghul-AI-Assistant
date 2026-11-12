@@ -15,12 +15,13 @@ import { db } from '../db.js';
 
 class PortfolioJobQueue {
   constructor() {
-    this.isEmergencyStopped = false;
+    this._initTable();
+    const savedState = db.prepare("SELECT value FROM portfolio_system_state WHERE key = 'emergency_stop'").get();
+    this.isEmergencyStopped = savedState ? savedState.value === 'true' : false;
     this.activeWorkers = 0;
     this.maxConcurrent = 2;
     this.executionLock = new Set();
     this.activeControllers = new Map(); // jobId -> AbortController
-    this._initTable();
     this.recoverOrphanedJobs();
   }
 
@@ -41,6 +42,12 @@ class PortfolioJobQueue {
         created_at INTEGER NOT NULL,
         started_at INTEGER,
         finished_at INTEGER
+      );
+
+      CREATE TABLE IF NOT EXISTS portfolio_system_state (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL,
+        updated_at INTEGER NOT NULL
       );
     `);
 
@@ -98,6 +105,14 @@ class PortfolioJobQueue {
 
   setEmergencyStop(enabled) {
     this.isEmergencyStopped = Boolean(enabled);
+
+    try {
+      db.prepare(`
+        INSERT INTO portfolio_system_state (key, value, updated_at)
+        VALUES ('emergency_stop', ?, ?)
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+      `).run(this.isEmergencyStopped ? 'true' : 'false', Date.now());
+    } catch (_) {}
 
     if (this.isEmergencyStopped) {
       console.warn('[JobQueue] EMERGENCY STOP ACTIVATED. Aborting all in-flight workers...');

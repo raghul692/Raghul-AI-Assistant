@@ -9,6 +9,7 @@
  * 4. Verifies database schema, row counts, and health status
  */
 
+import crypto from 'crypto';
 import { db } from '../db.js';
 import 'dotenv/config';
 
@@ -277,6 +278,104 @@ class SupabaseSyncEngine {
       console.warn('[SupabaseSync] Prune error:', e.message);
       return { contacts: 0, error: e.message };
     }
+  }
+
+  computeRecordFingerprint(record) {
+    if (!record || typeof record !== 'object') return null;
+    // Canonical domain entity normalization for contact submissions
+    if ('email' in record) {
+      const canonical = {
+        id: String(parseInt(record.id, 10) || record.id),
+        name: (record.name || '').trim(),
+        email: (record.email || '').trim().toLowerCase(),
+        message: (record.message || '').trim(),
+        status: (record.status || '').trim().toLowerCase()
+      };
+      return crypto.createHash('sha256').update(JSON.stringify(canonical)).digest('hex');
+    }
+    const sortedKeys = Object.keys(record).sort();
+    const normalized = {};
+    for (const k of sortedKeys) {
+      if (['updated_at', 'synced_at', 'created_at', 'ip_address', 'user_agent'].includes(k)) continue;
+      normalized[k] = record[k];
+    }
+    return crypto.createHash('sha256').update(JSON.stringify(normalized)).digest('hex');
+  }
+
+  async reconcileWithFingerprints() {
+    const rawReport = await this.reconcileRecords();
+    
+    // Fetch detailed records
+    const [remoteContactsRes, localContacts] = await Promise.all([
+      fetch(`${this.url}/rest/v1/contact_submissions?select=*`, { headers: this._getHeaders() }),
+      db.prepare('SELECT * FROM portfolio_contacts_cache').all()
+    ]);
+
+    const remoteContacts = remoteContactsRes.ok ? await remoteContactsRes.json() : [];
+    const localMap = new Map();
+    for (const l of localContacts) {
+      const cleanId = String(parseInt(l.id, 10) || l.id);
+      localMap.set(cleanId, { record: l, fingerprint: this.computeRecordFingerprint(l) });
+    }
+
+    const exactMatches = [];
+    const contentDrift = [];
+
+    for (const r of remoteContacts) {
+      const cleanId = String(parseInt(r.id, 10) || r.id);
+      const rFp = this.computeRecordFingerprint(r);
+      const lItem = localMap.get(cleanId);
+      if (lItem) {
+        if (lItem.fingerprint === rFp) {
+          exactMatches.push(cleanId);
+        } else {
+          contentDrift.push({ id: cleanId, remoteFp: rFp, localFp: lItem.fingerprint });
+        }
+      }
+    }
+
+    return {
+      ...rawReport,
+      fingerprinting: {
+        totalEvaluated: remoteContacts.length,
+        exactFingerprintMatches: exactMatches.length,
+        contentDriftCount: contentDrift.length,
+        driftDetails: contentDrift,
+        canonicalIntegrity: contentDrift.length === 0
+      }
+    };
+  }
+
+  async executeAtomicSyncWithRollbackTest(simulateFailure = false) {
+    const initialCount = db.prepare('SELECT COUNT(*) as count FROM portfolio_contacts_cache').get().count;
+    let rolledBack = false;
+
+    try {
+      const tx = db.transaction(() => {
+        db.prepare(`
+          INSERT INTO portfolio_contacts_cache (id, name, email, message, status, created_at)
+          VALUES ('temp_probe_rollback', 'Probe', 'probe@test.local', 'Test Message', 'read', ?)
+        `).run(Date.now());
+
+        if (simulateFailure) {
+          throw new Error('SIMULATED_INTERRUPTED_SYNC_ERROR');
+        }
+      });
+
+      tx();
+    } catch (e) {
+      rolledBack = true;
+    }
+
+    const postCount = db.prepare('SELECT COUNT(*) as count FROM portfolio_contacts_cache').get().count;
+    const probeRecord = db.prepare("SELECT * FROM portfolio_contacts_cache WHERE id = 'temp_probe_rollback'").get();
+
+    return {
+      initialCount,
+      postCount,
+      rollbackVerified: rolledBack && postCount === initialCount && !probeRecord,
+      probeOrphanFound: Boolean(probeRecord)
+    };
   }
 
   async getConsistencyReport() {

@@ -2,6 +2,9 @@
 .env
 .env.*
 !.env.example
+data/.secrets/
+data/pipeline_artifacts/
+data/*.bak*
 
 # Dependencies
 node_modules/

@@ -15,7 +15,12 @@ import {
   requestHumanApproval,
   resolveHumanApproval,
   listPendingApprovals,
-  verifyAuditLedgerIntegrity
+  verifyAuditLedgerIntegrity,
+  createSignedAuthorizationTicket,
+  verifyAndConsumeAuthorizationTicket,
+  createSignedAuditCheckpoint,
+  verifyAuditCheckpoints,
+  getOperatorPublicKey
 } from './governanceAudit.js';
 import {
   db,
@@ -37,6 +42,59 @@ import {
 } from './db.js';
 
 const router = express.Router();
+
+// =========================================================================
+// SECURITY MIDDLEWARES: CSRF ORIGIN GUARD & RATE LIMITER (OBJECTIVE 7)
+// =========================================================================
+const rateLimitMap = new Map();
+
+function apiRateLimiter(req, res, next) {
+  const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+  const now = Date.now();
+  const windowMs = 10000;
+  const maxRequests = 30; // max 30 per 10s window
+
+  let record = rateLimitMap.get(ip);
+  if (!record || now > record.resetAt) {
+    record = { count: 1, resetAt: now + windowMs };
+    rateLimitMap.set(ip, record);
+  } else {
+    record.count++;
+  }
+
+  if (record.count > maxRequests) {
+    return res.status(429).json({
+      error: 'RATE_LIMIT_EXCEEDED',
+      message: 'Rate limit exceeded on protected endpoint. Please back off.',
+      retryAfterMs: record.resetAt - now
+    });
+  }
+  next();
+}
+
+function csrfOriginGuard(req, res, next) {
+  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
+    const origin = req.headers['origin'];
+    if (origin) {
+      try {
+        const parsed = new URL(origin);
+        const host = parsed.hostname.toLowerCase();
+        const allowed = ['localhost', '127.0.0.1', 'raghulraja.is-a.dev'];
+        if (!allowed.includes(host) && !host.endsWith('.vercel.app')) {
+          return res.status(403).json({
+            error: 'CSRF_ORIGIN_REJECTED',
+            message: `Cross-site mutation from origin "${origin}" is rejected by portfolio security guard.`
+          });
+        }
+      } catch (_) {
+        return res.status(403).json({ error: 'CSRF_ORIGIN_MALFORMED' });
+      }
+    }
+  }
+  next();
+}
+
+router.use(csrfOriginGuard);
 
 // =========================================================================
 // 0. REAL-TIME DASHBOARD & TELEMETRY STREAM (PORTFOLIO OS)
@@ -753,6 +811,82 @@ router.get('/governance/audit-integrity', (req, res) => {
   try {
     const ledger = verifyAuditLedgerIntegrity();
     res.json({ success: true, ledger });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// V7 Cryptographic Ticket Endpoints
+router.post('/governance/tickets/create-signed', (req, res) => {
+  try {
+    const { action, target, payload, ttlMs, operatorId } = req.body;
+    if (!action || !target) {
+      return res.status(400).json({ error: 'action and target are required' });
+    }
+    const ticket = createSignedAuthorizationTicket({
+      action,
+      target,
+      payload: payload || {},
+      operatorId,
+      ttlMs: ttlMs ? parseInt(ttlMs, 10) : 300000
+    });
+    res.json({ success: true, ticket });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/governance/tickets/verify-consume', (req, res) => {
+  try {
+    const { ticketId, action, target, payload } = req.body;
+    if (!ticketId || !action) {
+      return res.status(400).json({ error: 'ticketId and action are required' });
+    }
+    const result = verifyAndConsumeAuthorizationTicket({
+      ticketId,
+      action,
+      target,
+      payload: payload || {}
+    });
+    res.json({ success: true, result });
+  } catch (err) {
+    res.status(403).json({ error: err.message });
+  }
+});
+
+// V7 Signed Audit Checkpoints Endpoints
+router.post('/governance/checkpoints/create', (req, res) => {
+  try {
+    const checkpoint = createSignedAuditCheckpoint();
+    res.json({ success: true, checkpoint });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/governance/checkpoints/verify', (req, res) => {
+  try {
+    const check = verifyAuditCheckpoints();
+    res.json({ success: true, check });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// V7 Database Canonical Fingerprints & Interrupted-Sync Endpoints
+router.get('/database/fingerprints', async (req, res) => {
+  try {
+    const report = await supabaseSyncEngine.reconcileWithFingerprints();
+    res.json({ success: true, report });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/database/rollback-test', async (req, res) => {
+  try {
+    const result = await supabaseSyncEngine.executeAtomicSyncWithRollbackTest(true);
+    res.json({ success: true, result });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

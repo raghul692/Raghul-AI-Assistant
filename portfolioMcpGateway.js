@@ -17,6 +17,7 @@
 import 'dotenv/config';
 import crypto from 'crypto';
 import { githubMcpGateway } from './githubMcpGateway.js';
+import { integrationManager } from './services/integrationManager.js';
 import {
   getPortfolioConfig,
   updatePortfolioConfig,
@@ -452,19 +453,28 @@ export class PortfolioMCPGateway {
           };
         }
 
+        let providerDeploy = null;
+        if (target === 'render') {
+          providerDeploy = await integrationManager.triggerRenderDeploy({ clearCache: 'do_not_clear' });
+        }
+
+        const actualDeployId = providerDeploy?.id || `dep_${Date.now()}`;
+        const actualStatus = providerDeploy?.status || 'queued';
+
         const depId = recordPortfolioDeployment({
           target,
-          deploymentId: `dep_${Date.now()}`,
-          status: 'queued',
+          deploymentId: actualDeployId,
+          status: actualStatus,
           url: target === 'vercel' ? this.siteUrl : this.renderApiUrl,
           triggeredBy: 'Nexus AI Approver'
         });
 
         return {
           success: true,
-          deploymentId: depId,
+          deploymentId: actualDeployId,
           target,
-          status: 'queued',
+          status: actualStatus,
+          providerResponse: providerDeploy,
           message: `Deployment triggered on ${target}. Build queued.`
         };
       }
