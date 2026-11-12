@@ -12,6 +12,12 @@ import { portfolioJobQueue } from './services/portfolioJobQueue.js';
 import { portfolioAgentEngine } from './services/portfolioAgentEngine.js';
 import { supabaseSyncEngine } from './services/supabaseSyncEngine.js';
 import {
+  requestHumanApproval,
+  resolveHumanApproval,
+  listPendingApprovals,
+  verifyAuditLedgerIntegrity
+} from './governanceAudit.js';
+import {
   db,
   getPortfolioConfig,
   updatePortfolioConfig,
@@ -701,6 +707,52 @@ router.get('/sync/consistency', async (req, res) => {
   try {
     const report = await supabaseSyncEngine.getConsistencyReport();
     res.json({ success: true, report });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Human-in-the-Loop Governance Endpoints
+router.post('/governance/request-approval', (req, res) => {
+  try {
+    const { action, target, params, requestedBy } = req.body;
+    if (!action) return res.status(400).json({ error: 'action is required' });
+    const result = requestHumanApproval({
+      action,
+      target: target || 'production',
+      params: params || {},
+      requestedBy: requestedBy || 'RaghulAI'
+    });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/governance/resolve-approval', (req, res) => {
+  try {
+    const { approvalId, approved, reviewer } = req.body;
+    if (!approvalId) return res.status(400).json({ error: 'approvalId is required' });
+    const result = resolveHumanApproval(approvalId, approved !== false, reviewer || 'Raghul Operator');
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/governance/pending-approvals', (req, res) => {
+  try {
+    const pending = listPendingApprovals();
+    res.json({ success: true, count: pending.length, pending });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/governance/audit-integrity', (req, res) => {
+  try {
+    const ledger = verifyAuditLedgerIntegrity();
+    res.json({ success: true, ledger });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

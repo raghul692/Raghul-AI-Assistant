@@ -100,8 +100,9 @@ class SupabaseSyncEngine {
       const tx = db.transaction((items) => {
         for (const item of items) {
           const createdAt = item.created_at ? new Date(item.created_at).getTime() : Date.now();
+          const cleanId = String(parseInt(item.id, 10) || item.id);
           stmt.run(
-            item.id,
+            cleanId,
             item.name || 'Anonymous',
             item.email || '',
             item.message || '',
@@ -145,17 +146,137 @@ class SupabaseSyncEngine {
     }
   }
 
-  async syncAll() {
+  async syncAll(pruneOrphans = true) {
     const [docs, contacts] = await Promise.allSettled([
       this.syncDocuments(),
       this.syncContacts()
     ]);
 
+    let pruned = { contacts: 0 };
+    if (pruneOrphans) {
+      pruned = await this.pruneStaleLocalRecords();
+    }
+
+    const reconciliation = await this.reconcileRecords();
+
     return {
       timestamp: Date.now(),
       documents: docs.status === 'fulfilled' ? docs.value : { error: docs.reason?.message },
-      contacts: contacts.status === 'fulfilled' ? contacts.value : { error: contacts.reason?.message }
+      contacts: contacts.status === 'fulfilled' ? contacts.value : { error: contacts.reason?.message },
+      pruned,
+      reconciliation
     };
+  }
+
+  /**
+   * RECORD-LEVEL RECONCILIATION ENGINE
+   * Compares every record between Supabase Cloud and SQLite replica.
+   */
+  async reconcileRecords() {
+    if (!this.key) throw new Error('Supabase credentials missing');
+
+    // 1. Fetch remote IDs
+    const [docsRes, contactsRes] = await Promise.all([
+      fetch(`${this.url}/rest/v1/portfolio_documents?select=id,document_key,title`, { headers: this._getHeaders() }),
+      fetch(`${this.url}/rest/v1/contact_submissions?select=id,email`, { headers: this._getHeaders() })
+    ]);
+
+    const remoteDocs = docsRes.ok ? await docsRes.json() : [];
+    const remoteContacts = contactsRes.ok ? await contactsRes.json() : [];
+
+    // 2. Fetch local records
+    const localDocs = db.prepare('SELECT id, source_path, title FROM portfolio_knowledge_index').all();
+    const localContacts = db.prepare('SELECT id, email FROM portfolio_contacts_cache').all();
+
+    // 3. Reconcile contacts
+    const remoteContactIds = new Set(remoteContacts.map(c => String(parseInt(c.id, 10) || c.id)));
+    const localContactIds = new Set(localContacts.map(c => String(parseInt(c.id, 10) || c.id)));
+
+    const matchedContacts = [];
+    const missingInLocalContacts = [];
+    const missingInRemoteContacts = [];
+
+    for (const c of remoteContacts) {
+      const cleanId = String(parseInt(c.id, 10) || c.id);
+      if (localContactIds.has(cleanId)) matchedContacts.push(cleanId);
+      else missingInLocalContacts.push(cleanId);
+    }
+    for (const c of localContacts) {
+      const cleanId = String(parseInt(c.id, 10) || c.id);
+      if (!remoteContactIds.has(cleanId)) missingInRemoteContacts.push(c.id);
+    }
+
+    // 4. Reconcile documents
+    const remoteDocIds = new Set(remoteDocs.map(d => String(d.id || d.document_key)));
+    const localDocIds = new Set(localDocs.map(d => String(d.id || d.source_path)));
+
+    const matchedDocs = [];
+    const missingInLocalDocs = [];
+    const localOnlyDocs = [];
+
+    for (const d of remoteDocs) {
+      const key = String(d.id || d.document_key);
+      if (localDocIds.has(key)) matchedDocs.push(key);
+      else missingInLocalDocs.push(key);
+    }
+    for (const d of localDocs) {
+      const key = String(d.id || d.source_path);
+      if (!remoteDocIds.has(key)) localOnlyDocs.push(key);
+    }
+
+    return {
+      status: 'RECONCILED',
+      timestamp: Date.now(),
+      contacts: {
+        remoteTotal: remoteContacts.length,
+        localTotal: localContacts.length,
+        matchedCount: matchedContacts.length,
+        missingInLocal: missingInLocalContacts,
+        missingInRemote: missingInRemoteContacts, // Identifies legacy mock entries like cont_1793864295911_7im92
+        exactMatch: remoteContacts.length === localContacts.length && missingInRemoteContacts.length === 0
+      },
+      documents: {
+        remoteTotal: remoteDocs.length,
+        localTotal: localDocs.length,
+        matchedCount: matchedDocs.length,
+        missingInLocal: missingInLocalDocs,
+        localAdditionalDocs: localOnlyDocs.length, // Architecture specs indexed directly from repo
+        exactRemoteIngested: missingInLocalDocs.length === 0
+      }
+    };
+  }
+
+  /**
+   * Prune legacy stale records in SQLite that do not exist in remote Supabase
+   */
+  async pruneStaleLocalRecords() {
+    if (!this.key) return { contacts: 0 };
+
+    try {
+      const res = await fetch(`${this.url}/rest/v1/contact_submissions?select=id`, { headers: this._getHeaders() });
+      if (!res.ok) return { contacts: 0 };
+      const remoteContacts = await res.json();
+      const remoteIds = remoteContacts.map(c => String(c.id));
+
+      if (remoteIds.length === 0) return { contacts: 0 };
+
+      // Identify local contacts that are not in remote
+      const local = db.prepare('SELECT id FROM portfolio_contacts_cache').all();
+      const remoteSet = new Set(remoteIds);
+      const toDelete = local.filter(l => !remoteSet.has(String(l.id)));
+
+      if (toDelete.length > 0) {
+        const stmt = db.prepare('DELETE FROM portfolio_contacts_cache WHERE id = ?');
+        for (const item of toDelete) {
+          stmt.run(item.id);
+        }
+      }
+
+      return { contacts: toDelete.length, prunedIds: toDelete.map(d => d.id) };
+    } catch (e) {
+      console.warn('[SupabaseSync] Prune error:', e.message);
+      return { contacts: 0, error: e.message };
+    }
   }
 
   async getConsistencyReport() {
@@ -180,6 +301,8 @@ class SupabaseSyncEngine {
       } catch (_) {}
     }
 
+    const reconciliation = await this.reconcileRecords().catch(() => null);
+
     return {
       status: 'VERIFIED',
       timestamp: Date.now(),
@@ -198,7 +321,9 @@ class SupabaseSyncEngine {
           visitorEvents: remoteEventsCount
         }
       },
-      synced: remoteDocsCount !== null && remoteDocsCount === localDocsCount
+      contactsReconciled: remoteContactsCount !== null && remoteContactsCount === localContactsCount,
+      documentsIngested: remoteDocsCount !== null && localDocsCount >= remoteDocsCount,
+      reconciliation
     };
   }
 }

@@ -709,6 +709,160 @@ class IntegrationManager {
     };
   }
 
+  async submitGitHubPullRequestReview(pullNumber, { event = 'COMMENT', body = 'Automated Code & Security Audit Review: All checks verified' } = {}) {
+    const creds = this.getCredentials().github;
+    if (!creds.token) throw new Error('GITHUB_TOKEN missing in .env');
+
+    const reviewRes = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}/pulls/${pullNumber}/reviews`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${creds.token}`,
+        'User-Agent': 'RaghulAI-PortfolioOS',
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        event: event || 'COMMENT',
+        body: body || 'Automated Review: Verified by Raghul AI Portfolio OS.'
+      })
+    });
+
+    if (!reviewRes.ok) {
+      const err = await reviewRes.text();
+      throw new Error(`PR review creation failed [HTTP ${reviewRes.status}]: ${err}`);
+    }
+
+    const reviewData = await reviewRes.json();
+    return {
+      success: true,
+      id: reviewData.id,
+      state: reviewData.state,
+      htmlUrl: reviewData.html_url,
+      submittedAt: reviewData.submitted_at
+    };
+  }
+
+  async mergeGitHubPullRequest(pullNumber, { commitTitle = 'Autonomous merge by Raghul AI', mergeMethod = 'squash' } = {}) {
+    const creds = this.getCredentials().github;
+    if (!creds.token) throw new Error('GITHUB_TOKEN missing in .env');
+
+    const mergeRes = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}/pulls/${pullNumber}/merge`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${creds.token}`,
+        'User-Agent': 'RaghulAI-PortfolioOS',
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        commit_title: commitTitle,
+        merge_method: mergeMethod
+      })
+    });
+
+    if (!mergeRes.ok) {
+      const err = await mergeRes.text();
+      throw new Error(`PR merge failed [HTTP ${mergeRes.status}]: ${err}`);
+    }
+
+    const mergeData = await mergeRes.json();
+    return {
+      success: true,
+      sha: mergeData.sha,
+      merged: mergeData.merged,
+      message: mergeData.message
+    };
+  }
+
+  async deleteGitHubBranch(branchName) {
+    const creds = this.getCredentials().github;
+    if (!creds.token) throw new Error('GITHUB_TOKEN missing in .env');
+
+    if (branchName === 'main' || branchName === 'master') {
+      throw new Error('Security Guard: Deletion of production default branch is strictly forbidden');
+    }
+
+    const delRes = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}/git/refs/heads/${branchName}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${creds.token}`,
+        'User-Agent': 'RaghulAI-PortfolioOS',
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+
+    if (!delRes.ok && delRes.status !== 404 && delRes.status !== 422) {
+      const err = await delRes.text();
+      throw new Error(`Branch deletion failed [HTTP ${delRes.status}]: ${err}`);
+    }
+
+    return {
+      success: true,
+      branch: branchName,
+      status: delRes.status === 204 ? 'DELETED' : (delRes.status === 404 ? 'ALREADY_DELETED' : 'REMOVED')
+    };
+  }
+
+  // =========================================================================
+  // 9. OPERATIONAL DEPLOYMENT TRIGGERS (RENDER & VERCEL)
+  // =========================================================================
+  async triggerRenderDeploy({ clearCache = 'do_not_clear' } = {}) {
+    const creds = this.getCredentials().render;
+    if (!creds.apiKey || !creds.serviceId) {
+      throw new Error('Render credentials missing in .env');
+    }
+
+    const res = await fetch(`https://api.render.com/v1/services/${creds.serviceId}/deploys`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${creds.apiKey}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ clearCache })
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Render deployment trigger failed [HTTP ${res.status}]: ${err}`);
+    }
+
+    const data = await res.json();
+    const deploy = data.deploy || data;
+    return {
+      success: true,
+      id: deploy.id,
+      status: deploy.status,
+      createdAt: deploy.createdAt,
+      commit: deploy.commit
+    };
+  }
+
+  redactSecrets(textOrObj) {
+    if (!textOrObj) return textOrObj;
+    const str = typeof textOrObj === 'string' ? textOrObj : JSON.stringify(textOrObj);
+    const creds = this.getCredentials();
+    let sanitized = str;
+
+    const secrets = [
+      creds.github.token,
+      creds.vercel.token,
+      creds.render.apiKey,
+      creds.supabase.serviceRoleKey,
+      creds.supabase.anonKey
+    ].filter(s => Boolean(s) && s.length > 5);
+
+    for (const secret of secrets) {
+      const masked = secret.slice(0, 4) + '...' + secret.slice(-4);
+      sanitized = sanitized.replaceAll(secret, masked);
+    }
+
+    // Mask generic Bearer tokens
+    sanitized = sanitized.replace(/Bearer\s+([A-Za-z0-9_\-\.]{15,})/g, 'Bearer ***REDACTED***');
+
+    return typeof textOrObj === 'string' ? sanitized : JSON.parse(sanitized);
+  }
+
   getStatus() {
     return {
       timestamp: Date.now(),

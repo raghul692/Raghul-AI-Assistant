@@ -65,30 +65,34 @@ export function recordAuditLog({
   const id = `audit_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
   const now = Date.now();
   try {
-    // Get hash of previous record
-    const lastRow = db.prepare('SELECT hash FROM audit_logs WHERE hash IS NOT NULL ORDER BY timestamp DESC LIMIT 1').get();
-    const previousHash = lastRow?.hash || 'GENESIS_NEXUS_GOVERNANCE_LEDGER';
+    const insertTx = db.transaction(() => {
+      // Get hash of previous record by insertion order (rowid) under immediate write lock
+      const lastRow = db.prepare('SELECT hash FROM audit_logs WHERE hash IS NOT NULL ORDER BY rowid DESC LIMIT 1').get();
+      const previousHash = lastRow?.hash || 'GENESIS_NEXUS_GOVERNANCE_LEDGER';
 
-    const payload = `${id}|${now}|${actor}|${action}|${target || ''}|${riskLevel}|${status}|${previousHash}`;
-    const hash = crypto.createHash('sha256').update(payload).digest('hex');
+      const payload = `${id}|${now}|${actor}|${action}|${target || ''}|${riskLevel}|${status}|${previousHash}`;
+      const hash = crypto.createHash('sha256').update(payload).digest('hex');
 
-    const stmt = db.prepare(`
-      INSERT INTO audit_logs (id, timestamp, actor, action, target, risk_level, status, justification, metadata, previous_hash, hash)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-    stmt.run(
-      id,
-      now,
-      actor,
-      action,
-      target,
-      riskLevel,
-      status,
-      justification,
-      JSON.stringify(metadata),
-      previousHash,
-      hash
-    );
+      const stmt = db.prepare(`
+        INSERT INTO audit_logs (id, timestamp, actor, action, target, risk_level, status, justification, metadata, previous_hash, hash)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      stmt.run(
+        id,
+        now,
+        actor,
+        action,
+        target,
+        riskLevel,
+        status,
+        justification,
+        JSON.stringify(metadata),
+        previousHash,
+        hash
+      );
+    });
+
+    insertTx();
   } catch (err) {
     console.error('Audit logging error:', err);
   }
@@ -99,7 +103,7 @@ export function recordAuditLog({
  * Cryptographic Tamper-Verification of the Audit Ledger
  */
 export function verifyAuditLedgerIntegrity() {
-  const rows = db.prepare('SELECT * FROM audit_logs WHERE hash IS NOT NULL ORDER BY timestamp ASC').all();
+  const rows = db.prepare('SELECT rowid, * FROM audit_logs WHERE hash IS NOT NULL ORDER BY rowid ASC').all();
   if (rows.length === 0) return { valid: true, auditedCount: 0, message: 'Audit ledger is empty' };
 
   let expectedPrevHash = 'GENESIS_NEXUS_GOVERNANCE_LEDGER';
