@@ -28,7 +28,7 @@
   <!-- Monaco Editor AMD Loader (VS Code Engine) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
   
-  <link rel="stylesheet" href="style.css?v=20261113_gh_hub_v2">
+  <link rel="stylesheet" href="style.css?v=20261114_audit_v4">
 </head>
 <body>
   <div class="app-layout">
@@ -432,7 +432,7 @@
 
                     <form class="composer-form" id="chatForm">
             <div class="composer-capsule-row">
-              <input type="file" id="fileInput" accept="image/*,audio/*,application/pdf,text/*,.txt,.md,.csv,.json,.js,.ts,.py,.html,.css,.sql,.sh,.docx" style="display:none;" multiple>
+              <input type="file" id="fileInput" aria-label="Upload files, images, or documents" accept="image/*,audio/*,application/pdf,text/*,.txt,.md,.csv,.json,.js,.ts,.py,.html,.css,.sql,.sh,.docx" style="display:none;" multiple>
 
               <!-- Modern '+' Button inside circle -->
               <button type="button" id="plusMenuBtn" class="composer-circle-plus-btn" title="Add tools, files & features (+)" aria-label="Add tools, files & features">
@@ -518,12 +518,12 @@
   </div>
 
   <!-- Settings & Preferences Modal (Claude / ChatGPT / Gemini Two-Column Hub) -->
-  <div class="modal-backdrop" id="settingsModal" aria-hidden="true">
+  <div class="modal-backdrop" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsDialogTitle" aria-hidden="true">
     <div class="settings-modal-dialog">
       <!-- Modal Header -->
       <div class="settings-dialog-header">
         <div class="settings-dialog-title-group">
-          <h2>Settings</h2>
+          <h2 id="settingsDialogTitle">Settings</h2>
         </div>
         <button class="settings-dialog-close-btn" id="closeSettingsBtn" aria-label="Close dialog">&times;</button>
       </div>
@@ -754,7 +754,7 @@
                 </div>
                 <p class="profile-hero-role" id="profileHeroRole">Full-Stack Software Engineer</p>
                 <div class="profile-hero-actions">
-                  <input type="file" id="avatarFileInput" accept="image/png,image/jpeg,image/webp,image/jpg" style="display:none;">
+                  <input type="file" id="avatarFileInput" aria-label="Upload profile avatar image" accept="image/png,image/jpeg,image/webp,image/jpg" style="display:none;">
                   <button type="button" class="btn btn-secondary btn-sm" id="uploadAvatarBtn">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                     <span>Upload Photo</span>
@@ -1147,7 +1147,7 @@
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                   <span>Export Chats (JSON)</span>
                 </button>
-                <input type="file" id="importChatsFileInput" accept=".json" style="display:none;">
+                <input type="file" id="importChatsFileInput" aria-label="Import chats JSON file" accept=".json" style="display:none;">
                 <button type="button" class="btn btn-secondary" id="importChatsBtn">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                   <span>Import Chats</span>
@@ -1383,24 +1383,27 @@
               <p>Configure your Google AI Studio key and verify live server latency.</p>
             </div>
 
-            <div class="form-field">
-              <label for="apiKeyInput">Google Gemini API Key</label>
-              <div class="api-key-input-wrapper">
-                <input 
-                  type="password" 
-                  id="apiKeyInput" 
-                  placeholder="AIzaSy... or AQ..." 
-                  autocomplete="off"
-                  spellcheck="false"
-                />
-                <button type="button" class="btn-toggle-eye" id="toggleApiKeyVisibility" title="Show/Hide Key">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                </button>
+            <form onsubmit="return false;" class="api-key-form">
+              <div class="form-field">
+                <label for="apiKeyInput">Google Gemini API Key</label>
+                <div class="api-key-input-wrapper">
+                  <input 
+                    type="password" 
+                    id="apiKeyInput" 
+                    name="apiKey"
+                    autocomplete="current-password"
+                    placeholder="AIzaSy... or AQ..." 
+                    spellcheck="false"
+                  />
+                  <button type="button" class="btn-toggle-eye" id="toggleApiKeyVisibility" title="Show/Hide Key">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  </button>
+                </div>
+                <span class="field-hint">
+                  Get a free API key at <a href="https://aistudio.google.com/" target="_blank" rel="noopener">Google AI Studio</a>. Key is securely stored in your local browser cache.
+                </span>
               </div>
-              <span class="field-hint">
-                Get a free API key at <a href="https://aistudio.google.com/" target="_blank" rel="noopener">Google AI Studio</a>. Key is securely stored in your local browser cache.
-              </span>
-            </div>
+            </form>
 
             <div class="callout-card">
               <div class="callout-icon">
@@ -1436,11 +1439,11 @@
   </div>
 
   <!-- ChatGPT Archived Chats Management Modal -->
-  <div class="modal-backdrop" id="archivedChatsModal" aria-hidden="true" style="display:none; z-index: 10000;">
+  <div class="modal-backdrop" id="archivedChatsModal" role="dialog" aria-modal="true" aria-labelledby="archivedChatsTitle" aria-hidden="true" style="display:none; z-index: 10000;">
     <div class="archived-chats-dialog">
       <div class="modal-card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid rgba(255,255,255,0.08);">
         <div style="display: flex; align-items: center; gap: 10px;">
-          <h3 style="margin: 0; font-size: 1.15rem; color: #ececec;">Archived chats</h3>
+          <h3 id="archivedChatsTitle" style="margin: 0; font-size: 1.15rem; color: #ececec;">Archived chats</h3>
           <span id="archivedChatsCountBadge" style="background: rgba(255,255,255,0.08); color: #8e8e93; font-size: 0.78rem; font-weight: 500; padding: 2px 8px; border-radius: 10px;">0</span>
         </div>
         <button class="modal-close-icon" id="closeArchivedChatsBtn" style="background: none; border: none; color: #8e8e93; font-size: 1.6rem; cursor: pointer; line-height: 1; padding: 0 4px;" aria-label="Close dialog">&times;</button>
@@ -1455,7 +1458,7 @@
   </div>
 
   <!-- Nexus Modern Confirmation Modal (Claude / ChatGPT / Gemini Standard) -->
-  <div class="confirm-modal-backdrop" id="nexusConfirmModal" aria-hidden="true" style="display:none;">
+  <div class="confirm-modal-backdrop" id="nexusConfirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle" aria-hidden="true" style="display:none;">
     <div class="confirm-modal-card">
       <div class="confirm-modal-badge" id="confirmModalBadge">
         <svg id="confirmModalIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1695,7 +1698,7 @@
               <!-- Monaco Editor Root Mount -->
               <div id="monacoMount" class="monaco-editor-mount"></div>
               <!-- Fallback Textarea if offline -->
-              <textarea id="canvasCodeTextarea" class="studio-textarea" style="display:none;" spellcheck="false"></textarea>
+              <textarea id="canvasCodeTextarea" aria-label="Canvas studio code editor" class="studio-textarea" style="display:none;" spellcheck="false"></textarea>
             </div>
 
             <!-- Optional Split Live Viewport (HTML / CSS / JS Preview) -->
@@ -1823,7 +1826,7 @@
   <!-- ========================================================================= -->
   <!-- GitHub Management, MCP Server & Autonomous Automation Hub (Full Enterprise Modal) -->
   <!-- ========================================================================= -->
-  <div class="artifact-modal-backdrop" id="githubHubModal" aria-hidden="true" style="display:none;">
+  <div class="artifact-modal-backdrop" id="githubHubModal" role="dialog" aria-modal="true" aria-labelledby="githubHubTitle" aria-hidden="true" style="display:none;">
     <div class="artifact-modal-dialog github-hub-dialog">
       <!-- Hub Top Header -->
       <div class="artifact-modal-header github-hub-header">
@@ -2176,7 +2179,7 @@
   <!-- ========================================================================= -->
   <!-- PORTFOLIO INTELLIGENCE & AUTONOMOUS MANAGEMENT HUB (ENTERPRISE MODAL) -->
   <!-- ========================================================================= -->
-  <div class="artifact-modal-backdrop" id="portfolioDashboardModal" aria-hidden="true" style="display:none;">
+  <div class="artifact-modal-backdrop" id="portfolioDashboardModal" role="dialog" aria-modal="true" aria-labelledby="portfolioHubTitle" aria-hidden="true" style="display:none;">
     <div class="artifact-modal-dialog portfolio-hub-dialog">
       <!-- 1. LEFT PERSISTENT SIDEBAR (REFERENCES 1, 2, 3) -->
       <aside class="port-sidebar">
@@ -2184,7 +2187,7 @@
         <div class="port-sidebar-brand">
           <div class="port-brand-logo">RR</div>
           <div class="port-brand-meta">
-            <div class="port-brand-name">Raghul Raja M</div>
+            <div class="port-brand-name" id="portfolioHubTitle">Raghul Raja M • Portfolio OS</div>
             <div class="port-brand-ver">Portfolio OS v3.0</div>
             <div class="port-status-pill">
               <span class="pulse-dot"></span>
@@ -3831,7 +3834,7 @@
   </div>
 
   <!-- Real-Time Voice Mode Overlay (ChatGPT Style) -->
-  <div class="voice-mode-overlay" id="voiceModeOverlay" style="display:none;" aria-hidden="true">
+  <div class="voice-mode-overlay" id="voiceModeOverlay" role="dialog" aria-modal="true" aria-label="Real-Time Voice Assistant" style="display:none;" aria-hidden="true">
     <div class="voice-mode-container">
       <button class="voice-mode-close-btn" id="closeVoiceModeBtn" aria-label="Exit Voice Mode">&times;</button>
       <div class="voice-mode-orb-container">
@@ -3872,11 +3875,11 @@
   </div>
 
     <!-- Dedicated Modal: AI Images Gallery & Studio -->
-  <div class="modal-backdrop" id="imagesGalleryModal" aria-hidden="true" style="display:none;">
+  <div class="modal-backdrop" id="imagesGalleryModal" role="dialog" aria-modal="true" aria-labelledby="imagesGalleryModalTitle" aria-hidden="true" style="display:none;">
     <div class="modal-dialog-card modal-lg" style="max-width: 940px; width: 92vw; max-height: 88vh; display: flex; flex-direction: column; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;">
       <div class="modal-card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid rgba(255,255,255,0.08);">
         <div style="display: flex; align-items: center; gap: 12px;">
-          <h3 style="margin: 0; font-size: 1.15rem; color: #ececec; display: flex; align-items: center; gap: 8px;">
+          <h3 id="imagesGalleryModalTitle" style="margin: 0; font-size: 1.15rem; color: #ececec; display: flex; align-items: center; gap: 8px;">
             <span style="font-size: 1.25rem;">🖼️</span> <span>AI Assistant Generated Images</span>
           </h3>
           <span id="galleryCountBadge" style="background: rgba(255,255,255,0.08); color: #d1d5db; font-size: 0.78rem; font-weight: 500; padding: 3px 10px; border-radius: 12px;">0 Images</span>
@@ -4314,7 +4317,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=20261113_gh_hub_v2"></script>
+  <script src="app.js?v=20261114_audit_v4"></script>
   <script src="studioIde.js?v=20261110_2"></script>
   <script src="portfolioOsEngine.js?v=20261111_1"></script>
 </body>

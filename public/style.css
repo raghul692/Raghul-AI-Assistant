@@ -950,11 +950,20 @@ html, body {
   user-select: none;
 }
 
-.header-left, .header-right {
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.header-right {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 /* Sidebar Toggle Button */
@@ -989,6 +998,26 @@ html, body {
 @media (max-width: 768px) {
   .sidebar.open ~ .chat-viewport #toggleSidebarBtn {
     display: none !important;
+  }
+}
+
+@media (max-width: 540px) {
+  .persona-selector-container {
+    display: none !important;
+  }
+  .top-header {
+    padding: 0 10px;
+  }
+  .header-left {
+    gap: 6px;
+  }
+  .header-right {
+    gap: 6px;
+  }
+  .chatgpt-model-pill {
+    max-width: 140px;
+    padding: 0 8px;
+    font-size: 12px;
   }
 }
 
@@ -8958,6 +8987,81 @@ input:checked + .slider.round:before {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* ==========================================================================
+   MOBILE ADAPTIVE COMPOSER (ChatGPT Mobile Standard Two-Tier Architecture)
+   ========================================================================== */
+@media (max-width: 640px) {
+  .composer-capsule-row {
+    flex-wrap: wrap !important;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 0 2px 0;
+  }
+  .composer-capsule-row textarea {
+    order: 1 !important;
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    min-height: 40px !important;
+    padding: 6px 4px !important;
+    margin-bottom: 4px;
+    font-size: 15px;
+  }
+  .composer-circle-plus-btn {
+    order: 2 !important;
+  }
+  .composer-capsule-right {
+    order: 3 !important;
+    margin-left: auto !important;
+    gap: 6px;
+  }
+  .composer-action-menu {
+    min-width: calc(100vw - 32px);
+    max-width: 340px;
+    left: 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .composer-think-pill span {
+    display: none;
+  }
+  .composer-think-pill {
+    padding: 6px 8px;
+  }
+  .composer-shell {
+    padding: 8px 10px;
+  }
+}
+
+/* ==========================================================================
+   WCAG 2.2 AA ACCESSIBILITY & FOCUS VISIBLE TOKENS
+   ========================================================================== */
+:focus-visible {
+  outline: 2px solid var(--accent-primary, #38bdf8) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25) !important;
+}
+
+body.modal-scroll-lock {
+  overflow: hidden !important;
+  touch-action: none !important;
+}
+
+@media (pointer: coarse) {
+  .icon-button,
+  .composer-circle-plus-btn,
+  .composer-icon-mic-btn,
+  .composer-blue-voice-btn,
+  .composer-send-btn,
+  .composer-stop-btn,
+  .modal-close-icon,
+  .voice-mode-close-btn,
+  .voice-ctrl-btn {
+    min-width: 40px;
+    min-height: 40px;
+  }
 }
 
 .voice-mode-container {

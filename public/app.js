@@ -856,7 +856,7 @@ function updateDictationLangUI() {
   if (micLangToggleBtn) {
     micLangToggleBtn.classList.toggle('active-ta', isTamil);
     micLangToggleBtn.title = isTamil
-      ? 'Voice Input: தமிழ் (Tamil) • Click to switch to English'
+      ? 'Voice Input: Tamil (Tanglish) • Click to switch to English'
       : 'Voice Input: English • Click to switch to Tamil';
   }
 }
@@ -1342,9 +1342,21 @@ function renderWelcomeHero() {
   chatMessages.appendChild(hero);
 }
 
+function decodeHtmlEntities(str) {
+  if (!str || typeof str !== 'string') return '';
+  return str.replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'")
+            .replace(/&#x27;/g, "'")
+            .replace(/&nbsp;/g, ' ');
+}
+
 function escapeHtml(str) {
   if (!str) return '';
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const decoded = decodeHtmlEntities(String(str));
+  return decoded.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 // ==========================================================================
@@ -4699,6 +4711,14 @@ function setupSettingsModal() {
       if (targetBtn) targetBtn.click();
     }
     settingsModal.classList.add('open');
+    settingsModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-scroll-lock');
+  };
+
+  const closeSettings = () => {
+    settingsModal.classList.remove('open');
+    settingsModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-scroll-lock');
   };
 
   if (openSettingsBtn) openSettingsBtn.addEventListener('click', (e) => {
@@ -4712,15 +4732,13 @@ function setupSettingsModal() {
   initChatGPTGeneralSettings();
 
   if (closeSettingsBtn) {
-    closeSettingsBtn.addEventListener('click', () => {
-      settingsModal.classList.remove('open');
-    });
+    closeSettingsBtn.addEventListener('click', closeSettings);
   }
 
   // Close when clicking outside modal card
   settingsModal.addEventListener('click', (e) => {
     if (e.target === settingsModal) {
-      settingsModal.classList.remove('open');
+      closeSettings();
     }
   });
 
@@ -6150,6 +6168,7 @@ function openGitHubHub(targetTab = 'ghOverview') {
   hubModal.style.display = 'flex';
   hubModal.classList.add('open');
   hubModal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-scroll-lock');
 
   // Activate target tab
   const tabBtn = document.querySelector(`.gh-nav-tab[data-ghtab="${targetTab}"]`);
@@ -6164,6 +6183,7 @@ function closeGitHubHub() {
   hubModal.classList.remove('open');
   hubModal.style.display = 'none';
   hubModal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-scroll-lock');
 }
 
 async function updateHeaderGitHubStatus() {
@@ -7254,6 +7274,7 @@ function openPortfolioHub(tabName = 'portOverview') {
   modal.style.display = 'flex';
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-scroll-lock');
   switchPortfolioTab(tabName);
   loadPortfolioData();
 }
@@ -7264,6 +7285,7 @@ function closePortfolioHub() {
   modal.classList.remove('open');
   modal.style.display = 'none';
   modal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-scroll-lock');
 }
 
 function switchPortfolioTab(tabId) {
@@ -8456,10 +8478,10 @@ function updateVoiceModeLangUI() {
   const isTamil = voiceModeLang.startsWith('ta');
   if (langText) langText.textContent = isTamil ? 'TA' : 'EN';
   if (langBtn) {
-    langBtn.title = isTamil ? 'Voice Mode: தமிழ் (Tamil) • Click for English' : 'Voice Mode: English • Click for Tamil';
+    langBtn.title = isTamil ? 'Voice Mode: Tamil (Tanglish) • Click for English' : 'Voice Mode: English • Click for Tamil';
   }
   if (statusText && !voiceIsSpeaking && voiceSessionActive) {
-    statusText.textContent = isTamil ? 'Listening to Raghul (தமிழ்)...' : 'Listening to Raghul (English)...';
+    statusText.textContent = isTamil ? 'Listening to Raghul (Tamil / Tanglish)...' : 'Listening to Raghul (English)...';
   }
 }
 
@@ -8541,6 +8563,8 @@ function startAdvancedVoiceMode() {
 
   if (!overlay) return;
   overlay.style.display = 'flex';
+  overlay.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-scroll-lock');
   voiceSessionActive = true;
   voiceIsMuted = false;
   voiceIsSpeaking = false;
@@ -8558,7 +8582,7 @@ function startAdvancedVoiceMode() {
 
   if (transcriptText) {
     transcriptText.textContent = voiceModeLang.startsWith('ta')
-      ? 'பேசுங்கள், நான் கேட்கிறேன்... (Say anything in Tamil or English)'
+      ? 'Pesungal, naan ketkiren... (Say anything in Tamil or English)'
       : 'Say anything to Raghul AI in English or Tanglish to converse live...';
   }
 
@@ -8703,7 +8727,12 @@ function startAdvancedVoiceMode() {
     }
     playVoiceTone('stop');
     overlay.style.display = 'none';
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-scroll-lock');
+    window.exitVoiceMode = null;
   };
+
+  window.exitVoiceMode = exitVoice;
 
   if (closeBtn) closeBtn.onclick = exitVoice;
   if (endCallBtn) endCallBtn.onclick = exitVoice;
@@ -8782,7 +8811,7 @@ async function handleVoiceQuery(queryText) {
           updateVoiceModeLangUI();
           if (transcriptText) {
             transcriptText.textContent = isTa
-              ? 'அடுத்த கேள்வியை கேளுங்கள்... (Listening...)'
+              ? 'Adutha kelviyai kelungal... (Listening...)'
               : 'Say your next question or thought...';
           }
           if (voiceRecognition) {
@@ -9265,15 +9294,83 @@ async function loadResearchHistory() {
   }
 }
 
-// Global WCAG 2.2 Accessibility: Modal dismissal & focus restoration via Escape key
+// Global WCAG 2.2 Accessibility: Modal & Popover dismissal & focus restoration via Escape key
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    const openModals = document.querySelectorAll('.modal-backdrop:not([style*="display: none"]), .modal-backdrop.open, #deepResearchWorkspaceModal[style*="display: flex"]');
+    // 1. Dismiss active popovers/dropdown menus first if any are open
+    let popoverDismissed = false;
+    const popovers = [
+      document.getElementById('hubsPopoverMenu'),
+      document.getElementById('chatgptModelMenu'),
+      document.getElementById('composerActionMenu'),
+      document.getElementById('personaDropdownMenu'),
+      document.getElementById('autocompleteMenu')
+    ];
+    popovers.forEach(p => {
+      if (p && p.style.display !== 'none' && p.style.display !== '') {
+        p.style.display = 'none';
+        popoverDismissed = true;
+      }
+    });
+    if (popoverDismissed) return;
+
+    // 2. Dismiss Real-Time Voice Mode if active
+    if (typeof window.exitVoiceMode === 'function') {
+      window.exitVoiceMode();
+      return;
+    }
+    const voiceOverlay = document.getElementById('voiceModeOverlay');
+    if (voiceOverlay && voiceOverlay.style.display !== 'none') {
+      const closeVoiceBtn = document.getElementById('closeVoiceModeBtn');
+      if (closeVoiceBtn) closeVoiceBtn.click();
+      return;
+    }
+
+    // 3. Dismiss GitHub Hub Modal
+    const ghModal = document.getElementById('githubHubModal');
+    if (ghModal && (ghModal.style.display !== 'none' || ghModal.classList.contains('open'))) {
+      if (typeof closeGitHubHub === 'function') closeGitHubHub();
+      else {
+        ghModal.style.display = 'none';
+        ghModal.classList.remove('open');
+        ghModal.setAttribute('aria-hidden', 'true');
+      }
+      document.body.classList.remove('modal-scroll-lock');
+      return;
+    }
+
+    // 4. Dismiss Portfolio Hub Modal
+    const portModal = document.getElementById('portfolioDashboardModal');
+    if (portModal && (portModal.style.display !== 'none' || portModal.classList.contains('open'))) {
+      if (typeof closePortfolioHub === 'function') closePortfolioHub();
+      else {
+        portModal.style.display = 'none';
+        portModal.classList.remove('open');
+        portModal.setAttribute('aria-hidden', 'true');
+      }
+      document.body.classList.remove('modal-scroll-lock');
+      return;
+    }
+
+    // 5. Dismiss Settings Modal
+    const settingsModal = document.getElementById('settingsModal');
+    if (settingsModal && settingsModal.classList.contains('open')) {
+      settingsModal.classList.remove('open');
+      settingsModal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-scroll-lock');
+      return;
+    }
+
+    // 6. Dismiss any other open modal backdrops
+    const openModals = document.querySelectorAll(
+      '.modal-backdrop:not([style*="display: none"]), .modal-backdrop.open, .artifact-modal-backdrop:not([style*="display: none"]), .artifact-modal-backdrop.open, .confirm-modal-backdrop:not([style*="display: none"]), #deepResearchWorkspaceModal[style*="display: flex"]'
+    );
     openModals.forEach(m => {
       m.style.display = 'none';
       m.setAttribute('aria-hidden', 'true');
       m.classList.remove('open');
     });
+    document.body.classList.remove('modal-scroll-lock');
   }
 });
 

@@ -1,5 +1,21 @@
 [
   {
+    "id": "sess_vbm50s6_1794574283251",
+    "title": "New Chat",
+    "persona": "assistant",
+    "createdAt": 1794574283302,
+    "updatedAt": 1794574283302,
+    "history": []
+  },
+  {
+    "id": "sess_h2q0onk_1794574283248",
+    "title": "New Chat",
+    "persona": "assistant",
+    "createdAt": 1794574283260,
+    "updatedAt": 1794574283263,
+    "history": []
+  },
+  {
     "id": "sess_k4ywrw5_1794565087710",
     "title": "Antigravity la recent enna upd",
     "persona": "assistant",
@@ -606,19 +622,46 @@
     "history": []
   },
   {
-    "id": "sess_h2q0onk_1794574283248",
-    "title": "New Chat",
+    "id": "sess_l519x7e_1794117447565",
+    "title": "Hello Raghul AI",
     "persona": "assistant",
-    "history": [],
-    "updatedAt": 1794574283263,
-    "createdAt": 1794574283260
-  },
-  {
-    "id": "sess_vbm50s6_1794574283251",
-    "title": "New Chat",
-    "persona": "assistant",
-    "history": [],
-    "updatedAt": 1794574283302,
-    "createdAt": 1794574283302
+    "createdAt": 1794117447577,
+    "updatedAt": 1794668157641,
+    "history": [
+      {
+        "role": "user",
+        "text": "Hello Raghul AI",
+        "timestamp": 1794119269514
+      },
+      {
+        "role": "model",
+        "text": "Hey Raghul! 👋\n\nHow's it going? Ready to build something cool today or just stopping by to say hi? Let me know what's on your mind!",
+        "timestamp": 1794119269514
+      },
+      {
+        "role": "user",
+        "text": "Hello Raghul AI, what are your 2 key capabilities in one short sentence?",
+        "timestamp": 1794668113633
+      },
+      {
+        "role": "model",
+        "text": "I provide production-grade full-stack engineering solutions and architect scalable AI pipelines with seamless Tanglish-English conversational fluidity.",
+        "timestamp": 1794668113634,
+        "provider": "gemini",
+        "model": "gemini-3-flash-preview"
+      },
+      {
+        "role": "user",
+        "text": "Hello Raghul AI, describe your system in 1 short sentence.",
+        "timestamp": 1794668157641
+      },
+      {
+        "role": "model",
+        "text": "I am an autonomous multi-provider agent orchestration platform designed to build, deploy, and scale production-ready AI systems and full-stack applications.",
+        "timestamp": 1794668157641,
+        "provider": "gemini",
+        "model": "gemini-3-flash-preview"
+      }
+    ]
   }
 ]

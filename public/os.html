@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/os.css?v=8.5.0">
+  <link rel="stylesheet" href="/os.css?v=8.6.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
 </head>
 <body>
@@ -111,10 +111,20 @@
       </div>
     </aside>
 
+    <!-- Mobile Drawer Backdrop -->
+    <div class="os-sidebar-backdrop" id="osSidebarBackdrop" style="display:none;" aria-hidden="true"></div>
+
     <!-- MAIN APP AREA -->
     <main class="os-main">
       <!-- TOP BAR -->
       <header class="os-topbar">
+        <button type="button" class="os-mobile-menu-btn" id="osMobileToggleBtn" aria-label="Toggle Navigation Menu" title="Open Navigation Menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
         <div class="os-breadcrumbs">
           <span>Portfolio OS</span>
           <span>/</span>
@@ -1046,7 +1056,7 @@
   </div>
 
   <!-- OS CLIENT SCRIPT -->
-  <script src="/osEngine.js?v=8.5.0"></script>
+  <script src="/osEngine.js?v=8.6.0"></script>
 </body>
 </html>
 

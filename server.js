@@ -841,8 +841,8 @@ app.post('/api/chat/stream', async (req, res) => {
 
     // Check if key is configured
     if (!apiKey || apiKey === 'your_gemini_api_key_here') {
-      const mockText = `👋 **வணக்கம்! Welcome to your AI Chatbot!**\n\n` +
-        `API Key இன்னும் சேர்க்கப்படவில்லை. மேலேயுள்ள **Settings**-ல் உங்கள் Google AI Studio API Key-ஐ சேர்க்கவும்.`;
+      const mockText = `👋 **Vanakkam! Welcome to Raghul AI!**\n\n` +
+        `API Key innum serkkapadavillai. Meleyulla **Settings**-il ungal Google AI Studio API Key-ai serkkavum (Configure your Google AI Studio API Key in Settings).`;
 
       const words = mockText.split(' ');
       for (const word of words) {

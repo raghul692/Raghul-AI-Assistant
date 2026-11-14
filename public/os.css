@@ -983,8 +983,38 @@ a:hover {
   color: var(--accent-primary);
 }
 
-/* RESPONSIVE LAYOUT */
-@media (max-width: 900px) {
+/* RESPONSIVE LAYOUT & MOBILE DRAWER */
+.os-mobile-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ececec;
+  cursor: pointer;
+  margin-right: 8px;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.os-mobile-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.os-sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 999;
+}
+
+/* Tablet breakpoint: 769px - 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
   .os-sidebar {
     width: 64px;
   }
@@ -1010,18 +1040,78 @@ a:hover {
   }
 }
 
-@media (max-width: 640px) {
+/* Mobile Breakpoint: <= 768px */
+@media (max-width: 768px) {
+  .os-mobile-menu-btn {
+    display: flex;
+  }
+  .os-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
+  }
+  .os-sidebar.open {
+    transform: translateX(0);
+  }
+  .os-main {
+    width: 100vw;
+    margin-left: 0;
+  }
   .os-topbar {
-    padding: 0 12px;
+    padding: 0 10px;
+  }
+  .os-topbar-actions {
+    gap: 5px;
+  }
+  .os-command-search {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    justify-content: center;
+  }
+  .os-command-search span,
+  .os-command-search .os-command-kbd {
+    display: none;
+  }
+  .os-live-stream-badge {
+    display: none;
+  }
+  .os-grid-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Small Mobile Breakpoint: <= 480px */
+@media (max-width: 480px) {
+  .os-breadcrumbs span:not(#currentBreadcrumb):not(.active-crumb) {
+    display: none;
+  }
+  #osEmergencyStopLabel {
+    display: none;
+  }
+  .os-emergency-stop-btn {
+    padding: 0 8px;
   }
   .os-content {
-    padding: 14px;
+    padding: 10px;
   }
   .os-site-hero {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
+}
+
+/* WCAG 2.2 AA Focus Visible */
+.os-container :focus-visible {
+  outline: 2px solid var(--accent-blue, #38bdf8) !important;
+  outline-offset: 2px !important;
 }
 
 

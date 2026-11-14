@@ -152,11 +152,27 @@ class PortfolioOSEngine {
   // EVENT BINDINGS
   // ==============================================================
   bindEvents() {
+    // Mobile Navigation Drawer Toggle & Backdrop
+    const mobileToggle = document.getElementById('osMobileToggleBtn');
+    const sidebar = document.querySelector('.os-sidebar');
+    const backdrop = document.getElementById('osSidebarBackdrop');
+
+    const toggleMobileDrawer = (open) => {
+      if (!sidebar) return;
+      const isOpen = open !== undefined ? open : !sidebar.classList.contains('open');
+      sidebar.classList.toggle('open', isOpen);
+      if (backdrop) backdrop.style.display = isOpen ? 'block' : 'none';
+    };
+
+    mobileToggle?.addEventListener('click', () => toggleMobileDrawer());
+    backdrop?.addEventListener('click', () => toggleMobileDrawer(false));
+
     // Nav items
     document.querySelectorAll('.os-nav-item').forEach(item => {
       item.addEventListener('click', () => {
         const view = item.getAttribute('data-view');
         if (view) this.navigateTo(view);
+        toggleMobileDrawer(false);
       });
     });
 
@@ -212,7 +228,9 @@ class PortfolioOSEngine {
         this.openCommandPalette();
       }
       if (e.key === 'Escape') {
+        if (typeof toggleMobileDrawer === 'function') toggleMobileDrawer(false);
         this.closeModals();
+        this.toggleNotifDrawer(false);
       }
     });
 
