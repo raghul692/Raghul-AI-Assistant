@@ -28,7 +28,7 @@
   <!-- Monaco Editor AMD Loader (VS Code Engine) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
   
-  <link rel="stylesheet" href="style.css?v=20261111_3">
+  <link rel="stylesheet" href="style.css?v=20261113_gh_hub_v2">
 </head>
 <body>
   <div class="app-layout">
@@ -252,15 +252,11 @@
               <svg class="chevron-mini" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </button>
             <div class="hubs-popover-menu" id="hubsPopoverMenu" style="display:none;" role="menu">
-              <!-- Preserved Original ID Elements for 100% JS Compatibility -->
-              <button id="headerResearchHubBtn" class="hub-menu-item" title="Deep Research Workspace (Click to open)">
-                <span style="font-size: 14px;">🔬</span>
-                <span id="headerResearchStatus">Deep Research Hub</span>
-              </button>
-              <button id="headerPortfolioBadgeBtn" class="hub-menu-item" title="Portfolio Intelligence Hub (Click to open)">
-                <span class="status-dot-pulse online"></span>
-                <span id="headerPortfolioStatus">Portfolio: Live</span>
-              </button>
+              <a href="/os#ai-assistant" id="headerPortfolioOsBtn" class="hub-menu-item" style="text-decoration:none;" title="Open Autonomous Portfolio Operating System">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                <span>Portfolio OS</span>
+                <span class="hub-badge-mini" style="margin-left:auto; font-size:0.65rem; background:rgba(56,189,248,0.15); color:#38bdf8; padding:2px 6px; border-radius:4px; font-weight:600;">v4.0</span>
+              </a>
               <button id="headerGitHubBadgeBtn" class="hub-menu-item" title="Official GitHub Remote MCP Server (Click to open)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
@@ -473,8 +469,13 @@
                   <span>Think</span>
                 </button>
 
+                <!-- Microphone Dictation Language Toggle (EN / TA) -->
+                <button type="button" id="micLangToggleBtn" class="composer-icon-mic-lang-btn" title="Dictation Language: English (Click to toggle Tamil)" aria-label="Toggle voice dictation language">
+                  <span id="micLangBadge">EN</span>
+                </button>
+
                 <!-- Microphone Button for Dictation -->
-                <button type="button" id="micBtn" class="composer-icon-mic-btn" title="Voice Input (Tamil / English)" aria-label="Voice input">
+                <button type="button" id="micBtn" class="composer-icon-mic-btn" title="Voice Input (Click to speak, click again to stop)" aria-label="Voice input">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
                     <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -1827,44 +1828,86 @@
       <!-- Hub Top Header -->
       <div class="artifact-modal-header github-hub-header">
         <div class="artifact-header-left">
-          <div class="github-badge">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <div class="github-brand-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
             </svg>
-            <span>GitHub MCP Platform</span>
           </div>
-          <span class="artifact-title" id="githubHubTitle">GitHub Management & Autonomous Automation Hub</span>
-          <span class="github-conn-indicator" id="githubHubConnBadge">
-            <span class="status-dot online"></span>
-            <span id="githubHubUserTag">@raghul692 (46 Tools)</span>
-          </span>
+          <div class="github-title-group">
+            <div class="github-title-row">
+              <span class="artifact-title" id="githubHubTitle">GitHub Developer Hub</span>
+              <span class="github-conn-indicator" id="githubHubConnBadge">
+                <span class="status-dot online"></span>
+                <span id="githubHubUserTag">@raghul692 (46 Tools)</span>
+              </span>
+            </div>
+            <span class="github-subtitle">Autonomous Swarm Orchestration &bull; Remote MCP Gateway &bull; Live Workflows</span>
+          </div>
         </div>
         <div class="artifact-header-right">
+          <a href="https://github.com/raghul692" target="_blank" rel="noopener" class="btn-gh-external" title="Open GitHub Profile in new tab">
+            <span>github.com/raghul692</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </a>
           <button type="button" class="btn-refresh" id="refreshGitHubHubBtn" title="Sync Live Data with GitHub">
             <svg class="refresh-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
             </svg>
-            <span>Refresh</span>
+            <span>Sync</span>
           </button>
-          <button type="button" class="btn-artifact-icon" id="closeGitHubHubBtn" title="Close Hub (Esc)">&times;</button>
+          <button type="button" class="btn-artifact-icon btn-hub-close" id="closeGitHubHubBtn" title="Close Hub (Esc)">&times;</button>
         </div>
       </div>
 
       <!-- Navigation Tabs Bar -->
       <div class="github-hub-nav-bar">
-        <button type="button" class="gh-nav-tab active" data-ghtab="ghOverview">Overview</button>
-        <button type="button" class="gh-nav-tab" data-ghtab="ghRepos">Repositories & Files</button>
-        <button type="button" class="gh-nav-tab" data-ghtab="ghBranches">Branches & Commits</button>
-        <button type="button" class="gh-nav-tab" data-ghtab="ghIssues">Issues & PRs</button>
-        <button type="button" class="gh-nav-tab" data-ghtab="ghActions">Actions CI/CD</button>
-        <button type="button" class="gh-nav-tab" data-ghtab="ghSecurity">Security Center</button>
-        <button type="button" class="gh-nav-tab" data-ghtab="ghAutomations">Automations (15)</button>
+        <button type="button" class="gh-nav-tab active" data-ghtab="ghOverview">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          <span>Overview</span>
+        </button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghRepos">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          <span>Repositories & Files</span>
+        </button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghBranches">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="3" x2="6" y2="15"></line><circle cx="18" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><path d="M18 9a9 9 0 0 1-9 9"></path></svg>
+          <span>Branches</span>
+        </button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghIssues">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <span>Issues & PRs</span>
+        </button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghActions">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          <span>Actions CI/CD</span>
+        </button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghSecurity">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <span>Security</span>
+        </button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghAutomations">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span>Automations</span>
+          <span class="gh-tab-pill-count">15</span>
+        </button>
         <button type="button" class="gh-nav-tab" data-ghtab="ghApprovals">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
           <span>Approvals</span>
           <span class="gh-tab-badge" id="ghPendingApprovalsCount">0</span>
         </button>
-        <button type="button" class="gh-nav-tab" data-ghtab="ghSwarm">10-Agent Swarm</button>
-        <button type="button" class="gh-nav-tab" data-ghtab="ghTools">MCP Tools (46)</button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghSwarm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <span>10-Agent Swarm</span>
+        </button>
+        <button type="button" class="gh-nav-tab" data-ghtab="ghTools">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+          <span>MCP Tools</span>
+          <span class="gh-tab-pill-count">46</span>
+        </button>
       </div>
 
       <!-- Hub Content Panes -->
@@ -1873,37 +1916,66 @@
         <div class="gh-pane active" id="ghPaneOverview">
           <div class="gh-user-banner">
             <div class="gh-user-profile">
-              <img id="ghUserAvatar" class="gh-avatar-large" src="/assets/raghul_profile.jpg" alt="Avatar">
+              <div class="gh-avatar-wrapper">
+                <img id="ghUserAvatar" class="gh-avatar-large" src="/assets/raghul_profile.jpg" alt="Avatar">
+                <span class="gh-avatar-status-dot" title="GitHub Remote MCP Active"></span>
+              </div>
               <div class="gh-user-info">
-                <h3 id="ghUserFullName">RAGHUL RAJA M</h3>
+                <div class="gh-user-name-row">
+                  <h3 id="ghUserFullName">RAGHUL RAJA M</h3>
+                  <span class="gh-verified-badge" title="Verified GitHub Developer">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="#38bdf8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <span>Developer Pro</span>
+                  </span>
+                </div>
                 <div class="gh-user-sub">
                   <a id="ghUserProfileLink" href="https://github.com/raghul692" target="_blank" rel="noopener">@raghul692</a>
-                  <span>&bull;</span>
-                  <span id="ghUserBio">Full Stack Developer | AI/ML Enthusiast | UI/UX Designer</span>
+                  <span class="gh-sub-dot">&bull;</span>
+                  <span class="gh-bio-text" id="ghUserBio">Full Stack Developer | AI/ML Enthusiast | UI/UX Designer</span>
                 </div>
               </div>
             </div>
             <div class="gh-metrics-row">
               <div class="gh-metric-chip">
-                <span class="gh-metric-val" id="ghStatPublicRepos">26</span>
-                <span class="gh-metric-label">Repositories</span>
+                <div class="gh-metric-chip-top">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                  <span class="gh-metric-label">Repositories</span>
+                </div>
+                <span class="gh-metric-val" id="ghStatPublicRepos">28</span>
               </div>
               <div class="gh-metric-chip">
+                <div class="gh-metric-chip-top">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                  <span class="gh-metric-label">MCP Tools</span>
+                </div>
                 <span class="gh-metric-val" id="ghStatMcpTools">46</span>
-                <span class="gh-metric-label">MCP Tools</span>
               </div>
               <div class="gh-metric-chip">
+                <div class="gh-metric-chip-top">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                  <span class="gh-metric-label">Automations</span>
+                </div>
                 <span class="gh-metric-val" id="ghStatAutomations">15</span>
-                <span class="gh-metric-label">Automations</span>
               </div>
               <div class="gh-metric-chip">
+                <div class="gh-metric-chip-top">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                  <span class="gh-metric-label">Approvals</span>
+                </div>
                 <span class="gh-metric-val" id="ghStatPendingApprovals">0</span>
-                <span class="gh-metric-label">Approvals</span>
               </div>
             </div>
           </div>
 
-          <h4 class="gh-section-title">Accessible GitHub Repositories</h4>
+          <div class="gh-section-header-bar">
+            <div>
+              <h4 class="gh-section-title">Accessible GitHub Repositories</h4>
+              <p class="gh-section-desc">Live synchronization via Official GitHub Remote MCP gateway with full AST, file browser and commit tracing.</p>
+            </div>
+            <div class="gh-section-actions">
+              <span class="gh-active-repos-badge">28 Live Repositories</span>
+            </div>
+          </div>
           <div class="gh-overview-repos-grid" id="ghOverviewReposGrid">
             <!-- Dynamically populated repo cards -->
           </div>
@@ -3767,7 +3839,7 @@
         <div class="voice-orb-ring ring-1"></div>
         <div class="voice-orb-ring ring-2"></div>
         <div class="voice-orb-ring ring-3"></div>
-        <div class="voice-orb-center">
+        <div class="voice-orb-center" id="voiceOrbCenterBtn" role="button" tabindex="0" title="Tap to interrupt or speak">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
             <rect x="5" y="8" width="2.5" height="8" rx="1.25"></rect>
             <rect x="10.75" y="4" width="2.5" height="16" rx="1.25"></rect>
@@ -3776,10 +3848,21 @@
         </div>
       </div>
       <div class="voice-mode-status" id="voiceModeStatusText">Listening to Raghul...</div>
+      <!-- Live Waveform Dynamic Bars -->
+      <div class="voice-live-waveform" id="voiceLiveWaveform" aria-hidden="true">
+        <span class="vbar"></span>
+        <span class="vbar"></span>
+        <span class="vbar"></span>
+        <span class="vbar"></span>
+        <span class="vbar"></span>
+      </div>
       <div class="voice-mode-transcript" id="voiceModeTranscriptText">Say anything in Tamil or English to converse live.</div>
       <div class="voice-mode-controls">
-        <button type="button" class="voice-ctrl-btn" id="voiceMuteToggleBtn" title="Mute/Unmute">
+        <button type="button" class="voice-ctrl-btn" id="voiceMuteToggleBtn" title="Mute / Unmute Microphone">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+        </button>
+        <button type="button" class="voice-ctrl-btn" id="voiceLangToggleBtn" title="Switch Language (English / Tamil)">
+          <span id="voiceLangText" style="font-weight:700; font-size:0.85rem; letter-spacing:0.5px;">EN</span>
         </button>
         <button type="button" class="voice-ctrl-btn end-call" id="voiceEndCallBtn" title="End Voice Session">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -4231,7 +4314,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=20261111_3"></script>
+  <script src="app.js?v=20261113_gh_hub_v2"></script>
   <script src="studioIde.js?v=20261110_2"></script>
   <script src="portfolioOsEngine.js?v=20261111_1"></script>
 </body>

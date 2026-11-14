@@ -88,3 +88,4 @@ export function getAgentRoleByStage(stageIndex) {
   const stage = PIPELINE_STAGES.find(s => s.index === stageIndex);
   return stage?.role || stage?.gate || null;
 }
+

@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/os.css">
+  <link rel="stylesheet" href="/os.css?v=8.5.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
 </head>
 <body>
@@ -278,17 +278,28 @@
              VIEW 2: AI ASSISTANT (AUTONOMOUS 7-STAGE PIPELINE)
              ============================================================== -->
         <section class="os-view" id="view-ai-assistant">
-          <div class="os-view-header">
+          <!-- Header Bar -->
+          <div class="os-view-header" style="margin-bottom: 14px;">
             <div class="os-view-title">
-              <h2>Autonomous AI Engineering Agent</h2>
-              <p>7-Stage execution pipeline with cryptographic human approval gates and full execution lineage</p>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <h2>Portfolio AI Agentic Co-Pilot & Autonomous Studio</h2>
+                <span class="os-pill os-pill-primary mono" style="font-size: 11px;" id="agentModelBadge">⚡ Gemini 2.5 Flash • Deep Thinking • Tool Calling</span>
+              </div>
+              <p>Autonomous Agentic AI with deep reasoning, multimodal certificate/photo uploads, self-healing code synthesis, and direct GitHub & Vercel deployment.</p>
             </div>
-            <div style="display:flex; gap:8px;">
-              <button class="os-btn-secondary os-btn-sm" id="btnAgentClearTerminal">Clear Terminal</button>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <!-- Dual Governance Switch: Auto-Pilot vs Approval Gate -->
+              <div class="os-governance-toggle" style="display:flex; align-items:center; background:rgba(15,23,42,0.8); border:1px solid rgba(56,189,248,0.3); border-radius:20px; padding:3px 4px; gap:4px;">
+                <button class="os-gov-btn active" id="btnGovAutopilot" style="padding:4px 10px; font-size:11px; font-weight:600; border-radius:14px; border:none; cursor:pointer; background:#38bdf8; color:#0f172a; transition:all 0.2s;">⚡ Auto-Pilot</button>
+                <button class="os-gov-btn" id="btnGovApproval" style="padding:4px 10px; font-size:11px; font-weight:600; border-radius:14px; border:none; cursor:pointer; background:transparent; color:#94a3b8; transition:all 0.2s;">🛡️ Approval Gate</button>
+              </div>
+              <span class="os-pill os-pill-success mono" style="font-size: 11px;">17 Projects • 11 Certs Grounded</span>
+              <button class="os-btn-secondary os-btn-sm" id="btnAgentClearChat" title="Clear conversation history">Clear Chat</button>
             </div>
           </div>
 
-          <div class="os-timeline" id="agentTimeline">
+          <!-- Top 7-Stage Live Pipeline Bar -->
+          <div class="os-timeline" id="agentTimeline" style="margin-bottom: 16px;">
             <div class="os-timeline-step completed" data-step="1">
               <div class="os-timeline-circle">1</div>
               <span>Plan</span>
@@ -319,26 +330,101 @@
             </div>
           </div>
 
-          <div class="os-card">
-            <div class="os-card-header">
-              <h3>Agent Command Center</h3>
-              <span class="os-pill os-pill-neutral mono" id="agentExecutionStatus">IDLE</span>
+          <!-- Conversational Chatting Interface Card -->
+          <div class="os-card" style="display: flex; flex-direction: column; min-height: 580px; max-height: 720px; border: 1px solid var(--border); box-shadow: 0 8px 32px rgba(0,0,0,0.25); border-radius: var(--radius-sm); overflow: hidden;">
+            <div class="os-card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding: 12px 18px; background: var(--bg-surface);">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="status-dot-pulse online" style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #10b981;"></span>
+                <span style="font-weight: 600; font-size: 13px; color: var(--text);">Autonomous Engineering Workspace</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="os-pill os-pill-neutral mono" id="agentExecutionStatus">IDLE</span>
+              </div>
             </div>
-            <div class="os-card-body">
-              <div style="display:flex; gap:10px; margin-bottom:12px;">
-                <input type="text" class="os-palette-input" id="agentGoalInput" placeholder="Describe the engineering goal (e.g., Audit Supabase sync drift, Deploy hotfix to Vercel)..." style="background:var(--bg-elevated); border:1px solid var(--border); padding:10px 14px; border-radius:var(--radius-sm);">
-                <button class="os-btn-primary" id="btnAgentExecute" style="flex-shrink:0;">Execute Pipeline</button>
-              </div>
 
-              <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;">
-                <span style="font-size:11px; color:var(--text-muted); align-self:center;">Quick Suggestions:</span>
-                <button class="os-btn-secondary os-btn-sm quick-agent-prompt" data-prompt="Audit Supabase sync drift and verify database consistency">Audit Supabase Sync Drift</button>
-                <button class="os-btn-secondary os-btn-sm quick-agent-prompt" data-prompt="Run comprehensive security and cryptographic audit">Cryptographic Security Audit</button>
-                <button class="os-btn-secondary os-btn-sm quick-agent-prompt" data-prompt="Check GitHub repository and latest commit status">GitHub Repo Status Check</button>
-                <button class="os-btn-secondary os-btn-sm quick-agent-prompt" data-prompt="Verify live Render and Vercel production deployment health">Verify Deployments Health</button>
+            <!-- Scrollable Chat Stream -->
+            <div class="os-chat-stream" id="agentChatThread" style="flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 16px; background: var(--bg-base);">
+              <!-- Welcome Message -->
+              <div class="chat-msg-row assistant">
+                <div class="chat-avatar" style="width: 32px; height: 32px; border-radius: 8px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;">🤖</div>
+                <div class="chat-msg-content" style="max-width: 88%;">
+                  <div class="chat-bubble assistant">
+                    <p style="margin: 0 0 8px 0; font-weight: 600; color: #38bdf8; font-size: 14px;">Hello Raghul! I am your Portfolio Operating System Co-Pilot.</p>
+                    <p style="margin: 0 0 10px 0; color: var(--text-muted); font-size: 13px;">
+                      I have authorized operational control over your live portfolio at <a href="https://raghulraja.is-a.dev/" target="_blank" style="color: #38bdf8; text-decoration: underline;">raghulraja.is-a.dev</a> and GitHub repo <a href="https://github.com/raghul692/raghulraja_portfolio" target="_blank" style="color: #38bdf8; text-decoration: underline;">raghul692/raghulraja_portfolio</a>.
+                    </p>
+                    <p style="margin: 0 0 8px 0; font-size: 12.5px; font-weight: 600;">You can ask or command me in English or Tanglish:</p>
+                    <ul style="margin: 0 0 12px 0; padding-left: 20px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.55;">
+                      <li><strong>📜 Upload Certificates:</strong> Attach certificate PDFs or photos to autonomously commit them to GitHub and publish to your portfolio.</li>
+                      <li><strong>🚀 Register New Projects:</strong> Add projects with tech stacks, links, and auto-deploy to Vercel.</li>
+                      <li><strong>⚡ Update Skills & Bio:</strong> Add new technologies (Docker, Kubernetes, Golang, Next.js) to both your resume and live visual Tech Stack.</li>
+                      <li><strong>🧠 Deep Thinking & Visual 7-Stage Pipeline:</strong> Watch every code synthesis, unit test, security review, and live health check executed live.</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
+            </div>
 
-              <div class="os-terminal" id="agentTerminal">
+            <!-- Suggested Quick Action Chips -->
+            <div style="padding: 8px 18px; background: var(--bg-surface); border-top: 1px solid var(--border); display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;">
+              <button class="os-btn-secondary os-btn-sm quick-chat-chip" data-prompt="Add this certificate to my portfolio: AWS Certified Solutions Architect from Amazon Web Services" style="font-size: 11.5px; white-space: nowrap;">📜 Upload & Add Certificate</button>
+              <button class="os-btn-secondary os-btn-sm quick-chat-chip" data-prompt="Register project in portfolio: CloudPulse SaaS with tech React, Node.js, Express, Tailwind CSS, PostgreSQL" style="font-size: 11.5px; white-space: nowrap;">🚀 Register New Project</button>
+              <button class="os-btn-secondary os-btn-sm quick-chat-chip" data-prompt="portfolio la backend skills la Redis and GraphQL add pannu" style="font-size: 11.5px; white-space: nowrap;">⚡ Add Skills (Tanglish)</button>
+              <button class="os-btn-secondary os-btn-sm quick-chat-chip" data-prompt="Update bio to: Full-Stack AI Engineer, Autonomous Multi-Agent Architect & Cloud Developer" style="font-size: 11.5px; white-space: nowrap;">📝 Update Bio</button>
+              <button class="os-btn-secondary os-btn-sm quick-chat-chip" data-prompt="Show all 17 projects in my portfolio with live statuses" style="font-size: 11.5px; white-space: nowrap;">🔍 Inspect Projects</button>
+            </div>
+
+            <!-- Attachment Preview Area (Hidden when empty) -->
+            <div id="agentAttachmentPreviewArea" style="display: none; padding: 10px 18px; background: rgba(56, 189, 248, 0.05); border-top: 1px solid rgba(56, 189, 248, 0.2); align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div id="attachmentThumbContainer" style="width: 38px; height: 38px; border-radius: 6px; background: var(--bg-elevated); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                  <span id="attachmentTypeIcon" style="font-size: 18px;">📄</span>
+                  <img id="attachmentImgThumb" style="display: none; width: 100%; height: 100%; object-fit: cover;" alt="preview" />
+                </div>
+                <div>
+                  <div id="attachmentFileName" style="font-size: 12.5px; font-weight: 600; color: var(--text);">certificate.pdf</div>
+                  <div id="attachmentFileSize" style="font-size: 11px; color: var(--text-muted);">120 KB • Ready to commit</div>
+                </div>
+              </div>
+              <button type="button" id="btnRemoveAttachment" class="os-btn-secondary os-btn-sm" style="padding: 4px 8px; font-size: 11px;" title="Remove attachment">✕ Remove</button>
+            </div>
+
+            <!-- Rich Chat Input Box -->
+            <div style="padding: 12px 18px; background: var(--bg-surface); border-top: 1px solid var(--border); display: flex; align-items: flex-end; gap: 10px;">
+              <!-- Hidden file input for certificates & images -->
+              <input type="file" id="agentFileUploadInput" accept="image/*,.pdf" style="display: none;">
+
+              <!-- Attachment Button (Clip) -->
+              <button type="button" class="os-btn-secondary" id="btnTriggerFileUpload" style="padding: 10px 12px; height: 42px; display: inline-flex; align-items: center; justify-content: center;" title="Attach Certificate (PDF/Image) or Project Photo">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+              </button>
+
+              <!-- Photo Button -->
+              <button type="button" class="os-btn-secondary" id="btnTriggerPhotoUpload" style="padding: 10px 12px; height: 42px; display: inline-flex; align-items: center; justify-content: center;" title="Upload Certificate Photo / Screenshot">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+              </button>
+
+              <!-- Textarea / Input (also retains id="agentGoalInput" for compatibility) -->
+              <textarea id="agentChatInput" rows="1" placeholder="Tell me what to change, or attach a certificate and tell me to add it..." style="flex: 1; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13.5px; resize: none; min-height: 42px; max-height: 120px; line-height: 1.4; font-family: inherit;"></textarea>
+              <input type="hidden" id="agentGoalInput" />
+
+              <!-- Send Button (also retains id="btnAgentExecute" for compatibility) -->
+              <button class="os-btn-primary" id="btnAgentChatSend" style="height: 42px; padding: 0 18px; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; flex-shrink: 0;">
+                <span>Send</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+              <button id="btnAgentExecute" style="display: none;"></button>
+            </div>
+          </div>
+
+          <!-- Collapsible Raw Terminal Drawer for Power Users -->
+          <details style="margin-top: 14px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;">
+            <summary style="padding: 10px 16px; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center;">
+              <span>Raw Execution Terminal & Lineage Logs (7-Stage Low-Level Stream)</span>
+              <button class="os-btn-secondary os-btn-sm" id="btnAgentClearTerminal" style="padding: 2px 8px; font-size: 11px;">Clear</button>
+            </summary>
+            <div style="padding: 12px;">
+              <div class="os-terminal" id="agentTerminal" style="max-height: 250px;">
                 <div class="log-line">
                   <span class="log-time">[00:00:00]</span>
                   <span class="log-stage">[SYS]</span>
@@ -346,7 +432,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </details>
         </section>
 
         <!-- ==============================================================
@@ -960,6 +1046,7 @@
   </div>
 
   <!-- OS CLIENT SCRIPT -->
-  <script src="/osEngine.js"></script>
+  <script src="/osEngine.js?v=8.5.0"></script>
 </body>
 </html>
+

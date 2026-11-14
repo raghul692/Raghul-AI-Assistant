@@ -1346,10 +1346,19 @@ export function getPortfolioAnalyticsSummary() {
     LIMIT 5
   `).all();
 
+  const topReferrers = db.prepare(`
+    SELECT referrer, COUNT(*) as count
+    FROM portfolio_analytics_events
+    WHERE referrer IS NOT NULL AND referrer != ''
+    GROUP BY referrer
+    ORDER BY count DESC
+    LIMIT 5
+  `).all();
+
   const recentEvents = db.prepare(`
     SELECT * FROM portfolio_analytics_events
     ORDER BY created_at DESC
-    LIMIT 15
+    LIMIT 20
   `).all();
 
   return {
@@ -1359,6 +1368,8 @@ export function getPortfolioAnalyticsSummary() {
     uniqueVisitors,
     topPaths,
     topCountries,
+    countries: topCountries,
+    topReferrers,
     recentEvents,
     isAwaitingBeacon: totalEvents === 0
   };

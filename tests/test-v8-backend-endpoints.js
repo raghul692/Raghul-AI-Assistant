@@ -2,6 +2,7 @@
  * RAGHUL AI — PORTFOLIO OS V8 BACKEND ENDPOINTS & DATABASE TEST SUITE
  */
 
+import 'dotenv/config';
 import {
   initDatabase,
   createPortfolioNotification,
@@ -97,3 +98,4 @@ integrationManager.getGitHubRepoDetails().then(repo => {
   console.error('❌ GitHub method error:', err.message);
   process.exit(1);
 });
+

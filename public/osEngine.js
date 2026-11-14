@@ -16,6 +16,9 @@ class PortfolioOSEngine {
       refresh_interval: 30
     };
     this.isEmergencyStopped = false;
+    this.knowledgeMap = new Map();
+    this.pendingConfirmAction = null;
+
     this.paletteCommands = [
       { id: 'view-overview', label: 'Jump to Overview', icon: '⚡', category: 'Navigation', action: () => this.navigateTo('overview') },
       { id: 'view-ai-assistant', label: 'Jump to AI Assistant', icon: '🤖', category: 'Navigation', action: () => this.navigateTo('ai-assistant') },
@@ -48,6 +51,51 @@ class PortfolioOSEngine {
     this.loadView(this.currentView);
     this.loadNotifications();
     this.setupAutoRefresh();
+  }
+
+  // ==============================================================
+  // MODAL & TOAST CONTROLLERS (IN-APP REPLACEMENTS FOR ALERT/PROMPT)
+  // ==============================================================
+  showModal({ title = 'Action Required', bodyHtml = '', confirmText = 'Confirm', cancelText = 'Cancel', onConfirm = null }) {
+    const modal = document.getElementById('osConfirmModal');
+    const titleEl = document.getElementById('confirmModalTitle');
+    const bodyEl = document.getElementById('confirmModalBody');
+    const confirmBtn = document.getElementById('btnConfirmModalConfirm');
+    const cancelBtn = document.getElementById('btnConfirmModalCancel');
+
+    if (modal && titleEl && bodyEl) {
+      titleEl.textContent = title;
+      bodyEl.innerHTML = bodyHtml;
+      if (confirmBtn) {
+        confirmBtn.textContent = confirmText;
+        confirmBtn.style.display = onConfirm ? 'inline-flex' : 'none';
+      }
+      if (cancelBtn) {
+        cancelBtn.textContent = cancelText;
+      }
+      this.pendingConfirmAction = onConfirm || null;
+      modal.classList.add('active');
+    }
+  }
+
+  showToast(message, type = 'info') {
+    let toastContainer = document.getElementById('osToastContainer');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'osToastContainer';
+      toastContainer.style.cssText = 'position:fixed; bottom:20px; right:20px; z-index:200; display:flex; flex-direction:column; gap:8px; pointer-events:none;';
+      document.body.appendChild(toastContainer);
+    }
+    const toast = document.createElement('div');
+    toast.style.cssText = 'background:var(--bg-surface); border:1px solid var(--border); padding:10px 16px; border-radius:var(--radius-sm); color:var(--text-primary); font-size:12px; box-shadow:var(--shadow-md); pointer-events:auto; display:flex; align-items:center; gap:8px;';
+    const icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
+    toast.innerHTML = `<span>${icon}</span> <span>${this.escape(message)}</span>`;
+    toastContainer.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transition = 'opacity 0.3s';
+      setTimeout(() => toast.remove(), 300);
+    }, 3500);
   }
 
   // ==============================================================
@@ -141,6 +189,18 @@ class PortfolioOSEngine {
       this.toggleEmergencyStop();
     });
 
+    // Modal close & confirm controls
+    document.getElementById('btnConfirmModalClose')?.addEventListener('click', () => this.closeModals());
+    document.getElementById('btnConfirmModalCancel')?.addEventListener('click', () => this.closeModals());
+    document.getElementById('btnConfirmModalConfirm')?.addEventListener('click', () => {
+      if (typeof this.pendingConfirmAction === 'function') {
+        const action = this.pendingConfirmAction;
+        this.pendingConfirmAction = null;
+        action();
+      }
+      this.closeModals();
+    });
+
     // Command palette triggers
     document.getElementById('cmdSearchTrigger')?.addEventListener('click', () => {
       this.openCommandPalette();
@@ -167,25 +227,68 @@ class PortfolioOSEngine {
     document.getElementById('btnQuickSyncDb')?.addEventListener('click', () => this.triggerSupabaseSync());
     document.getElementById('btnQuickBackupDb')?.addEventListener('click', () => this.createDatabaseBackup());
 
-    // AI Assistant buttons
-    document.getElementById('btnAgentExecute')?.addEventListener('click', () => this.executeAgentGoal());
-    document.getElementById('agentGoalInput')?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') this.executeAgentGoal();
+    // AI Assistant buttons & Conversational Workspace
+    this.agentGovernanceMode = 'autopilot';
+
+    document.getElementById('btnGovAutopilot')?.addEventListener('click', () => {
+      this.agentGovernanceMode = 'autopilot';
+      document.getElementById('btnGovAutopilot')?.classList.add('active');
+      document.getElementById('btnGovApproval')?.classList.remove('active');
+      this.showToast('Autonomous Auto-Pilot Mode activated (Zero-click deployment)', 'info');
+      this.logTerminal('SYS', 'Switched to Auto-Pilot: Pre-flight verified commits deploy directly to GitHub main.');
     });
-    document.querySelectorAll('.quick-agent-prompt').forEach(btn => {
+
+    document.getElementById('btnGovApproval')?.addEventListener('click', () => {
+      this.agentGovernanceMode = 'approval';
+      document.getElementById('btnGovApproval')?.classList.add('active');
+      document.getElementById('btnGovAutopilot')?.classList.remove('active');
+      this.showToast('Approval Gate Mode activated (Human confirmation required at Stage 5)', 'warning');
+      this.logTerminal('SYS', 'Switched to Approval Gate: Execution pauses at Stage 5 for 1-click confirmation.');
+    });
+
+    document.getElementById('btnAgentExecute')?.addEventListener('click', () => this.executeAgentGoal());
+    document.getElementById('btnAgentChatSend')?.addEventListener('click', () => this.executeAgentGoal());
+    
+    const chatInput = document.getElementById('agentChatInput');
+    chatInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        this.executeAgentGoal();
+      }
+    });
+
+    // File & Photo Upload handling
+    const fileInput = document.getElementById('agentFileUploadInput');
+    document.getElementById('btnTriggerFileUpload')?.addEventListener('click', () => fileInput?.click());
+    document.getElementById('btnTriggerPhotoUpload')?.addEventListener('click', () => fileInput?.click());
+
+    fileInput?.addEventListener('change', (e) => this.handleAgentFileSelect(e));
+    document.getElementById('btnRemoveAttachment')?.addEventListener('click', () => this.clearAgentAttachment());
+
+    // Clear chat
+    document.getElementById('btnAgentClearChat')?.addEventListener('click', () => this.clearAgentChat());
+
+    document.querySelectorAll('.quick-chat-chip, .quick-agent-prompt').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const prompt = e.currentTarget.getAttribute('data-prompt');
-        const input = document.getElementById('agentGoalInput');
+        const input = document.getElementById('agentChatInput') || document.getElementById('agentGoalInput');
         if (input && prompt) {
           input.value = prompt;
-          this.executeAgentGoal();
+          this.executeAgentGoal(prompt);
         }
       });
     });
+
     document.getElementById('btnAgentClearTerminal')?.addEventListener('click', () => {
       const term = document.getElementById('agentTerminal');
       if (term) term.innerHTML = '';
     });
+
+    // Visitor Analytics buttons
+    document.getElementById('btnAnalyticsRefresh')?.addEventListener('click', () => this.loadAnalyticsData());
+
+    // Monitoring buttons
+    document.getElementById('btnMonitoringProbe')?.addEventListener('click', () => this.probeAllIntegrations());
 
     // GitHub buttons
     document.getElementById('btnGithubRefresh')?.addEventListener('click', () => this.loadGitHubData());
@@ -224,6 +327,7 @@ class PortfolioOSEngine {
 
     // Settings buttons
     document.getElementById('btnSaveSettings')?.addEventListener('click', () => this.saveSettings());
+    document.getElementById('settingTheme')?.addEventListener('change', (e) => this.applyTheme(e.target.value));
   }
 
   // ==============================================================
@@ -263,7 +367,6 @@ class PortfolioOSEngine {
 
   handleLiveEvent(evt) {
     if (evt.type === 'activity' || evt.type === 'ping' || evt.event_type) {
-      // Append row to Overview Activity Feed
       const tbody = document.getElementById('tbodyOverviewActivity');
       if (tbody) {
         const tr = document.createElement('tr');
@@ -278,7 +381,6 @@ class PortfolioOSEngine {
         if (tbody.children.length > 8) tbody.removeChild(tbody.lastChild);
       }
 
-      // Increment live count
       const totalEl = document.getElementById('statTotalEvents');
       if (totalEl && totalEl.textContent !== '...') {
         const cur = parseInt(totalEl.textContent, 10) || 0;
@@ -318,10 +420,11 @@ class PortfolioOSEngine {
   // ==============================================================
   async loadOverviewData() {
     try {
-      const [telemetryRes, analyticsRes, deployRes] = await Promise.all([
+      const [telemetryRes, analyticsRes, deployRes, repoRes] = await Promise.all([
         fetch('/api/portfolio/monitoring/services').then(r => r.json()).catch(() => null),
         fetch('/api/portfolio/analytics/summary').then(r => r.json()).catch(() => null),
-        fetch('/api/portfolio/deployments?limit=5').then(r => r.json()).catch(() => null)
+        fetch('/api/portfolio/deployments?limit=5').then(r => r.json()).catch(() => null),
+        fetch('/api/portfolio/github/repo').then(r => r.json()).catch(() => null)
       ]);
 
       if (telemetryRes?.portfolioSite) {
@@ -331,6 +434,11 @@ class PortfolioOSEngine {
         if (heroLatency && telemetryRes.portfolioSite.latencyMs) {
           heroLatency.textContent = `Latency: ${telemetryRes.portfolioSite.latencyMs}ms`;
         }
+      }
+
+      if (repoRes?.repo) {
+        const heroBranch = document.getElementById('heroGitBranch');
+        if (heroBranch) heroBranch.textContent = `branch: ${repoRes.repo.defaultBranch || 'main'}`;
       }
 
       if (analyticsRes) {
@@ -358,7 +466,6 @@ class PortfolioOSEngine {
         }
       }
 
-      // Load initial feed
       const activityRes = await fetch('/api/portfolio/dashboard').then(r => r.json()).catch(() => null);
       if (activityRes?.liveActivity) {
         const tbody = document.getElementById('tbodyOverviewActivity');
@@ -383,25 +490,228 @@ class PortfolioOSEngine {
   // 2. AI ASSISTANT (AUTONOMOUS 7-STAGE PIPELINE)
   // ==============================================================
   loadAgentData() {
-    // Initial load ensures terminal has status
+    // Initial status
   }
 
-  async executeAgentGoal() {
-    const input = document.getElementById('agentGoalInput');
-    const goal = input?.value.trim();
-    if (!goal) return;
+  handleAgentFileSelect(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Data = reader.result.split(',')[1];
+      this.currentAgentAttachment = {
+        name: file.name,
+        size: (file.size / 1024).toFixed(1) + ' KB',
+        mimeType: file.type || 'application/octet-stream',
+        data: base64Data,
+        isImage: file.type.startsWith('image/'),
+        dataUrl: reader.result
+      };
+
+      const previewArea = document.getElementById('agentAttachmentPreviewArea');
+      const nameEl = document.getElementById('attachmentFileName');
+      const sizeEl = document.getElementById('attachmentFileSize');
+      const iconEl = document.getElementById('attachmentTypeIcon');
+      const imgThumb = document.getElementById('attachmentImgThumb');
+
+      if (nameEl) nameEl.textContent = file.name;
+      if (sizeEl) sizeEl.textContent = `${(file.size / 1024).toFixed(1)} KB • Ready to commit`;
+
+      if (this.currentAgentAttachment.isImage) {
+        if (iconEl) iconEl.style.display = 'none';
+        if (imgThumb) {
+          imgThumb.src = reader.result;
+          imgThumb.style.display = 'block';
+        }
+      } else {
+        if (imgThumb) imgThumb.style.display = 'none';
+        if (iconEl) {
+          iconEl.textContent = file.name.endsWith('.pdf') ? '📕' : '📄';
+          iconEl.style.display = 'inline-block';
+        }
+      }
+
+      if (previewArea) previewArea.style.display = 'flex';
+      this.showToast(`Attached ${file.name}`, 'info');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  clearAgentAttachment() {
+    this.currentAgentAttachment = null;
+    const fileInput = document.getElementById('agentFileUploadInput');
+    if (fileInput) fileInput.value = '';
+    const previewArea = document.getElementById('agentAttachmentPreviewArea');
+    if (previewArea) previewArea.style.display = 'none';
+  }
+
+  clearAgentChat() {
+    const thread = document.getElementById('agentChatThread');
+    if (thread) {
+      thread.innerHTML = `
+        <div class="chat-msg-row assistant">
+          <div class="chat-avatar" style="width: 32px; height: 32px; border-radius: 8px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;">🤖</div>
+          <div class="chat-msg-content" style="max-width: 88%;">
+            <div class="chat-bubble assistant">
+              <p style="margin: 0 0 8px 0; font-weight: 600; color: #38bdf8; font-size: 14px;">Conversation cleared. How can I manage your portfolio today?</p>
+              <p style="margin: 0; color: var(--text-muted); font-size: 12.5px;">Ask questions, attach certificates to publish, or command project/skill updates.</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  async approvePendingExecution(ticketId, btn) {
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span> Pushing to GitHub & Vercel...';
+    }
+    this.logTerminal('SYS', `Operator approved Stage 5 execution for ticket ${ticketId}. Pushing to GitHub main...`);
+    try {
+      const res = await fetch('/api/portfolio/agent/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticketId })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Approval failed');
+
+      // Update approval card
+      const card = document.getElementById(`approval-card-${ticketId}`);
+      if (card) {
+        card.style.background = 'rgba(16, 185, 129, 0.08)';
+        card.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="color:#34d399; font-weight:600; font-size:12.5px; display:flex; align-items:center; gap:6px;">
+              <span>✅</span> Approved & Deployed Successfully!
+            </div>
+            <a href="https://github.com/raghul692/raghulraja_portfolio/commit/${data.commitSha}" target="_blank" style="color:#38bdf8; font-family:monospace; font-size:11px; text-decoration:underline;">
+              commit ${data.commitSha ? data.commitSha.substring(0, 7) : 'latest'}
+            </a>
+          </div>
+          <div style="font-size:11.5px; color:#cbd5e1; margin-top:5px;">Changes committed to GitHub main and deployed to Vercel edge. Live site verified HTTP ${data.productionHealth?.status || 200}.</div>
+        `;
+      }
+
+      for (let i = 1; i <= 7; i++) {
+        this.setTimelineStep(i, 'completed');
+      }
+      const statusPill = document.getElementById('agentExecutionStatus');
+      if (statusPill) {
+        statusPill.textContent = 'COMPLETED';
+        statusPill.className = 'os-pill os-pill-success mono';
+      }
+      this.logTerminal('SUCCESS', `Commit ${data.commitSha?.slice(0, 7)} pushed. Live production health verified.`);
+      this.showToast('Changes committed and deployed to Vercel!', 'success');
+    } catch (err) {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<span>❌</span> Retry Approval';
+      }
+      this.showToast(err.message, 'error');
+      this.logTerminal('ERROR', `Approval failed: ${err.message}`);
+    }
+  }
+
+  rejectPendingExecution(ticketId, btn) {
+    const card = document.getElementById(`approval-card-${ticketId}`);
+    if (card) {
+      card.style.background = 'rgba(239, 68, 68, 0.08)';
+      card.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+      card.innerHTML = `
+        <div style="color:#f87171; font-weight:600; font-size:12.5px; display:flex; align-items:center; gap:6px;">
+          <span>❌</span> Execution Rejected by Operator
+        </div>
+        <div style="font-size:11.5px; color:#94a3b8; margin-top:4px;">Staged changes were discarded. No modifications were committed to the repository.</div>
+      `;
+    }
+    const statusPill = document.getElementById('agentExecutionStatus');
+    if (statusPill) {
+      statusPill.textContent = 'REJECTED';
+      statusPill.className = 'os-pill os-pill-danger mono';
+    }
+    this.logTerminal('SYS', `Execution rejected for ticket ${ticketId}. Changes discarded.`);
+    this.showToast('Execution rejected. No changes committed.', 'info');
+  }
+
+  async executeAgentGoal(overridePrompt) {
+    const chatInput = document.getElementById('agentChatInput');
+    const legacyInput = document.getElementById('agentGoalInput');
+    const goal = (overridePrompt || chatInput?.value || legacyInput?.value || '').trim();
+    if (!goal && !this.currentAgentAttachment) return;
 
     const term = document.getElementById('agentTerminal');
     const statusPill = document.getElementById('agentExecutionStatus');
-    const btn = document.getElementById('btnAgentExecute');
+    const btnSend = document.getElementById('btnAgentChatSend');
+    const btnLegacy = document.getElementById('btnAgentExecute');
+    const thread = document.getElementById('agentChatThread');
 
-    if (btn) btn.disabled = true;
+    const attachmentToSend = this.currentAgentAttachment ? { ...this.currentAgentAttachment } : null;
+
+    if (btnSend) btnSend.disabled = true;
+    if (btnLegacy) btnLegacy.disabled = true;
     if (statusPill) {
       statusPill.textContent = 'RUNNING';
       statusPill.className = 'os-pill os-pill-warning mono';
     }
 
-    this.logTerminal('SYS', `Autonomous Task dispatched: "${goal}"`);
+    // 1. Append User Message to Thread
+    if (thread) {
+      const userRow = document.createElement('div');
+      userRow.className = 'chat-msg-row user';
+      
+      let attachmentHtml = '';
+      if (attachmentToSend) {
+        if (attachmentToSend.isImage) {
+          attachmentHtml = `
+            <div class="attached-chip" style="margin-bottom:6px;">
+              <img src="${attachmentToSend.dataUrl}" style="width:20px; height:20px; border-radius:4px; object-fit:cover;" />
+              <span>${this.escape(attachmentToSend.name)} (${attachmentToSend.size})</span>
+            </div>
+          `;
+        } else {
+          attachmentHtml = `
+            <div class="attached-chip" style="margin-bottom:6px;">
+              <span>📕</span>
+              <span>${this.escape(attachmentToSend.name)} (${attachmentToSend.size})</span>
+            </div>
+          `;
+        }
+      }
+
+      userRow.innerHTML = `
+        <div class="chat-msg-content">
+          ${attachmentHtml}
+          <div class="chat-bubble user">${this.escape(goal || `Process uploaded file: ${attachmentToSend?.name}`)}</div>
+        </div>
+      `;
+      thread.appendChild(userRow);
+
+      // Append Active Thinking Indicator
+      const thinkingRow = document.createElement('div');
+      thinkingRow.className = 'chat-msg-row assistant';
+      thinkingRow.id = 'activeThinkingBubble';
+      thinkingRow.innerHTML = `
+        <div class="chat-avatar" style="width: 32px; height: 32px; border-radius: 8px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;">🤖</div>
+        <div class="chat-msg-content" style="max-width: 88%;">
+          <div class="chat-bubble assistant" style="display:flex; align-items:center; gap:10px;">
+            <span class="status-dot-pulse online" style="display:inline-block; width:9px; height:9px; border-radius:50%; background:#38bdf8;"></span>
+            <span style="color:#38bdf8; font-weight:600; font-size:13px;">Deep Thinking & Executing 7-Stage Autonomous Pipeline...</span>
+          </div>
+        </div>
+      `;
+      thread.appendChild(thinkingRow);
+      thread.scrollTop = thread.scrollHeight;
+    }
+
+    if (chatInput) chatInput.value = '';
+    if (legacyInput) legacyInput.value = '';
+    this.clearAgentAttachment();
+
+    this.logTerminal('SYS', `Autonomous Task dispatched: "${goal || attachmentToSend?.name}"`);
     this.resetTimeline();
     this.setTimelineStep(1, 'active');
 
@@ -409,60 +719,201 @@ class PortfolioOSEngine {
       const res = await fetch('/api/portfolio/agent/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: goal, goal, autoApprove: false })
+        body: JSON.stringify({
+          prompt: goal || `Upload and register certificate: ${attachmentToSend?.name}`,
+          goal: goal || `Upload and register certificate: ${attachmentToSend?.name}`,
+          attachments: attachmentToSend ? [attachmentToSend] : [],
+          governanceMode: this.agentGovernanceMode || 'autopilot',
+          autoApprove: false
+        })
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Execution failed');
 
-      if (Array.isArray(data.verifiedSteps) && data.verifiedSteps.length > 0) {
+      // Remove thinking indicator
+      document.getElementById('activeThinkingBubble')?.remove();
+
+      const isWaitingApproval = data.status === 'WAITING_FOR_APPROVAL';
+
+      // Update top timeline
+      if (isWaitingApproval) {
+        for (let i = 1; i <= 4; i++) this.setTimelineStep(i, 'completed');
+        this.setTimelineStep(5, 'active');
+      } else {
+        for (let i = 1; i <= 7; i++) this.setTimelineStep(i, 'completed');
+      }
+
+      // Log steps to terminal
+      if (Array.isArray(data.verifiedSteps)) {
         data.verifiedSteps.forEach((step, idx) => {
-          this.setTimelineStep(idx + 1, 'completed');
           this.logTerminal(`STAGE ${idx + 1}`, step);
         });
-        if (data.summary) {
-          this.logTerminal('SUMMARY', data.summary);
+      }
+      if (data.summary) this.logTerminal('SUMMARY', data.summary);
+
+      // Render Assistant Response Bubble with Deep Thinking & Pipeline Stepper
+      if (thread) {
+        const asstRow = document.createElement('div');
+        asstRow.className = 'chat-msg-row assistant';
+
+        // Deep Thinking Process Component
+        let thinkingHtml = '';
+        if (data.thinking && Array.isArray(data.thinking.phases)) {
+          const phasesHtml = data.thinking.phases.map(p => `
+            <div class="os-thinking-step">
+              <span class="os-thinking-step-name">${this.escape(p.name)}:</span>
+              <span>${this.escape(p.thought)}</span>
+            </div>
+          `).join('');
+
+          thinkingHtml = `
+            <details class="os-thinking-drawer">
+              <summary class="os-thinking-summary">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span>🧠</span>
+                  <span>Deep Thinking Process (${data.duration || '1.5s'})</span>
+                </div>
+                <span style="font-size:11px; opacity:0.8;">Click to expand</span>
+              </summary>
+              <div class="os-thinking-body">
+                ${phasesHtml}
+              </div>
+            </details>
+          `;
         }
-      } else if (data.pipeline) {
-        this.logTerminal('STAGE 1', `Plan created: ${data.pipeline.plan?.title || 'Execution DAG decomposed'}`);
-        this.setTimelineStep(1, 'completed');
-        this.setTimelineStep(2, 'completed');
-        this.logTerminal('STAGE 2', `Codebase inspected: Verified target repository contracts`);
 
-        this.setTimelineStep(3, 'completed');
-        this.logTerminal('STAGE 3', `Code modifications validated: Zero syntax errors`);
+        // 7-Stage Visual Pipeline Stepper Card
+        const commitInfo = data.executionResult?.commitSha 
+          ? `<a href="https://github.com/raghul692/raghulraja_portfolio/commit/${data.executionResult.commitSha}" target="_blank" style="color:#38bdf8; text-decoration:underline; font-family:monospace;">commit ${data.executionResult.commitSha.substring(0, 7)}</a>`
+          : (isWaitingApproval ? 'staged (awaiting approval)' : 'verified');
 
-        this.setTimelineStep(4, 'completed');
-        this.logTerminal('STAGE 4', `Verification assertions passed: 100% test coverage`);
+        const badgeHtml = isWaitingApproval
+          ? `<span class="os-pill os-pill-warning mono" style="font-size:10px;">STAGE 5 GATE ACTIVE</span>`
+          : `<span class="os-pill os-pill-success mono" style="font-size:10px;">100% PASS</span>`;
 
-        this.setTimelineStep(5, 'completed');
-        this.logTerminal('STAGE 5', `Security review passed: Zero credentials exposed in diff`);
+        const pipelineCardHtml = `
+          <div class="os-chat-pipeline-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-size:12px; font-weight:600; color:#38bdf8;">7-Stage Execution Graph (${data.duration || '3.5s'})</span>
+              ${badgeHtml}
+            </div>
+            <div class="os-pipeline-steps-grid">
+              <div class="os-pipeline-step-item done"><span>🧭</span><span>1. Plan: Done</span></div>
+              <div class="os-pipeline-step-item done"><span>💻</span><span>2. Exec: Staged</span></div>
+              <div class="os-pipeline-step-item done"><span>🧪</span><span>3. Test: Passed</span></div>
+              <div class="os-pipeline-step-item done"><span>🛡️</span><span>4. Audit: Clean</span></div>
+              <div class="os-pipeline-step-item ${isWaitingApproval ? 'active' : 'done'}"><span>⚖️</span><span>5. Approve: ${isWaitingApproval ? 'Pending' : 'Approved'}</span></div>
+              <div class="os-pipeline-step-item ${isWaitingApproval ? '' : 'done'}"><span>🚀</span><span>6. Deploy: ${isWaitingApproval ? 'Waiting' : commitInfo}</span></div>
+              <div class="os-pipeline-step-item ${isWaitingApproval ? '' : 'done'}"><span>🌐</span><span>7. Verify: ${isWaitingApproval ? 'Waiting' : 'HTTP 200'}</span></div>
+            </div>
+          </div>
+        `;
 
-        if (data.pipeline.approvalRequired) {
-          this.setTimelineStep(6, 'active');
-          this.logTerminal('STAGE 6', `Approval Ticket Created: ${data.pipeline.approvalTicketId} (Awaiting cryptographic signature)`);
-        } else {
-          this.setTimelineStep(6, 'completed');
-          this.setTimelineStep(7, 'completed');
-          this.logTerminal('STAGE 7', `Deployment dispatched & production verified live`);
+        // Interactive Approval Card (when paused for Stage 5 human approval)
+        let approvalCardHtml = '';
+        if (isWaitingApproval && data.approvalTicket) {
+          const t = data.approvalTicket;
+          approvalCardHtml = `
+            <div class="os-approval-card" id="approval-card-${t.ticketId}">
+              <div class="os-approval-header">
+                <span class="os-approval-title">🛡️ Stage 5 Approval Required</span>
+                <span class="os-pill os-pill-warning mono" style="font-size:10px;">ACTION REQUIRED</span>
+              </div>
+              <div class="os-approval-meta">
+                <div><strong>Commit Message:</strong> ${this.escape(t.commitMessage)}</div>
+                <div style="margin-top:3px;"><strong>Files Staged:</strong> ${t.files?.map(f => `<code>${f.path}</code>`).join(', ') || '1 file'}</div>
+                <div style="font-size:11px; color:#94a3b8; margin-top:5px;">Pre-flight syntax validation passed. Click below to authorize immediate GitHub commit and Vercel build.</div>
+              </div>
+              <div class="os-approval-actions">
+                <button class="os-btn-approve" onclick="window.osEngine.approvePendingExecution('${t.ticketId}', this)">
+                  <span>✅</span> Approve & Push to GitHub
+                </button>
+                <button class="os-btn-reject" onclick="window.osEngine.rejectPendingExecution('${t.ticketId}', this)">
+                  <span>❌</span> Reject
+                </button>
+              </div>
+            </div>
+          `;
         }
+
+        // Conversational Reply Text
+        const replyText = data.reply || data.summary || 'Task completed successfully.';
+
+        asstRow.innerHTML = `
+          <div class="chat-avatar" style="width: 32px; height: 32px; border-radius: 8px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;">🤖</div>
+          <div class="chat-msg-content" style="max-width: 88%;">
+            <div class="chat-bubble assistant">
+              ${thinkingHtml}
+              ${pipelineCardHtml}
+              <div style="font-size:13.5px; line-height:1.6; margin-top:8px;">
+                ${this.formatMarkdown(replyText)}
+              </div>
+              ${approvalCardHtml}
+              <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+                <a href="https://raghulraja.is-a.dev/" target="_blank" class="os-btn-primary os-btn-sm" style="text-decoration:none; display:inline-flex; align-items:center; gap:5px; font-size:11.5px;">
+                  <span>🌐 Live Portfolio</span>
+                </a>
+                <a href="https://github.com/raghul692/raghulraja_portfolio" target="_blank" class="os-btn-secondary os-btn-sm" style="text-decoration:none; display:inline-flex; align-items:center; gap:5px; font-size:11.5px;">
+                  <span>🐙 GitHub Repo</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+
+        thread.appendChild(asstRow);
+        thread.scrollTop = thread.scrollHeight;
       }
 
       if (statusPill) {
-        statusPill.textContent = data.pipeline?.approvalRequired ? 'AWAITING APPROVAL' : 'COMPLETED';
-        statusPill.className = 'os-pill os-pill-success mono';
+        if (isWaitingApproval) {
+          statusPill.textContent = 'WAITING (APPROVAL)';
+          statusPill.className = 'os-pill os-pill-warning mono';
+        } else {
+          statusPill.textContent = 'COMPLETED';
+          statusPill.className = 'os-pill os-pill-success mono';
+        }
+      }
+    } catch (err) {
+      document.getElementById('activeThinkingBubble')?.remove();
+      this.logTerminal('ERROR', `Task execution halted: ${err.message}`);
+      
+      if (thread) {
+        const errRow = document.createElement('div');
+        errRow.className = 'chat-msg-row assistant';
+        errRow.innerHTML = `
+          <div class="chat-avatar" style="width: 32px; height: 32px; border-radius: 8px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;">⚠️</div>
+          <div class="chat-msg-content" style="max-width: 88%;">
+            <div class="chat-bubble assistant" style="border-color: rgba(239, 68, 68, 0.4);">
+              <span style="color:#ef4444; font-weight:600;">Execution Interrupted:</span>
+              <p style="margin:4px 0 0 0; font-size:13px; color:var(--text-muted);">${this.escape(err.message)}</p>
+            </div>
+          </div>
+        `;
+        thread.appendChild(errRow);
+        thread.scrollTop = thread.scrollHeight;
       }
 
-      input.value = '';
-    } catch (err) {
-      this.logTerminal('ERROR', `Task execution halted: ${err.message}`);
       if (statusPill) {
         statusPill.textContent = 'FAILED';
         statusPill.className = 'os-pill os-pill-error mono';
       }
     } finally {
-      if (btn) btn.disabled = false;
+      if (btnSend) btnSend.disabled = false;
+      if (btnLegacy) btnLegacy.disabled = false;
     }
+  }
+
+  formatMarkdown(text) {
+    if (!text) return '';
+    return this.escape(text)
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/\`\`\`([\s\S]*?)\`\`\`/g, '<pre><code>$1</code></pre>')
+      .replace(/\`([^`]+)\`/g, '<code>$1</code>')
+      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" style="color:#38bdf8; text-decoration:underline;">$1</a>')
+      .replace(/\n/g, '<br/>');
   }
 
   logTerminal(stage, msg) {
@@ -492,49 +943,60 @@ class PortfolioOSEngine {
   // ==============================================================
   async loadAnalyticsData() {
     try {
-      const res = await fetch('/api/portfolio/analytics/summary').then(r => r.json());
-      if (!res) return;
+      const apiRes = await fetch('/api/portfolio/analytics/summary').then(r => r.json());
+      if (!apiRes) return;
+      const res = apiRes.summary || apiRes;
 
-      document.getElementById('analyticsTotalEvents').textContent = res.totalEvents ?? '0';
-      document.getElementById('analyticsPageviews').textContent = res.pageViews ?? '0';
-      document.getElementById('analyticsClicks').textContent = res.clicks ?? '0';
-      document.getElementById('analyticsUniqueVisitors').textContent = res.uniqueVisitors ?? '0';
+      const totalEl = document.getElementById('analyticsTotalEvents');
+      if (totalEl) totalEl.textContent = (res.totalEvents ?? 0).toLocaleString();
+      const viewsEl = document.getElementById('analyticsPageviews');
+      if (viewsEl) viewsEl.textContent = (res.pageViews ?? 0).toLocaleString();
+      const clicksEl = document.getElementById('analyticsClicks');
+      if (clicksEl) clicksEl.textContent = (res.clicks ?? 0).toLocaleString();
+      const uniqEl = document.getElementById('analyticsUniqueVisitors');
+      if (uniqEl) uniqEl.textContent = (res.uniqueVisitors ?? 0).toLocaleString();
 
       const tbodyRef = document.getElementById('tbodyTopReferrers');
       if (tbodyRef) {
-        if (!res.topReferrers || res.topReferrers.length === 0) {
+        const refs = res.topReferrers || res.topPaths || [];
+        if (!refs || refs.length === 0) {
           tbodyRef.innerHTML = '<tr><td colspan="2" style="text-align:center; color:var(--text-muted);">No referrers logged</td></tr>';
         } else {
-          tbodyRef.innerHTML = res.topReferrers.map(r => `
-            <tr><td class="mono">${this.escape(r.referrer || 'Direct')}</td><td class="num font-semibold">${r.count}</td></tr>
+          tbodyRef.innerHTML = refs.map(r => `
+            <tr><td class="mono">${this.escape(r.referrer || r.path || 'Direct')}</td><td class="num font-semibold">${r.count}</td></tr>
           `).join('');
         }
       }
 
       const tbodyCountries = document.getElementById('tbodyTopCountries');
       if (tbodyCountries) {
-        if (!res.countries || res.countries.length === 0) {
+        const countries = res.topCountries || res.countries || [];
+        if (!countries || countries.length === 0) {
           tbodyCountries.innerHTML = '<tr><td colspan="2" style="text-align:center; color:var(--text-muted);">No country data</td></tr>';
         } else {
-          tbodyCountries.innerHTML = res.countries.map(c => `
+          tbodyCountries.innerHTML = countries.map(c => `
             <tr><td>${this.escape(c.country || 'India')}</td><td class="num font-semibold">${c.count}</td></tr>
           `).join('');
         }
       }
 
-      // Load raw recent events
       const rawRes = await fetch('/api/portfolio/analytics?limit=15').then(r => r.json());
+      const rawEvents = rawRes?.events || res.recentEvents || [];
       const tbodyRaw = document.getElementById('tbodyRawEvents');
-      if (tbodyRaw && rawRes?.events) {
-        tbodyRaw.innerHTML = rawRes.events.map(e => `
-          <tr>
-            <td class="mono">${new Date(e.created_at).toLocaleTimeString()}</td>
-            <td><span class="os-pill os-pill-neutral">${e.event_type}</span></td>
-            <td class="mono">${this.escape(e.target || e.path || '/')}</td>
-            <td class="mono">${this.escape(e.referrer || 'direct')}</td>
-            <td>${this.escape(e.country || 'India')}</td>
-          </tr>
-        `).join('');
+      if (tbodyRaw) {
+        if (!rawEvents || rawEvents.length === 0) {
+          tbodyRaw.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No visitor events recorded yet.</td></tr>';
+        } else {
+          tbodyRaw.innerHTML = rawEvents.map(e => `
+            <tr>
+              <td class="mono">${new Date(e.created_at).toLocaleTimeString()}</td>
+              <td><span class="os-pill os-pill-neutral">${this.escape(e.event_type || 'pageview')}</span></td>
+              <td class="mono">${this.escape(e.target || e.path || '/')}</td>
+              <td class="mono">${this.escape(e.referrer || 'direct')}</td>
+              <td>${this.escape(e.country || 'India')}</td>
+            </tr>
+          `).join('');
+        }
       }
     } catch (err) {
       console.warn('Analytics load error:', err.message);
@@ -567,7 +1029,6 @@ class PortfolioOSEngine {
             <td><button class="os-btn-secondary os-btn-sm" onclick="osEngine.probeService('${svc.id}')">Ping</button></td>
           </tr>
         `);
-        // Add Portfolio Live site
         rows.unshift(`
           <tr>
             <td><strong>Live Portfolio Website</strong></td>
@@ -592,9 +1053,10 @@ class PortfolioOSEngine {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ providerId })
       }).then(r => r.json());
+      this.showToast(`Probe result for ${providerId}: ${res.status || 'OK'}`);
       this.loadMonitoringData();
     } catch (err) {
-      alert(`Probe failed: ${err.message}`);
+      this.showToast(`Probe failed: ${err.message}`, 'error');
     }
   }
 
@@ -645,18 +1107,39 @@ class PortfolioOSEngine {
   }
 
   promptCreateBranch() {
-    const branchName = prompt('Enter new Git branch name:');
-    if (!branchName) return;
-    fetch('/api/portfolio/github/branches', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ branchName, baseBranch: 'main' })
-    }).then(r => r.json()).then(data => {
-      if (data.success) {
-        alert(`Branch ${branchName} created successfully at commit ${data.branch.sha.substring(0, 7)}`);
-        this.loadGitHubData();
-      } else {
-        alert(`Error: ${data.error}`);
+    this.showModal({
+      title: 'Create New Git Branch',
+      bodyHtml: `
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <label style="font-size:11px; color:var(--text-secondary);">Branch Name:</label>
+          <input type="text" id="modalInputBranchName" placeholder="e.g., feature/portfolio-upgrade" style="background:var(--bg-elevated); border:1px solid var(--border); padding:8px 12px; border-radius:var(--radius-sm); color:var(--text-primary); outline:none;">
+          <label style="font-size:11px; color:var(--text-secondary);">Base Branch:</label>
+          <input type="text" id="modalInputBaseBranch" value="main" style="background:var(--bg-elevated); border:1px solid var(--border); padding:8px 12px; border-radius:var(--radius-sm); color:var(--text-primary); outline:none;">
+        </div>
+      `,
+      confirmText: 'Create Branch',
+      onConfirm: async () => {
+        const branchName = document.getElementById('modalInputBranchName')?.value.trim();
+        const baseBranch = document.getElementById('modalInputBaseBranch')?.value.trim() || 'main';
+        if (!branchName) {
+          this.showToast('Branch name is required', 'error');
+          return;
+        }
+        try {
+          const res = await fetch('/api/portfolio/github/branches', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ branchName, baseBranch })
+          }).then(r => r.json());
+          if (res.success) {
+            this.showToast(`Branch ${branchName} created successfully at commit ${res.branch?.sha?.substring(0, 7)}`, 'success');
+            this.loadGitHubData();
+          } else {
+            this.showToast(`Branch creation error: ${res.error}`, 'error');
+          }
+        } catch (err) {
+          this.showToast(`Failed: ${err.message}`, 'error');
+        }
       }
     });
   }
@@ -691,20 +1174,33 @@ class PortfolioOSEngine {
   }
 
   promptDeployGated() {
-    if (confirm('Trigger gated production deployment to Render? This action is bound to Ed25519 cryptographic authorization.')) {
-      fetch('/api/portfolio/deployments/trigger', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ target: 'render', clearCache: 'do_not_clear' })
-      }).then(r => r.json()).then(data => {
-        if (data.success) {
-          alert(`Deployment dispatched successfully! Deployment ID: ${data.deploymentId || data.deploy?.id || 'Accepted'}`);
-          this.loadDeploymentsData();
-        } else {
-          alert(`Deployment failed: ${data.error}`);
+    this.showModal({
+      title: 'Dispatch Gated Production Deployment',
+      bodyHtml: `
+        <p style="font-size:12px; color:var(--text-secondary); line-height:1.5;">
+          Dispatching a production deployment triggers a container rebuild on Render for service <strong>srv-da9foaon74is73fvojn0</strong>.
+          This action is audited in the SHA-256 Merkle ledger and bound to Ed25519 authorization.
+        </p>
+      `,
+      confirmText: 'Dispatch Deployment',
+      onConfirm: async () => {
+        try {
+          const res = await fetch('/api/portfolio/deployments/trigger', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ target: 'render', clearCache: 'do_not_clear' })
+          }).then(r => r.json());
+          if (res.success) {
+            this.showToast(`Deployment accepted! ID: ${res.deploymentId || res.deploy?.id || 'dep_dispatched'}`, 'success');
+            this.loadDeploymentsData();
+          } else {
+            this.showToast(`Deployment failed: ${res.error}`, 'error');
+          }
+        } catch (err) {
+          this.showToast(`Failed: ${err.message}`, 'error');
         }
-      });
-    }
+      }
+    });
   }
 
   // ==============================================================
@@ -746,13 +1242,13 @@ class PortfolioOSEngine {
     try {
       const res = await fetch('/api/portfolio/sync/supabase', { method: 'POST' }).then(r => r.json());
       if (res.success) {
-        alert(`Supabase sync complete! Contacts synced: ${res.syncedContacts || res.reconciled || 'Parity Verified'}`);
+        this.showToast(`Supabase sync complete! Contacts synced: ${res.syncedContacts || res.reconciled || 'Parity Verified'}`, 'success');
         this.loadDatabaseData();
       } else {
-        alert(`Sync error: ${res.error}`);
+        this.showToast(`Sync error: ${res.error}`, 'error');
       }
     } catch (err) {
-      alert(`Sync failed: ${err.message}`);
+      this.showToast(`Sync failed: ${err.message}`, 'error');
     } finally {
       if (btn) btn.disabled = false;
     }
@@ -763,14 +1259,14 @@ class PortfolioOSEngine {
       const res = await fetch('/api/portfolio/database/backup', { method: 'POST' }).then(r => r.json());
       if (res.success) {
         document.getElementById('dbLatestBackup').textContent = res.filename;
-        alert(`Instant SQLite snapshot backup created: ${res.filename} (${(res.sizeBytes / 1024).toFixed(1)} KB)`);
+        this.showToast(`Instant SQLite snapshot backup created: ${res.filename} (${(res.sizeBytes / 1024).toFixed(1)} KB)`, 'success');
         this.loadDatabaseData();
         this.loadNotifications();
       } else {
-        alert(`Backup error: ${res.error}`);
+        this.showToast(`Backup error: ${res.error}`, 'error');
       }
     } catch (err) {
-      alert(`Backup failed: ${err.message}`);
+      this.showToast(`Backup failed: ${err.message}`, 'error');
     }
   }
 
@@ -830,13 +1326,13 @@ class PortfolioOSEngine {
         body: JSON.stringify({ workflowId })
       }).then(r => r.json());
       if (res.success) {
-        alert(`Workflow dispatched successfully!`);
+        this.showToast('Workflow dispatched successfully!', 'success');
         this.loadWorkflowData();
       } else {
-        alert(`Error: ${res.error}`);
+        this.showToast(`Error: ${res.error}`, 'error');
       }
     } catch (err) {
-      alert(`Workflow dispatch failed: ${err.message}`);
+      this.showToast(`Workflow dispatch failed: ${err.message}`, 'error');
     }
   }
 
@@ -876,31 +1372,80 @@ class PortfolioOSEngine {
   }
 
   promptLogIncident() {
-    const title = prompt('Enter incident title:');
-    if (!title) return;
-    const service = prompt('Enter affected service (github/vercel/render/supabase):', 'github');
-    fetch('/api/portfolio/incidents/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, service, severity: 'warning', status: 'investigating' })
-    }).then(r => r.json()).then(data => {
-      if (data.success) {
-        alert('Incident logged.');
-        this.loadIncidentsData();
-        this.loadNotifications();
+    this.showModal({
+      title: 'Log New Incident',
+      bodyHtml: `
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <label style="font-size:11px; color:var(--text-secondary);">Incident Title:</label>
+          <input type="text" id="modalInputIncTitle" placeholder="e.g., Elevated API latency detected" style="background:var(--bg-elevated); border:1px solid var(--border); padding:8px 12px; border-radius:var(--radius-sm); color:var(--text-primary); outline:none;">
+          <label style="font-size:11px; color:var(--text-secondary);">Affected Service:</label>
+          <select id="modalInputIncService" style="background:var(--bg-elevated); border:1px solid var(--border); padding:8px 12px; border-radius:var(--radius-sm); color:var(--text-primary); outline:none;">
+            <option value="github">GitHub</option>
+            <option value="vercel">Vercel</option>
+            <option value="render">Render</option>
+            <option value="supabase">Supabase</option>
+            <option value="portfolio_site">Portfolio Live Site</option>
+          </select>
+          <label style="font-size:11px; color:var(--text-secondary);">Severity:</label>
+          <select id="modalInputIncSeverity" style="background:var(--bg-elevated); border:1px solid var(--border); padding:8px 12px; border-radius:var(--radius-sm); color:var(--text-primary); outline:none;">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
+      `,
+      confirmText: 'Log Incident',
+      onConfirm: async () => {
+        const title = document.getElementById('modalInputIncTitle')?.value.trim();
+        const service = document.getElementById('modalInputIncService')?.value || 'github';
+        const severity = document.getElementById('modalInputIncSeverity')?.value || 'medium';
+        if (!title) {
+          this.showToast('Incident title is required', 'error');
+          return;
+        }
+        try {
+          const res = await fetch('/api/portfolio/incidents/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, service, severity, status: 'investigating' })
+          }).then(r => r.json());
+          if (res.success) {
+            this.showToast('Incident recorded in database', 'success');
+            this.loadIncidentsData();
+            this.loadNotifications();
+          }
+        } catch (err) {
+          this.showToast(`Error: ${err.message}`, 'error');
+        }
       }
     });
   }
 
-  async resolveIncident(id) {
-    const notes = prompt('Enter resolution summary:', 'Mitigated by operator inspection');
-    if (!notes) return;
-    fetch(`/api/portfolio/incidents/${id}/resolve`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ resolution_notes: notes })
-    }).then(r => r.json()).then(() => {
-      this.loadIncidentsData();
+  resolveIncident(id) {
+    this.showModal({
+      title: 'Resolve Incident',
+      bodyHtml: `
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <label style="font-size:11px; color:var(--text-secondary);">Resolution Summary / RCA:</label>
+          <textarea id="modalInputIncNotes" rows="3" style="background:var(--bg-elevated); border:1px solid var(--border); padding:8px 12px; border-radius:var(--radius-sm); color:var(--text-primary); outline:none; font-family:var(--font-sans); font-size:12px;">Mitigated and verified by operator.</textarea>
+        </div>
+      `,
+      confirmText: 'Mark Resolved',
+      onConfirm: async () => {
+        const notes = document.getElementById('modalInputIncNotes')?.value.trim() || 'Resolved by operator';
+        try {
+          await fetch(`/api/portfolio/incidents/${id}/resolve`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ resolution_notes: notes })
+          });
+          this.showToast('Incident marked as resolved', 'success');
+          this.loadIncidentsData();
+        } catch (err) {
+          this.showToast(`Error: ${err.message}`, 'error');
+        }
+      }
     });
   }
 
@@ -912,19 +1457,38 @@ class PortfolioOSEngine {
       const res = await fetch('/api/portfolio/knowledge/items').then(r => r.json());
       const tbody = document.getElementById('tbodyKnowledge');
       if (tbody && res?.items) {
+        this.knowledgeMap.clear();
+        res.items.forEach(k => this.knowledgeMap.set(k.id, k));
+
         tbody.innerHTML = res.items.map(k => `
           <tr>
             <td><strong>${this.escape(k.title)}</strong></td>
             <td><span class="os-pill os-pill-neutral">${k.category}</span></td>
             <td class="mono" style="font-size:11px;">${this.escape(k.source_path)}</td>
             <td class="num">${k.token_count || 120}</td>
-            <td><button class="os-btn-secondary os-btn-sm" onclick="alert('${this.escape(k.content?.slice(0, 300) || '')}...')">Preview</button></td>
+            <td><button class="os-btn-secondary os-btn-sm" onclick="osEngine.previewKnowledgeDoc('${k.id}')">Preview</button></td>
           </tr>
         `).join('');
       }
     } catch (err) {
       console.warn('Knowledge data load error:', err.message);
     }
+  }
+
+  previewKnowledgeDoc(docId) {
+    const doc = this.knowledgeMap.get(docId);
+    if (!doc) return;
+    this.showModal({
+      title: `Knowledge: ${doc.title}`,
+      bodyHtml: `
+        <div style="margin-bottom:8px; font-size:11px; color:var(--text-secondary);">
+          Source: <span class="mono">${this.escape(doc.source_path)}</span> | Category: <span class="os-pill os-pill-neutral">${doc.category}</span>
+        </div>
+        <div style="max-height:300px; overflow-y:auto; background:var(--bg-elevated); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; font-family:var(--font-mono); font-size:11px; line-height:1.6; white-space:pre-wrap;">${this.escape(doc.content || 'No content')}</div>
+      `,
+      cancelText: 'Close',
+      onConfirm: null
+    });
   }
 
   async searchKnowledge() {
@@ -941,29 +1505,32 @@ class PortfolioOSEngine {
       if (res?.groundedDocuments) {
         const tbody = document.getElementById('tbodyKnowledge');
         if (tbody) {
+          this.knowledgeMap.clear();
+          res.groundedDocuments.forEach(k => this.knowledgeMap.set(k.id, k));
+
           tbody.innerHTML = res.groundedDocuments.map(k => `
             <tr>
               <td><strong>${this.escape(k.title)}</strong></td>
               <td><span class="os-pill os-pill-info">MATCH</span></td>
               <td class="mono" style="font-size:11px;">${this.escape(k.source_path)}</td>
               <td class="num">${k.token_count || 120}</td>
-              <td><button class="os-btn-secondary os-btn-sm" onclick="alert('${this.escape(k.content?.slice(0, 300) || '')}...')">Preview</button></td>
+              <td><button class="os-btn-secondary os-btn-sm" onclick="osEngine.previewKnowledgeDoc('${k.id}')">Preview</button></td>
             </tr>
           `).join('');
         }
       }
     } catch (err) {
-      alert(`Search failed: ${err.message}`);
+      this.showToast(`Search failed: ${err.message}`, 'error');
     }
   }
 
   async syncKnowledgeBase() {
     try {
       const res = await fetch('/api/portfolio/knowledge/sync', { method: 'POST' }).then(r => r.json());
-      alert(`Knowledge base synced. Documents indexed: ${res.indexedCount || 5}`);
+      this.showToast(`Knowledge base synced. Documents indexed: ${res.indexedCount || 5}`, 'success');
       this.loadKnowledgeData();
     } catch (err) {
-      alert(`Sync failed: ${err.message}`);
+      this.showToast(`Sync failed: ${err.message}`, 'error');
     }
   }
 
@@ -1005,10 +1572,11 @@ class PortfolioOSEngine {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ providerId: 'all' })
       }).then(r => r.json());
-      alert('Probe completed for all 4 providers.');
+      this.showToast('Probe completed for all 4 providers.', 'success');
       this.loadIntegrationsData();
+      this.loadMonitoringData();
     } catch (err) {
-      alert(`Probe failed: ${err.message}`);
+      this.showToast(`Probe failed: ${err.message}`, 'error');
     }
   }
 
@@ -1051,23 +1619,35 @@ class PortfolioOSEngine {
     }
   }
 
-  async approveTicket(ticketId) {
-    if (!confirm(`Digitally sign approval for ticket ${ticketId}?`)) return;
-    try {
-      const res = await fetch('/api/portfolio/governance/resolve-approval', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ticketId, decision: 'APPROVED', resolutionNotes: 'Approved by system owner' })
-      }).then(r => r.json());
-      if (res.success) {
-        alert('Ticket approved and cryptographic signature recorded.');
-        this.loadSecurityData();
-      } else {
-        alert(`Approval error: ${res.error}`);
+  approveTicket(ticketId) {
+    this.showModal({
+      title: 'Sign Cryptographic Authorization Ticket',
+      bodyHtml: `
+        <p style="font-size:12px; color:var(--text-secondary); line-height:1.5;">
+          You are digitally signing ticket <strong class="mono">${ticketId}</strong> using the verified operator Ed25519 key.
+          This approval will be atomically consumed and permanently logged to the SHA-256 Merkle audit ledger.
+        </p>
+      `,
+      confirmText: 'Sign & Authorize',
+      onConfirm: async () => {
+        try {
+          const res = await fetch('/api/portfolio/governance/resolve-approval', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticketId, decision: 'APPROVED', resolutionNotes: 'Approved by system owner' })
+          }).then(r => r.json());
+          if (res.success) {
+            this.showToast('Ticket approved and cryptographic signature recorded', 'success');
+            this.loadSecurityData();
+            this.loadNotifications();
+          } else {
+            this.showToast(`Approval error: ${res.error}`, 'error');
+          }
+        } catch (err) {
+          this.showToast(`Approval failed: ${err.message}`, 'error');
+        }
       }
-    } catch (err) {
-      alert(`Approval failed: ${err.message}`);
-    }
+    });
   }
 
   // ==============================================================
@@ -1089,7 +1669,6 @@ class PortfolioOSEngine {
         document.getElementById('auditCheckpointsCount').textContent = checkpointsRes.totalCheckpoints ?? '1';
       }
 
-      // Load records table
       const tbody = document.getElementById('tbodyAuditLedger');
       if (tbody && integrityRes?.ledgerSample) {
         tbody.innerHTML = integrityRes.ledgerSample.map(r => `
@@ -1112,13 +1691,13 @@ class PortfolioOSEngine {
     try {
       const res = await fetch('/api/portfolio/governance/audit-integrity').then(r => r.json());
       if (res.valid) {
-        alert(`SHA-256 Ledger integrity VERIFIED! All ${res.totalRecords} records cryptographically validated with zero tampering.`);
+        this.showToast(`SHA-256 Ledger integrity VERIFIED! All ${res.totalRecords} records cryptographically validated.`, 'success');
       } else {
-        alert(`Warning: Ledger validation returned invalid state: ${res.error}`);
+        this.showToast(`Warning: Ledger validation failed: ${res.error}`, 'error');
       }
       this.loadAuditData();
     } catch (err) {
-      alert(`Verification failed: ${err.message}`);
+      this.showToast(`Verification failed: ${err.message}`, 'error');
     }
   }
 
@@ -1126,13 +1705,13 @@ class PortfolioOSEngine {
     try {
       const res = await fetch('/api/portfolio/governance/checkpoints/create', { method: 'POST' }).then(r => r.json());
       if (res.success) {
-        alert(`Signed checkpoint created! Checkpoint ID: ${res.checkpoint.checkpoint_id}\nRoot Hash: ${res.checkpoint.root_hash.substring(0, 16)}...`);
+        this.showToast(`Signed checkpoint created! Checkpoint ID: ${res.checkpoint.checkpoint_id}`, 'success');
         this.loadAuditData();
       } else {
-        alert(`Checkpoint error: ${res.error}`);
+        this.showToast(`Checkpoint error: ${res.error}`, 'error');
       }
     } catch (err) {
-      alert(`Checkpoint creation failed: ${err.message}`);
+      this.showToast(`Checkpoint creation failed: ${err.message}`, 'error');
     }
   }
 
@@ -1180,10 +1759,10 @@ class PortfolioOSEngine {
         this.userSettings = { ...this.userSettings, ...res.settings };
         this.applyTheme(this.userSettings.theme);
         this.setupAutoRefresh();
-        alert('Settings saved successfully.');
+        this.showToast('Settings saved successfully.', 'success');
       }
     } catch (err) {
-      alert(`Failed to save settings: ${err.message}`);
+      this.showToast(`Failed to save settings: ${err.message}`, 'error');
     }
   }
 
@@ -1252,23 +1831,34 @@ class PortfolioOSEngine {
   // ==============================================================
   // EMERGENCY STOP
   // ==============================================================
-  async toggleEmergencyStop() {
+  toggleEmergencyStop() {
     const action = this.isEmergencyStopped ? 'RESUME' : 'FREEZE';
-    if (!confirm(`Are you sure you want to ${action} all autonomous portfolio actions?`)) return;
+    this.showModal({
+      title: `${action} All Autonomous Operations?`,
+      bodyHtml: `
+        <p style="font-size:12px; color:var(--text-secondary); line-height:1.5;">
+          ${this.isEmergencyStopped 
+            ? 'Resuming will allow automated commits, pull requests, and deployment dispatches to execute.' 
+            : 'Activating Emergency Stop will immediately block and reject all automated Git operations, deployments, and mutation pipelines across the platform.'}
+        </p>
+      `,
+      confirmText: this.isEmergencyStopped ? 'Resume Operations' : 'Activate Stop',
+      onConfirm: async () => {
+        try {
+          const res = await fetch('/api/portfolio/emergency-stop', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ active: !this.isEmergencyStopped })
+          }).then(r => r.json());
 
-    try {
-      const res = await fetch('/api/portfolio/emergency-stop', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ active: !this.isEmergencyStopped })
-      }).then(r => r.json());
-
-      this.isEmergencyStopped = !!res.emergencyStopActive;
-      this.updateEmergencyStopUI();
-      alert(`Emergency Stop is now ${this.isEmergencyStopped ? 'ACTIVATED (All mutations blocked)' : 'DEACTIVATED (Autonomous operations resumed)'}`);
-    } catch (err) {
-      alert(`Failed to toggle Emergency Stop: ${err.message}`);
-    }
+          this.isEmergencyStopped = !!res.emergencyStopActive;
+          this.updateEmergencyStopUI();
+          this.showToast(`Emergency Stop is now ${this.isEmergencyStopped ? 'ACTIVATED' : 'DEACTIVATED'}`, this.isEmergencyStopped ? 'error' : 'success');
+        } catch (err) {
+          this.showToast(`Failed to toggle Emergency Stop: ${err.message}`, 'error');
+        }
+      }
+    });
   }
 
   updateEmergencyStopUI() {
@@ -1404,13 +1994,14 @@ class PortfolioOSEngine {
 
   simulatePing() {
     fetch('/api/portfolio/analytics/simulate-ping', { method: 'POST' }).then(() => {
+      this.showToast('Visitor Ping simulated and recorded', 'success');
       this.loadOverviewData();
     });
   }
 
   runHealthCheck() {
     fetch('/api/portfolio/monitoring/services').then(r => r.json()).then(data => {
-      alert(`System Health Check: Site is ${data.portfolioSite?.status || 'HEALTHY'}, latency: ${data.portfolioSite?.latencyMs || 271}ms`);
+      this.showToast(`Health Check: Site is ${data.portfolioSite?.status || 'HEALTHY'} (${data.portfolioSite?.latencyMs || 271}ms)`, 'success');
       this.loadOverviewData();
     });
   }

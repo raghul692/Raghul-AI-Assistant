@@ -217,3 +217,4 @@ export async function getGitLog(count = 15) {
     return { success: false, error: err.message, commits: [] };
   }
 }
+

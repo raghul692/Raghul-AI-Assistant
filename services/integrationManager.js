@@ -16,7 +16,20 @@
  */
 
 import 'dotenv/config';
+import dns from 'dns';
+import { setGlobalDispatcher, Agent } from 'undici';
 import { db } from '../db.js';
+
+try {
+  dns.setDefaultResultOrder('ipv4first');
+} catch (_) {}
+
+try {
+  setGlobalDispatcher(new Agent({
+    connect: { timeout: 15000, autoSelectFamily: false },
+    allowH2: false
+  }));
+} catch (_) {}
 
 class IntegrationManager {
   constructor() {
@@ -556,25 +569,38 @@ class IntegrationManager {
     const creds = this.getCredentials().github;
     if (!creds.token) throw new Error('GITHUB_TOKEN missing in .env');
 
-    const res = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}`, {
-      headers: {
-        'Authorization': `Bearer ${creds.token}`,
-        'User-Agent': 'RaghulAI-PortfolioOS',
-        'Accept': 'application/vnd.github.v3+json'
-      }
-    });
+    try {
+      const res = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}`, {
+        headers: {
+          'Authorization': `Bearer ${creds.token}`,
+          'User-Agent': 'RaghulAI-PortfolioOS',
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
 
-    if (!res.ok) throw new Error(`GitHub repo query failed [HTTP ${res.status}]`);
-    const data = await res.json();
-    return {
-      fullName: data.full_name,
-      defaultBranch: data.default_branch,
-      visibility: data.visibility,
-      description: data.description,
-      openIssues: data.open_issues_count,
-      pushedAt: data.pushed_at,
-      updatedAt: data.updated_at
-    };
+      if (res.ok) {
+        const data = await res.json();
+        const details = {
+          fullName: data.full_name,
+          defaultBranch: data.default_branch,
+          visibility: data.visibility,
+          description: data.description,
+          openIssues: data.open_issues_count,
+          pushedAt: data.pushed_at,
+          updatedAt: data.updated_at
+        };
+        this._cachedRepoDetails = { data: details, timestamp: Date.now() };
+        return details;
+      }
+    } catch (err) {
+      // Fallback to cache if network fails
+    }
+
+    if (this._cachedRepoDetails?.data) {
+      return this._cachedRepoDetails.data;
+    }
+
+    throw new Error('GitHub repo query failed and no cached data available');
   }
 
   async createGitHubBranch(branchName, baseBranch = 'main') {
@@ -625,7 +651,27 @@ class IntegrationManager {
     };
   }
 
-  async commitGitHubFile({ branch, path, content, message }) {
+  async getGitHubFileContent({ path, branch = 'main' }) {
+    const creds = this.getCredentials().github;
+    if (!creds.token) throw new Error('GITHUB_TOKEN missing in .env');
+
+    const res = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}/contents/${path}?ref=${branch}`, {
+      headers: {
+        'Authorization': `Bearer ${creds.token}`,
+        'User-Agent': 'RaghulAI-PortfolioOS',
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    if (!res.ok) throw new Error(`Fetch file ${path} failed [HTTP ${res.status}]`);
+    const data = await res.json();
+    return {
+      sha: data.sha,
+      content: Buffer.from(data.content, 'base64').toString('utf8'),
+      path: data.path
+    };
+  }
+
+  async commitGitHubFile({ branch, path, content, message, isBase64 = false }) {
     const creds = this.getCredentials().github;
     if (!creds.token) throw new Error('GITHUB_TOKEN missing in .env');
 
@@ -645,9 +691,18 @@ class IntegrationManager {
       }
     } catch (_) {}
 
+    let base64Content;
+    if (Buffer.isBuffer(content)) {
+      base64Content = content.toString('base64');
+    } else if (isBase64) {
+      base64Content = content;
+    } else {
+      base64Content = Buffer.from(content, 'utf-8').toString('base64');
+    }
+
     const payload = {
       message: message || `Autonomous commit: update ${path}`,
-      content: Buffer.from(content, 'utf-8').toString('base64'),
+      content: base64Content,
       branch
     };
     if (existingSha) payload.sha = existingSha;
@@ -842,24 +897,37 @@ class IntegrationManager {
     const creds = this.getCredentials().github;
     if (!creds.token) throw new Error('GITHUB_TOKEN missing in .env');
 
-    const res = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}/commits?per_page=${limit}`, {
-      headers: {
-        'Authorization': `Bearer ${creds.token}`,
-        'User-Agent': 'RaghulAI-PortfolioOS',
-        'Accept': 'application/vnd.github.v3+json'
+    try {
+      const res = await fetch(`https://api.github.com/repos/${creds.owner}/${creds.repo}/commits?per_page=${limit}`, {
+        headers: {
+          'Authorization': `Bearer ${creds.token}`,
+          'User-Agent': 'RaghulAI-PortfolioOS',
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const commits = data.map(c => ({
+          sha: c.sha,
+          shortSha: c.sha.substring(0, 7),
+          message: c.commit.message,
+          author: c.commit.author.name,
+          authorAvatar: c.author?.avatar_url,
+          date: c.commit.author.date,
+          htmlUrl: c.html_url
+        }));
+        this._cachedCommits = commits;
+        return commits;
       }
-    });
-    if (!res.ok) throw new Error(`GitHub commits query failed [HTTP ${res.status}]`);
-    const data = await res.json();
-    return data.map(c => ({
-      sha: c.sha,
-      shortSha: c.sha.substring(0, 7),
-      message: c.commit.message,
-      author: c.commit.author.name,
-      authorAvatar: c.author?.avatar_url,
-      date: c.commit.author.date,
-      htmlUrl: c.html_url
-    }));
+    } catch (err) {
+      // Fallback
+    }
+
+    if (this._cachedCommits?.length) {
+      return this._cachedCommits;
+    }
+
+    throw new Error('GitHub commits query failed and no cached data available');
   }
 
   async listGitHubBranches(limit = 20) {

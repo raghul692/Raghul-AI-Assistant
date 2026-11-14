@@ -11,7 +11,15 @@
 
 import crypto from 'crypto';
 import { db } from '../db.js';
+import { setGlobalDispatcher, Agent } from 'undici';
 import 'dotenv/config';
+
+try {
+  setGlobalDispatcher(new Agent({
+    connect: { timeout: 15000, autoSelectFamily: false },
+    allowH2: false
+  }));
+} catch (_) {}
 
 class SupabaseSyncEngine {
   constructor() {
@@ -147,10 +155,93 @@ class SupabaseSyncEngine {
     }
   }
 
+  /**
+   * PULL VISITOR ANALYTICS FROM SUPABASE TO LOCAL SQLITE
+   * Synchronizes all first-party visitor events into portfolio_analytics_events
+   */
+  async syncVisitorAnalytics() {
+    if (!this.key) return { success: false, error: 'No Supabase key configured' };
+
+    try {
+      const res = await fetch(`${this.url}/rest/v1/visitor_analytics?select=*&order=created_at.desc&limit=500`, {
+        headers: this._getHeaders()
+      });
+      if (!res.ok) throw new Error(`Supabase returned HTTP ${res.status}`);
+      const remoteEvents = await res.json();
+      if (!Array.isArray(remoteEvents)) return { success: false, count: 0 };
+
+      const insertStmt = db.prepare(`
+        INSERT OR IGNORE INTO portfolio_analytics_events (
+          id, event_type, path, target, referrer, country, country_code, ip_hash, user_agent, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+
+      let newCount = 0;
+      const insertTx = db.transaction((events) => {
+        for (const evt of events) {
+          const eventId = String(evt.id || `evt_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`);
+          const eventType = String(evt.event_name || 'pageview');
+          const pagePath = String(evt.page_path || '/');
+          let target = '';
+          let country = 'India';
+          let countryCode = 'IN';
+
+          if (evt.event_data && typeof evt.event_data === 'object') {
+            if (evt.event_data.target) target = String(evt.event_data.target);
+            if (evt.event_data.country) country = String(evt.event_data.country);
+            if (evt.event_data.country_code) countryCode = String(evt.event_data.country_code);
+            else if (evt.event_data.timezone) {
+              const tz = String(evt.event_data.timezone);
+              if (tz.includes('Kolkata') || tz.includes('India')) { country = 'India'; countryCode = 'IN'; }
+              else if (tz.includes('New_York') || tz.includes('Chicago') || tz.includes('Los_Angeles') || tz.includes('Denver')) { country = 'United States'; countryCode = 'US'; }
+              else if (tz.includes('London')) { country = 'United Kingdom'; countryCode = 'GB'; }
+              else if (tz.includes('Singapore')) { country = 'Singapore'; countryCode = 'SG'; }
+              else if (tz.includes('Berlin') || tz.includes('Paris')) { country = 'Germany'; countryCode = 'DE'; }
+              else if (tz.includes('Toronto') || tz.includes('Vancouver')) { country = 'Canada'; countryCode = 'CA'; }
+              else if (tz.includes('Sydney') || tz.includes('Melbourne')) { country = 'Australia'; countryCode = 'AU'; }
+              else if (tz.includes('Tokyo')) { country = 'Japan'; countryCode = 'JP'; }
+            }
+          }
+
+          const ipHash = String(evt.ip_address || evt.session_id || 'anonymous');
+          const referrer = String(evt.referrer || 'direct');
+          const userAgent = String(evt.user_agent || 'browser');
+          const createdAt = evt.created_at ? new Date(evt.created_at).getTime() : Date.now();
+
+          const result = insertStmt.run(
+            eventId,
+            eventType,
+            pagePath,
+            target,
+            referrer,
+            country,
+            countryCode,
+            ipHash,
+            userAgent,
+            createdAt
+          );
+          if (result.changes > 0) newCount++;
+        }
+      });
+
+      insertTx(remoteEvents);
+
+      return {
+        success: true,
+        totalRemote: remoteEvents.length,
+        syncedNew: newCount,
+        syncedAt: Date.now()
+      };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }
+
   async syncAll(pruneOrphans = true) {
-    const [docs, contacts] = await Promise.allSettled([
+    const [docs, contacts, visitors] = await Promise.allSettled([
       this.syncDocuments(),
-      this.syncContacts()
+      this.syncContacts(),
+      this.syncVisitorAnalytics()
     ]);
 
     let pruned = { contacts: 0 };
@@ -164,6 +255,7 @@ class SupabaseSyncEngine {
       timestamp: Date.now(),
       documents: docs.status === 'fulfilled' ? docs.value : { error: docs.reason?.message },
       contacts: contacts.status === 'fulfilled' ? contacts.value : { error: contacts.reason?.message },
+      visitors: visitors.status === 'fulfilled' ? visitors.value : { error: visitors.reason?.message },
       pruned,
       reconciliation
     };

@@ -5,7 +5,16 @@ import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
 import dns from 'dns';
+import { setGlobalDispatcher, Agent } from 'undici';
 import { fileURLToPath } from 'url';
+
+try {
+  dns.setDefaultResultOrder('ipv4first');
+  setGlobalDispatcher(new Agent({
+    connect: { timeout: 15000, autoSelectFamily: false },
+    allowH2: false
+  }));
+} catch (_) {}
 import compression from 'compression';
 import { GoogleGenAI } from '@google/genai';
 import { listChats, getChat, createOrUpdateChat, renameChat, deleteChat, clearChatHistory, exportAllChats, importAllChats, clearAllChats, searchFullText } from './storage.js';
@@ -74,7 +83,6 @@ import {
   getAuditLogs, listPendingApprovals,
   resolveHumanApproval, systemCircuitBreaker
 } from './governanceAudit.js';
-import { Agent, setGlobalDispatcher } from 'undici';
 import { aiProviderManager } from './orchestration/aiProviderManager.js';
 import {
   buildUnifiedContext, listUserMemories,
@@ -129,7 +137,13 @@ app.use(helmet({
 // Security: Hardened CORS Policy
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim())
-  : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5173'];
+  : [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://localhost:5173',
+      'https://raghulraja.is-a.dev',
+      'https://raghulraja-portfolio.vercel.app'
+    ];
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -1815,6 +1829,87 @@ app.post('/api/chat', async (req, res) => {
     res.json({ reply, memoryTurns: session.history.length, model: modelChoice });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// =========================================================================
+// REAL-TIME VOICE DIALOGUE ENDPOINT (ChatGPT Advanced Voice Mode)
+// =========================================================================
+app.post('/api/voice/chat', async (req, res) => {
+  try {
+    const {
+      message,
+      sessionId = 'default-session',
+      language = 'auto',
+      model = 'gemini-2.5-flash'
+    } = req.body;
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({ error: 'Message text is required for voice mode.' });
+    }
+
+    const cleanInput = message.trim();
+    const isTamil = language === 'ta' || /[\u0B80-\u0BFF]/.test(cleanInput) || 
+      /\b(pannu|sollu|iruku|illai|vendaam|theriyuma|kaatu|podu|vaanga|epdi|enna|eppadi|yen|nalla|vanakkam)\b/i.test(cleanInput);
+
+    const voiceSystemPrompt = `You are Raghul AI in live Real-Time Voice Mode (like ChatGPT Voice Mode).
+You are speaking directly with Raghul via conversational voice audio.
+Raghul's Context: Raghul is an AI Engineer and Full-Stack Developer. His portfolio is at https://raghulraja.is-a.dev, GitHub: raghul692. Projects: Raghul AI Assistant, Deep Research Engine, Portfolio OS.
+CRITICAL SPOKEN VOICE RULES:
+1. Speak in a warm, lively, natural conversational tone.
+2. Be extremely concise: 1 to 2 short sentences maximum (under 35 words).
+3. ABSOLUTELY ZERO MARKDOWN: Never use asterisks (*), hashtags (#), bullet points (-), backticks (\`), code blocks, tables, or URLs. Output only plain natural spoken text.
+4. Language Handling:
+   - If the user speaks Tamil or Tanglish, reply in friendly spoken Tanglish or Tamil.
+   - If the user speaks English, reply in natural conversational English.
+5. Answer directly and immediately without conversational filler like "Sure, I can help with that".`;
+
+    const chatSession = sessions.get(sessionId) || { history: [] };
+    const recentHistory = chatSession.history.slice(-4).map(m => ({
+      role: m.role === 'model' ? 'assistant' : 'user',
+      content: m.text
+    }));
+
+    recentHistory.push({ role: 'user', content: cleanInput });
+
+    let reply = '';
+    const startTs = Date.now();
+
+    await aiProviderManager.orchestrateStream({
+      messages: recentHistory,
+      systemInstruction: voiceSystemPrompt,
+      maxTokens: 100,
+      temperature: 0.6,
+      preferredProvider: 'groq',
+      preferredModel: 'llama-3.3-70b-versatile',
+      onToken: (tok) => { reply += tok; }
+    });
+
+    reply = reply
+      .replace(/[*#`_~>]/g, '')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .replace(/\n+/g, ' ')
+      .trim();
+
+    if (!reply) {
+      reply = isTamil ? 'Sari Raghul, ungalukku enna theva?' : "I'm listening Raghul, how can I help you?";
+    }
+
+    chatSession.history.push({ role: 'user', text: cleanInput, timestamp: Date.now() });
+    chatSession.history.push({ role: 'model', text: reply, timestamp: Date.now() });
+    sessions.set(sessionId, chatSession);
+
+    const latencyMs = Date.now() - startTs;
+
+    res.json({
+      reply,
+      isTamil,
+      latencyMs,
+      sessionId
+    });
+  } catch (err) {
+    console.error('Voice chat error:', err.message);
+    res.status(500).json({ error: err.message, reply: "I'm listening, please try saying that again." });
   }
 });
 

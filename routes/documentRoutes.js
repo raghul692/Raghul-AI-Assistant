@@ -14,7 +14,7 @@ import {
 const router = express.Router();
 
 // 1. List Documents
-router.get('/', (req, res) => {
+router.get(['/', '/list'], (req, res) => {
   const limit = parseInt(req.query.limit || '50', 10);
   res.json({ documents: listDocuments(limit) });
 });
@@ -99,3 +99,4 @@ router.post('/edit', async (req, res) => {
 });
 
 export default router;
+

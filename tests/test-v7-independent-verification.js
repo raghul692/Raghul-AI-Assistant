@@ -677,3 +677,4 @@ runV7VerificationSuite()
     console.error('Fatal harness error:', err);
     process.exit(1);
   });
+

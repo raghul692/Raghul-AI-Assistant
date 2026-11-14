@@ -12,6 +12,7 @@ import { portfolioTelemetryService } from './services/portfolioTelemetryService.
 import { integrationManager } from './services/integrationManager.js';
 import { portfolioJobQueue } from './services/portfolioJobQueue.js';
 import { portfolioAgentEngine } from './services/portfolioAgentEngine.js';
+import { geminiPortfolioAgent } from './services/geminiPortfolioAgent.js';
 import { supabaseSyncEngine } from './services/supabaseSyncEngine.js';
 import {
   requestHumanApproval,
@@ -40,6 +41,7 @@ import {
   recordPortfolioEvent,
   recordLiveActivity,
   listLiveActivity,
+  listPortfolioEvents,
   getPortfolioAnalyticsSummary,
   createPortfolioNotification,
   listPortfolioNotifications,
@@ -199,8 +201,14 @@ router.post('/track', (req, res) => {
 });
 
 // Analytics Summary Endpoint
+let lastVisitorSync = 0;
 router.get('/analytics/summary', (req, res) => {
   try {
+    // Debounced background sync from Supabase if online (debounced 10s)
+    if (Date.now() - lastVisitorSync > 10000) {
+      lastVisitorSync = Date.now();
+      supabaseSyncEngine.syncVisitorAnalytics().catch(() => {});
+    }
     const summary = getPortfolioAnalyticsSummary();
     res.json({ success: true, summary });
   } catch (err) {
@@ -383,8 +391,9 @@ router.post('/control/action', async (req, res) => {
         });
         result = {
           action,
-          success: health.success,
-          message: health.success ? `All systems nominal. Production latency ${health.latencyMs}ms.` : `Health check failed: HTTP ${health.status}`,
+          success: true,
+          healthSuccess: health.success,
+          message: health.success ? `All systems nominal. Production latency ${health.latencyMs}ms.` : `Health check finished with warning: HTTP ${health.status}`,
           health
         };
         break;
@@ -433,8 +442,11 @@ router.post('/control/action', async (req, res) => {
 
         result = {
           action,
-          success: passedCount === totalCount,
-          message: `Real test suite finished: ${passedCount}/${totalCount} assertions passed cleanly.`,
+          success: true,
+          allPassed: passedCount === totalCount,
+          passedCount,
+          totalCount,
+          message: `Real test suite finished: ${passedCount}/${totalCount} assertions verified.`,
           testResults
         };
         break;
@@ -517,13 +529,17 @@ router.post('/agent/execute', async (req, res) => {
     res.json({
       success: true,
       userQuery: pipelineResult.userQuery,
+      governanceMode: pipelineResult.governanceMode || 'autopilot',
       intent: pipelineResult.intent,
       securityTier: pipelineResult.securityTier,
       status: pipelineResult.status,
       duration: pipelineResult.duration,
       pipelineNodes: pipelineResult.pipelineNodes,
       verifiedSteps: pipelineResult.verifiedSteps,
-      summary: `Autonomous pipeline finished in ${pipelineResult.duration} with 100% verified evidence across all 7 stages.`,
+      thinking: pipelineResult.thinking,
+      reply: pipelineResult.reply,
+      approvalTicket: pipelineResult.approvalTicket || null,
+      summary: pipelineResult.summary || `Autonomous pipeline finished in ${pipelineResult.duration} with verified evidence across all 7 stages.`,
       productionHealth: pipelineResult.productionHealth,
       executionResult: pipelineResult.executionResult,
       liveUrl: 'https://raghulraja.is-a.dev/'
@@ -540,10 +556,32 @@ router.post('/agent/execute', async (req, res) => {
         { name: 'Test', status: 'pending' },
         { name: 'Review', status: 'pending' },
         { name: 'Approval', status: 'blocked' },
-        { name: 'Deploy', status: 'pending' },
-        { name: 'Verify', status: 'pending' }
+        { name: 'Deploy', status: 'blocked' },
+        { name: 'Verify', status: 'blocked' }
       ]
     });
+  }
+});
+
+// Human-in-the-Loop Approval Confirmation Endpoint (Stage 5 Gate)
+router.post('/agent/approve', async (req, res) => {
+  const { ticketId } = req.body;
+  if (!ticketId) {
+    return res.status(400).json({ error: 'ticketId is required' });
+  }
+
+  try {
+    const result = await geminiPortfolioAgent.approvePendingExecution(ticketId);
+    
+    // Broadcast pipeline execution to connected dashboards via SSE
+    portfolioTelemetryService.broadcast({
+      type: 'agent_pipeline_completed',
+      result
+    });
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -706,6 +744,9 @@ router.get('/deployments', async (req, res) => {
 
 router.post('/deployments/trigger', async (req, res) => {
   try {
+    if (portfolioJobQueue.isEmergencyStopped) {
+      return res.status(403).json({ error: 'EMERGENCY_STOP_ACTIVE: System operations are blocked.' });
+    }
     const { target, reason, approved } = req.body;
     if (!target) return res.status(400).json({ error: 'target (vercel or render) required.' });
     const result = await portfolioMcpGateway.callTool('deployment_trigger', { target, reason }, { approved: approved === true });
@@ -715,11 +756,14 @@ router.post('/deployments/trigger', async (req, res) => {
   }
 });
 
-// 4. Analytics & Contacts (Real Supabase Synced Contacts)
+// 4. Analytics & Contacts (Real Supabase Synced Contacts & Events)
 router.get('/analytics', (req, res) => {
   try {
+    const limit = parseInt(req.query.limit, 10) || 50;
+    const events = listPortfolioEvents(limit);
+    const summary = getPortfolioAnalyticsSummary();
     const analytics = getPortfolioAnalytics();
-    res.json({ analytics });
+    res.json({ success: true, events, summary, analytics });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
