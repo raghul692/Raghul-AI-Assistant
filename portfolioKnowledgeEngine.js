@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — PORTFOLIO KNOWLEDGE ENGINE
+ * RAGHUL AI — PORTFOLIO KNOWLEDGE ENGINE
  * 
  * Ingests, indexes, and grounds portfolio knowledge from:
  * 1. raghul692/raghulraja_portfolio GitHub repository source tree

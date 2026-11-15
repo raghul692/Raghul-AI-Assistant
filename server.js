@@ -923,7 +923,7 @@ app.post('/api/chat/stream', async (req, res) => {
         chat.history.push({ role: 'user', text: message, timestamp: Date.now() });
         chat.history.push({ role: 'model', text: replyText, timestamp: Date.now() });
         createOrUpdateChat(chat);
-        sendSSE({ type: 'done', model: 'nexus-document-studio' });
+        sendSSE({ type: 'done', model: 'raghul-document-studio' });
         return res.end();
       } catch (editErr) {
         console.error('PDF editing error:', editErr);
@@ -989,7 +989,7 @@ You have authenticated access to @raghul692's repositories.`;
       .trim();
 
     if (isDeepResearch && researchQuery) {
-      sendSSE({ type: 'status', text: '🔬 Nexus Deep Research Engine: Launching multi-vector autonomous investigation...' });
+      sendSSE({ type: 'status', text: '🔬 RAGHUL AI Deep Research Engine: Launching multi-vector autonomous investigation...' });
       const isTamil = /[\u0B80-\u0BFF]|(epdi|enna|sollu|pannu|nalla|theriyum|kodu|vaanga|puriyala|iruku|irukinga|bro|nanba|eppadi|seivathu|solunga)/i.test(sanitizedMessage);
 
       let accumulatedDossier = '';
@@ -1061,7 +1061,7 @@ You have authenticated access to @raghul692's repositories.`;
 
         sendSSE({
           type: 'done',
-          model: 'nexus-deep-research',
+          model: 'raghul-deep-research',
           memoryTurns: chat.history.length,
           title: chat.title
         });
@@ -1076,7 +1076,7 @@ You have authenticated access to @raghul692's repositories.`;
     // 1. Autonomous GitHub AI Agent Pipeline (Zero-Hallucination, 100% Real API Grounding)
     if (githubAgent.isGitHubIntent(sanitizedMessage) && !isDeepResearch) {
       try {
-        sendSSE({ type: 'status', text: '🐙 Nexus GitHub Autonomous AI Agent: Initializing live execution loop...' });
+        sendSSE({ type: 'status', text: '🐙 RAGHUL AI GitHub Autonomous AI Agent: Initializing live execution loop...' });
         const agentResult = await githubAgent.executeIntent({
           message: sanitizedMessage,
           persona: chat.persona || 'assistant',
@@ -1097,7 +1097,7 @@ You have authenticated access to @raghul692's repositories.`;
         createOrUpdateChat(chat);
         sendSSE({
           type: 'done',
-          model: 'nexus-github-autonomous-agent',
+          model: 'raghul-github-autonomous-agent',
           memoryTurns: chat.history.length,
           title: chat.title
         });
@@ -1169,7 +1169,7 @@ Mandate: Answer all questions about Raghul Raja's portfolio, about section, educ
         createOrUpdateChat(chat);
         sendSSE({
           type: 'done',
-          model: 'nexus-multi-agent-swarm',
+          model: 'raghul-multi-agent-swarm',
           memoryTurns: chat.history.length,
           title: chat.title
         });
@@ -1223,7 +1223,7 @@ Mandate: Answer all questions about Raghul Raja's portfolio, about section, educ
         createOrUpdateChat(chat);
         sendSSE({
           type: 'done',
-          model: 'nexus-task-orchestrator',
+          model: 'raghul-task-orchestrator',
           memoryTurns: chat.history.length,
           title: chat.title
         });
@@ -1284,7 +1284,7 @@ Mandate: Answer all questions about Raghul Raja's portfolio, about section, educ
           generatedDoc = await generateDocxDocument({
             title: docTopic || 'Technical Specification Document',
             subtitle: 'Standard Operating Procedures & System Architecture',
-            author: 'Nexus Lead Architect',
+            author: 'RAGHUL AI Lead Architect',
             abstract: `Formal technical architecture and implementation guidelines for ${docTopic || 'Enterprise Systems'}.`,
             sections: [
               {
@@ -1328,12 +1328,12 @@ Mandate: Answer all questions about Raghul Raja's portfolio, about section, educ
                 headers: ['Configuration', 'P50 (ms)', 'P99 (ms)', 'Memory (MB)'],
                 rows: [
                   ['Legacy Monolith', '320', '680', '520'],
-                  ['Nexus Multi-Hop (Ours)', '45', '112', '74']
+                  ['RAGHUL AI Multi-Hop (Ours)', '45', '112', '74']
                 ]
               }
             ],
             citations: [
-              { title: 'Nexus Enterprise Research Archive', year: '2026' }
+              { title: 'RAGHUL AI Enterprise Research Archive', year: '2026' }
             ]
           });
         }
@@ -1369,7 +1369,7 @@ Mandate: Answer all questions about Raghul Raja's portfolio, about section, educ
         chat.history.push({ role: 'user', text: message, timestamp: Date.now() });
         chat.history.push({ role: 'model', text: actionCard, timestamp: Date.now() });
         createOrUpdateChat(chat);
-        sendSSE({ type: 'done', model: 'nexus-document-studio' });
+        sendSSE({ type: 'done', model: 'raghul-document-studio' });
         return res.end();
       } catch (docErr) {
         console.error('Doc command error:', docErr);
@@ -1434,7 +1434,7 @@ Mandate: Answer all questions about Raghul Raja's portfolio, about section, educ
           chat.history.push({ role: 'user', text: message, timestamp: Date.now() });
           chat.history.push({ role: 'model', text: clarificationText, timestamp: Date.now() });
           createOrUpdateChat(chat);
-          sendSSE({ type: 'done', model: 'nexus-planning-engine' });
+          sendSSE({ type: 'done', model: 'raghul-planning-engine' });
           return res.end();
         }
 

@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — PRODUCTION CODING AGENT & WORKSPACE ENGINE (Upgrade 05)
+ * RAGHUL AI — PRODUCTION CODING AGENT & WORKSPACE ENGINE (Upgrade 05)
  * 
  * Capabilities:
  * 1. Repository-level file tree navigation & AST symbol inspection
@@ -232,7 +232,7 @@ export async function runSelfRepairLoop({
     if (!passed && iterations < maxIterations) {
       onIteration({ iteration: iterations, status: 'fixing', message: `Refining code to resolve: ${String(lastError).slice(0, 80)}...` });
 
-      const repairPrompt = `You are Nexus Automated Code Repair Architect.
+      const repairPrompt = `You are RAGHUL AI Automated Code Repair Architect.
 The following ${language} code failed pre-delivery verification or tests.
 
 === ORIGINAL CODE ===

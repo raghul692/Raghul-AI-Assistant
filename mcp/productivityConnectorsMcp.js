@@ -15,7 +15,7 @@ class ProductivityConnectorsServer {
 
     const body = {
       event: eventName,
-      source: 'Nexus AI Assistant',
+      source: 'Raghul AI Assistant',
       timestamp: new Date().toISOString(),
       payload
     };

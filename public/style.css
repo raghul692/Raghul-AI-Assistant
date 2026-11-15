@@ -4427,7 +4427,7 @@ input:checked + .slider.round:before {
 }
 
 /* ==========================================================================
-   NEXUS ARTIFACTS / LIVE PREVIEW MODAL (Claude Artifacts & ChatGPT Canvas)
+   RAGHUL AI ARTIFACTS / LIVE PREVIEW MODAL (Claude Artifacts & ChatGPT Canvas)
    ========================================================================== */
 .artifact-modal-backdrop {
   position: fixed;
@@ -4463,7 +4463,7 @@ input:checked + .slider.round:before {
 }
 
 /* ==========================================================================
-   NEXUS CANVAS STUDIO V2: TIER-1 DEVELOPER-GRADE IDE STYLES
+   RAGHUL AI CANVAS STUDIO V2: TIER-1 DEVELOPER-GRADE IDE STYLES
    ========================================================================== */
 .canvas-studio-dialog {
   width: 97vw;
@@ -6242,7 +6242,7 @@ input:checked + .slider.round:before {
 }
 
 /* ==========================================================================
-   NEXUS AI — GITHUB MCP PLATFORM & AUTONOMOUS AUTOMATION STYLES
+   RAGHUL AI — GITHUB MCP PLATFORM & AUTONOMOUS AUTOMATION STYLES
    ========================================================================== */
 
 .github-status-pill {

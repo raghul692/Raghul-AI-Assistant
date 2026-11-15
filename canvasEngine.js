@@ -125,7 +125,7 @@ export async function executeAutonomousStudioGeneration({
 }) {
   const fileContexts = files.map(f => `--- FILE: ${f.name} (${f.language}) ---\n${f.content}\n--- END FILE ---`).join('\n\n');
 
-  const prompt = `You are Nexus Autonomous Code Architect & Copilot (comparable to VS Code Copilot, Cursor Composer, and Antigravity).
+  const prompt = `You are RAGHUL AI Autonomous Code Architect & Copilot (comparable to VS Code Copilot, Cursor Composer, and Antigravity).
 The developer wants to generate, modify, or extend their multi-file code project.
 
 === DEVELOPER INSTRUCTION ===
@@ -225,7 +225,7 @@ ${activeFileName ? `(Currently active file: ${activeFileName})` : ''}
 
   // Extract Summary
   const summaryMatch = fullText.match(/###\s*SUMMARY\s*([\s\S]*?)$/i);
-  const summary = summaryMatch ? summaryMatch[1].trim() : 'Project files successfully generated and updated by Nexus AI Copilot.';
+  const summary = summaryMatch ? summaryMatch[1].trim() : 'Project files successfully generated and updated by RAGHUL AI Copilot.';
 
   // Automated Pre-Delivery AST & Quality Validation
   const validation = validateProjectFiles(parsedFiles);

@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — SUPABASE & SQLITE DATA CONSISTENCY & SYNC ENGINE
+ * RAGHUL AI — SUPABASE & SQLITE DATA CONSISTENCY & SYNC ENGINE
  * 
  * Provides bi-directional data consistency between local SQLite WAL storage
  * and Supabase Cloud PostgreSQL 17:

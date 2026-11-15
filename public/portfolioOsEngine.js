@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — PORTFOLIO OS v3.0 / v4.0 CLIENT ENGINE
+ * RAGHUL AI — PORTFOLIO OS v3.0 / v4.0 CLIENT ENGINE
  * 
  * 14-Module Linear/Vercel-Grade Command Center Client:
  * 1. Overview Command Center

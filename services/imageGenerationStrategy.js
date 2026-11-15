@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — GENERATION STRATEGY SELECTOR (Phase 6)
+ * RAGHUL AI — GENERATION STRATEGY SELECTOR (Phase 6)
  * 
  * Selects the optimal generation method based on visual brief, content density, and user objective:
  * - STRATEGY_RASTER: Native AI generation (Gemini / FLUX) for creative & photorealistic art

@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — ADVANCED HYBRID DUAL-STACK RAG ENGINE (Upgrade 04)
+ * RAGHUL AI — ADVANCED HYBRID DUAL-STACK RAG ENGINE (Upgrade 04)
  * 
  * Enterprise-grade RAG Architecture:
  * 1. Dual-Stack Embedding Providers:

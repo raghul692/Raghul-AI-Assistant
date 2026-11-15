@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — PORTFOLIO INTELLIGENCE MCP GATEWAY & MANAGEMENT ENGINE
+ * RAGHUL AI — PORTFOLIO INTELLIGENCE MCP GATEWAY & MANAGEMENT ENGINE
  * 
  * Target Portfolio: https://raghulraja.is-a.dev/
  * GitHub Target: raghul692/raghulraja_portfolio
@@ -466,7 +466,7 @@ export class PortfolioMCPGateway {
           deploymentId: actualDeployId,
           status: actualStatus,
           url: target === 'vercel' ? this.siteUrl : this.renderApiUrl,
-          triggeredBy: 'Nexus AI Approver'
+          triggeredBy: 'Raghul AI Approver'
         });
 
         return {

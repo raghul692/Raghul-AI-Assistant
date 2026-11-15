@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — PRODUCTION MULTIMODAL IMAGE GENERATION ENGINE (Upgrade 03)
+ * RAGHUL AI — PRODUCTION MULTIMODAL IMAGE GENERATION ENGINE (Upgrade 03)
  * 
  * Architecture:
  * 1. Primary Engine: Cloudflare Workers AI FLUX.1 Schnell (@cf/black-forest-labs/flux-1-schnell)
@@ -152,7 +152,7 @@ async function generateFluxImage(prompt, aspectRatio = '1:1') {
 
   const timestamp = Date.now();
   const randomSuffix = Math.random().toString(36).substring(2, 7);
-  const filename = `nexus_${timestamp}_${randomSuffix}.${validation.ext}`;
+  const filename = `raghul_${timestamp}_${randomSuffix}.${validation.ext}`;
   const filePath = path.join(GENERATED_DIR, filename);
 
   fs.writeFileSync(filePath, buffer);
@@ -201,7 +201,7 @@ async function generateGeminiImagen(prompt, apiKey) {
 
   const timestamp = Date.now();
   const randomSuffix = Math.random().toString(36).substring(2, 7);
-  const filename = `nexus_${timestamp}_${randomSuffix}.jpg`;
+  const filename = `raghul_${timestamp}_${randomSuffix}.jpg`;
   const filePath = path.join(GENERATED_DIR, filename);
 
   fs.writeFileSync(filePath, buffer);
@@ -252,7 +252,7 @@ function generateProceduralFallbackSvg(prompt) {
     <circle cx="512" cy="512" r="100" fill="hsl(${hue2}, 80%, 25%)" opacity="0.5"/>
   </g>
   <text x="512" y="880" text-anchor="middle" fill="#f8fafc" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="700" letter-spacing="1">${prompt.slice(0, 35)}</text>
-  <text x="512" y="920" text-anchor="middle" fill="hsl(${hue1}, 90%, 75%)" font-family="system-ui, -apple-system, sans-serif" font-size="16" letter-spacing="3">NEXUS GENERATIVE CANVAS</text>
+  <text x="512" y="920" text-anchor="middle" fill="hsl(${hue1}, 90%, 75%)" font-family="system-ui, -apple-system, sans-serif" font-size="16" letter-spacing="3">RAGHUL AI GENERATIVE CANVAS</text>
 </svg>`;
 }
 
@@ -302,7 +302,7 @@ export async function generateNativeImage(prompt, apiKey, options = {}) {
   const fallbackSvg = generateProceduralFallbackSvg(cleanPrompt);
   const timestamp = Date.now();
   const randomSuffix = Math.random().toString(36).substring(2, 6);
-  const filename = `nexus_${timestamp}_${randomSuffix}.svg`;
+  const filename = `raghul_${timestamp}_${randomSuffix}.svg`;
   const filePath = path.join(GENERATED_DIR, filename);
   fs.writeFileSync(filePath, fallbackSvg, 'utf8');
 
@@ -310,8 +310,8 @@ export async function generateNativeImage(prompt, apiKey, options = {}) {
     success: true,
     localUrl: `/generated/${filename}`,
     prompt: cleanPrompt,
-    provider: 'nexus_local',
-    model: 'Nexus Procedural Vector Canvas',
+    provider: 'raghul_local',
+    model: 'Raghul AI Procedural Vector Canvas',
     resolution: '1024 × 1024 px (Scalable Vector)',
     format: 'SVG',
     sizeBytes: Buffer.byteLength(fallbackSvg),

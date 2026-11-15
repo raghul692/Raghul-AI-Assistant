@@ -62,7 +62,7 @@ class DocumentGeneratorServer {
           if (style === 'executive' || style === 'corporate') {
             return await generateExecutivePdf({
               title: args.title,
-              author: args.author || 'Nexus Research Fellow',
+              author: args.author || 'RAGHUL AI Research Fellow',
               executiveSummary: args.abstract || args.executiveSummary || '',
               kpis: args.kpis || [],
               sections: args.sections || [],
@@ -71,7 +71,7 @@ class DocumentGeneratorServer {
           } else {
             return await generateIEEEPdf({
               title: args.title,
-              authors: [{ name: args.author || 'Nexus Research Fellow', affiliation: 'Nexus Labs' }],
+              authors: [{ name: args.author || 'RAGHUL AI Research Fellow', affiliation: 'RAGHUL AI Labs' }],
               abstract: args.abstract || '',
               sections: args.sections || [],
               tables: args.tables || [],

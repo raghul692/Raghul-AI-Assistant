@@ -46,7 +46,7 @@ class KnowledgeGraphMemoryServer {
             ]
           },
           {
-            name: 'Nexus AI',
+            name: 'RAGHUL AI',
             entityType: 'Autonomous AI Assistant',
             observations: [
               'High-intelligence AI companion operating at ChatGPT-4o & Claude 3.7 tier',
@@ -55,7 +55,7 @@ class KnowledgeGraphMemoryServer {
           }
         ]);
         this.createRelations([
-          { from: 'Nexus AI', to: 'Raghul Raja', relationType: 'ASSISTS_AND_PAIRS_WITH' }
+          { from: 'RAGHUL AI', to: 'Raghul Raja', relationType: 'ASSISTS_AND_PAIRS_WITH' }
         ]);
       }
     } catch (err) {

@@ -11,7 +11,7 @@
       ]
     },
     {
-      "name": "Nexus AI",
+      "name": "Raghul AI",
       "entityType": "Autonomous AI Assistant",
       "observations": [
         "High-intelligence AI companion operating at ChatGPT-4o & Claude 3.7 tier",
@@ -37,7 +37,7 @@
   ],
   "relations": [
     {
-      "from": "Nexus AI",
+      "from": "Raghul AI",
       "to": "Raghul Raja",
       "relationType": "ASSISTS_AND_PAIRS_WITH"
     },

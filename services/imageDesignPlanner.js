@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — VISUAL DESIGN PLANNER (Phase 5)
+ * RAGHUL AI — VISUAL DESIGN PLANNER (Phase 5)
  * 
  * Contextual Design System Specialist:
  * - Selects intentional visual styles tailored specifically to the user's actual objective

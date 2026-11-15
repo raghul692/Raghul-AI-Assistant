@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — CONVERSATION CONTEXT INTELLIGENCE SERVICE (Phase 1 & 2 Upgrade)
+ * RAGHUL AI — CONVERSATION CONTEXT INTELLIGENCE SERVICE (Phase 1 & 2 Upgrade)
  * 
  * Deeply resolves conversational deictic references and extracts complete source facts:
  * - Resolves "this", "ithuku", "itha", "the previous roadmap", "above architecture"

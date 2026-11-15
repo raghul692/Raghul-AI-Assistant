@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — AUTONOMOUS 7-STAGE PORTFOLIO AI AGENT ENGINE (V7)
+ * RAGHUL AI — AUTONOMOUS 7-STAGE PORTFOLIO AI AGENT ENGINE (V7)
  * 
  * Formal Architecture:
  * - 6 Autonomous Machine Agent Roles (Specialized AI Execution Agents)

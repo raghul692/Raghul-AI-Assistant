@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — AUTONOMOUS GITHUB AI AGENT ENGINE (githubAgent.js)
+ * RAGHUL AI — AUTONOMOUS GITHUB AI AGENT ENGINE (githubAgent.js)
  * 
  * Capabilities:
  * 1. Multi-lingual Intent Detection (Tamil, Tanglish, English)
@@ -305,7 +305,7 @@ export class GitHubAgent {
     try {
       repo = await githubMcpGateway.createRepository({
         name: repoName,
-        description: `${repoName} engineered by Nexus Autonomous GitHub AI Agent`,
+        description: `${repoName} engineered by Raghul AI Autonomous GitHub AI Agent`,
         isPrivate: false,
         autoInit: true
       });
@@ -333,7 +333,7 @@ export class GitHubAgent {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${repoName.toUpperCase()} — Engineered with Nexus AI</title>
+  <title>${repoName.toUpperCase()} — Engineered with Raghul AI</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -388,7 +388,7 @@ export class GitHubAgent {
   </section>
 
   <footer class="footer">
-    <p>Engineered autonomously by <a href="https://github.com/${owner}" target="_blank">@${owner}</a> with <strong>Nexus AI Assistant</strong>.</p>
+    <p>Engineered autonomously by <a href="https://github.com/${owner}" target="_blank">@${owner}</a> with <strong>Raghul AI Assistant</strong>.</p>
     <p class="commit-meta">Live on GitHub: <a href="https://github.com/${owner}/${repoName}">github.com/${owner}/${repoName}</a></p>
   </footer>
   <script src="script.js"></script>
@@ -637,11 +637,11 @@ body {
       // 3. script.js
       const jsContent = `/**
  * ${repoName} — Interactive Frontend Engine
- * Engineered autonomously by Nexus AI Assistant
+ * Engineered autonomously by Raghul AI Assistant
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('[Nexus AI] ${repoName} initialized successfully.');
+  console.log('[Raghul AI] ${repoName} initialized successfully.');
 
   // Smooth scroll for internal anchors
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -670,7 +670,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // 4. README.md
       const readmeContent = `# ${repoName}
 
-> Autonomous Cloud Application engineered and verified by **Nexus AI Assistant** on GitHub.
+> Autonomous Cloud Application engineered and verified by **Raghul AI Assistant** on GitHub.
 
 ## 🚀 Live Links
 - **Repository:** [https://github.com/${owner}/${repoName}](https://github.com/${owner}/${repoName})
@@ -703,7 +703,7 @@ MIT License © ${new Date().getFullYear()} ${owner}`;
       filesToPush.push(
         {
           path: 'README.md',
-          content: `# ${repoName}\n\nAutomated repository created by Nexus Autonomous GitHub AI Agent.\n\nAuthor: @${owner}\nCreated: ${new Date().toISOString()}`,
+          content: `# ${repoName}\n\nAutomated repository created by Raghul AI Autonomous GitHub AI Agent.\n\nAuthor: @${owner}\nCreated: ${new Date().toISOString()}`,
           message: 'chore: initial repository scaffolding'
         },
         {
@@ -841,14 +841,14 @@ INSTRUCTIONS:
       } else if (/orange/i.test(message) && filePath.endsWith('.css')) {
         updatedContent = originalContent.replace(/#3b82f6/g, '#f97316').replace(/#60a5fa/g, '#fb923c');
       } else {
-        updatedContent = originalContent + `\n/* Updated by Nexus AI: ${new Date().toISOString()} */\n`;
+        updatedContent = originalContent + `\n/* Updated by Raghul AI: ${new Date().toISOString()} */\n`;
       }
     }
 
     sendSSE({ type: 'status', text: `🐙 GitHub Agent: Committing updated ${filePath} to GitHub with 409-conflict guard...` });
     sendSSE({ type: 'research_step', badge: '🚀 Commit & Push', message: `PUT /contents/${filePath}`, step: 'PUSHING' });
 
-    const commitMsg = `refactor(${filePath}): update via Nexus AI Assistant based on user instructions`;
+    const commitMsg = `refactor(${filePath}): update via Raghul AI Assistant based on user instructions`;
     const targetBranch = await githubMcpGateway.resolveDefaultBranch(owner, repoName);
 
     const putRes = await githubMcpGateway.createOrUpdateFile(
@@ -964,7 +964,7 @@ ${content}
       try {
         prRes = await githubMcpGateway.createPullRequest(owner, repoName, {
           title: `Autonomous Update (${newBranch})`,
-          body: `Automated Pull Request created by Nexus AI Assistant.\n- Head: \`${newBranch}\`\n- Base: \`${defaultBranch}\``,
+          body: `Automated Pull Request created by Raghul AI Assistant.\n- Head: \`${newBranch}\`\n- Base: \`${defaultBranch}\``,
           head: newBranch,
           base: defaultBranch
         });
@@ -992,7 +992,7 @@ ${prRes?.html_url ? `- **Pull Request:** [${prRes.html_url}](${prRes.html_url})`
     let repoName = await this.extractRepoName(message) || 'modern-saas-landing-page';
 
     // Extract title
-    let title = 'Automated Issue Report via Nexus AI';
+    let title = 'Automated Issue Report via Raghul AI';
     const titleMatch = message.match(/['"`](.*?)['"`]/) || message.match(/(?:issue|named|title|called)\s*:\s*(.*)/i);
     if (titleMatch) title = titleMatch[1].trim();
 
@@ -1001,8 +1001,8 @@ ${prRes?.html_url ? `- **Pull Request:** [${prRes.html_url}](${prRes.html_url})`
 
     const issueRes = await githubMcpGateway.createIssue(owner, repoName, {
       title,
-      body: `**Issue Description:**\n${message}\n\n*Created autonomously by Nexus AI Assistant.*`,
-      labels: ['automated', 'nexus-ai']
+      body: `**Issue Description:**\n${message}\n\n*Created autonomously by Raghul AI Assistant.*`,
+      labels: ['automated', 'raghul-ai']
     });
 
     return `### 🐛 GitHub Issue Created Successfully!
@@ -1077,7 +1077,7 @@ ${repoList}
       sendSSE({ type: 'status', text: '🐙 GitHub Agent: Fetching live capabilities for @raghul692...' });
       const repos = await githubMcpGateway.listRepositories({ perPage: 10 }).catch(() => []);
 
-      return `### 🐙 Nexus Autonomous GitHub AI Agent — Capabilities
+      return `### 🐙 Raghul AI Autonomous GitHub AI Agent — Capabilities
 
 Raghul, ungaloda GitHub account (**@${owner}**) official GitHub MCP Server moolam connect aagiyirukku.
 
@@ -1088,7 +1088,7 @@ Neenga casual-ah chat-la instruction kuduthaale podhum, indha Agent GitHub-la ke
 #### 1. 🏗️ Autonomous Repository & Project Creation:
 - Pudhiya Repository create pannuvathu (Public or Private).
 - Project Stack-ku etra maadhiri (HTML/CSS/JS, Node.js, Express, React, etc.) ella files-aiyum scaffold panni first commit-ai GitHub-la push seivadhu.
-- *Example:* \`"Create a new repo called 'nexus-crypto-tracker' with dark theme landing page and push to github"\`
+- *Example:* \`"Create a new repo called 'raghul-crypto-tracker' with dark theme landing page and push to github"\`
 
 #### 2. 📖 Remote Source Code Reading & Tree Inspection:
 - Ungaloda endha repo-la irunthum specific file-oda live code-ai read panni kaattum.
@@ -1128,7 +1128,7 @@ Neenga chat-la instruction kudutha podhum, Agent udane GitHub-la execute pannidu
 
     // Informational question about git/github concepts
     if (/(?:what is|how does|how do|explain|difference between|vs)\b/i.test(message) && !message.match(/(?:repo|repository|commits?|raghul692)\s+([a-zA-Z0-9_\-]+)/i)) {
-      sendSSE({ type: 'status', text: '🧠 Nexus AI: Analyzing Git/GitHub concept...' });
+      sendSSE({ type: 'status', text: '🧠 Raghul AI: Analyzing Git/GitHub concept...' });
       const ai = getAiManager();
       const resp = await ai.generateText({
         prompt: `You are an elite Staff Systems Engineer and Git/GitHub master. Explain the following clearly with diagrams or code if helpful:\n\nUser Question: ${message}`,

@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — 10-SPECIALIST GITHUB AGENT SWARM
+ * RAGHUL AI — 10-SPECIALIST GITHUB AGENT SWARM
  * 
  * Agent Roles:
  * 1.  GitHub Orchestrator Agent: Understands intent, decomposes tasks into DAG, coordinates swarm

@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — IMAGE QUALITY & INTEGRITY VALIDATOR (Phase 7)
+ * RAGHUL AI — IMAGE QUALITY & INTEGRITY VALIDATOR (Phase 7)
  * 
  * Verifies that generated image payloads meet strict production standards:
  * - Buffer presence and minimum byte size (>= 1KB)

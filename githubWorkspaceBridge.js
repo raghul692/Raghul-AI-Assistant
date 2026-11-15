@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — GITHUB LOCAL WORKSPACE & CODING AGENT BRIDGE
+ * RAGHUL AI — GITHUB LOCAL WORKSPACE & CODING AGENT BRIDGE
  * 
  * Capabilities:
  * 1. Safe workspace repository exploration & AST file analysis

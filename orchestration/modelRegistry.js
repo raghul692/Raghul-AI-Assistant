@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — MODEL CAPABILITY REGISTRY & INTENT ROUTER
+ * RAGHUL AI — MODEL CAPABILITY REGISTRY & INTENT ROUTER
  * 
  * Formal capability specifications for frontier AI models across all 5 providers:
  * - Google Gemini

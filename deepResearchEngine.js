@@ -209,7 +209,7 @@ Output strictly a JSON array of ${vectorCount} objects with "title" and "searchQ
     ? 'Provide the complete dossier in high-quality English & Tanglish (Latin/English alphabet only, e.g. "React architecture-la state management romba mukkiyam"). STRICTLY DO NOT use Tamil script (U+0B80-U+0BFF).'
     : 'Provide the complete dossier in structured, highly articulate executive English.';
 
-  const synthesisPrompt = `You are the Lead Principal Research Fellow at Nexus Research Labs.
+  const synthesisPrompt = `You are the Lead Principal Research Fellow at RAGHUL AI Research Labs.
 Synthesize an authoritative, deeply technical research dossier answering the user's inquiry:
 "${query}"
 
@@ -338,7 +338,7 @@ export async function createDocumentFromDossier({ query, dossier = '', citations
   if (selectedStyle === 'ieee') {
     return await generateIEEEPdf({
       title,
-      authors: [{ name: 'Nexus AI Research Fellow', affiliation: 'Advanced AI Architecture Labs' }],
+      authors: [{ name: 'RAGHUL AI Research Fellow', affiliation: 'Advanced AI Architecture Labs' }],
       abstract: abstract || `Comprehensive technical analysis and empirical investigation into ${query}.`,
       sections,
       citations

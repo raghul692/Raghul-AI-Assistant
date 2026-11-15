@@ -55,7 +55,7 @@ export function initMemoryTables() {
     });
     saveUserMemory({
       category: 'project',
-      content: 'Nexus AI Chatbot & Multi-Provider Autonomous Agent Orchestration Platform.',
+      content: 'Raghul AI Assistant & Multi-Provider Autonomous Agent Orchestration Platform.',
       importance: 0.85
     });
   }
@@ -599,7 +599,7 @@ export function buildUnifiedContext({
     : [];
 
   // G. Build Unified System Directive
-  let unifiedSystemPrompt = baseInstruction || personaConfig?.systemPrompt || 'You are Nexus AI, an advanced conversational companion.';
+  let unifiedSystemPrompt = baseInstruction || personaConfig?.systemPrompt || 'You are RAGHUL AI, an advanced conversational companion.';
 
   // Add Temporal Context (only if not already present)
   if (!unifiedSystemPrompt.includes('[Context: Current local date & time')) {

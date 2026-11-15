@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — PORTFOLIO AUTOMATION ENGINE
+ * RAGHUL AI — PORTFOLIO AUTOMATION ENGINE
  * 
  * 8 Enterprise Continuous Workflows:
  * 1. WORKFLOW 01 — Portfolio Health Monitoring: Website availability, API latency, broken links

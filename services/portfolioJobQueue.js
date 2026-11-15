@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — PORTFOLIO JOB QUEUE & AUTOMATION ENGINE
+ * RAGHUL AI — PORTFOLIO JOB QUEUE & AUTOMATION ENGINE
  * 
  * Persistent SQLite-backed task queue featuring:
  * - Crash recovery on process restart (recovers orphaned 'running' jobs)

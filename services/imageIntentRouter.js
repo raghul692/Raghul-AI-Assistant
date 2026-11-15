@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — INTELLIGENT IMAGE INTENT ROUTER (Phase 1 Upgrade)
+ * RAGHUL AI — INTELLIGENT IMAGE INTENT ROUTER (Phase 1 Upgrade)
  * 
  * Deeply classifies user intent across 7 distinct categories:
  * 1. GENERATE_NEW_IMAGE     - Creative, artistic, or realistic AI image synthesis

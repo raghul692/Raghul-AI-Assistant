@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — PRE-GENERATION THINKING & PLANNING ENGINE (Phase 2)
+ * RAGHUL AI — PRE-GENERATION THINKING & PLANNING ENGINE (Phase 2)
  * 
  * The intelligent pre-generation reasoning and planning layer:
  * - Thinks, understands, plans, and validates before generating any visual asset

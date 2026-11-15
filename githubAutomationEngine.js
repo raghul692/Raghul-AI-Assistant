@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — GITHUB AUTONOMOUS AUTOMATION ENGINE
+ * RAGHUL AI — GITHUB AUTONOMOUS AUTOMATION ENGINE
  * 
  * 15 Enterprise GitHub Automation Workflows:
  * 1.  repo_health_monitor: Repository health & best practices monitoring
@@ -328,7 +328,7 @@ export class GitHubAutomationEngine {
       const aiManager = getAiManager();
 
       const analysisPrompt = `
-You are the ${auto.agent_role} specialist in the Nexus AI GitHub Swarm.
+You are the ${auto.agent_role} specialist in the RAGHUL AI GitHub Swarm.
 Execute the automation: "${auto.name}".
 Description: ${auto.description}
 

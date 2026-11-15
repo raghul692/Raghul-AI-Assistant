@@ -1,6 +1,6 @@
-# 📑 Nexus Document Studio & Deep Research API Documentation
+# 📑 RAGHUL AI Document Studio & Deep Research API Documentation
 
-Welcome to the **Nexus Document Studio & Deep Research API**. This API provides enterprise-grade endpoints to autonomously research topics and generate or edit professional documents in **PDF (IEEE 2-Column Academic & Modern Executive)**, **Microsoft Word (.docx)**, **PowerPoint (.pptx)**, and **Structured Data (.csv, .md)** formats.
+Welcome to the **RAGHUL AI Document Studio & Deep Research API**. This API provides enterprise-grade endpoints to autonomously research topics and generate or edit professional documents in **PDF (IEEE 2-Column Academic & Modern Executive)**, **Microsoft Word (.docx)**, **PowerPoint (.pptx)**, and **Structured Data (.csv, .md)** formats.
 
 ---
 
@@ -63,7 +63,7 @@ Generate a new binary document in PDF, DOCX, PPTX, or CSV.
   "format": "pdf",
   "style": "ieee",
   "title": "Decentralized Cognitive Graphs in Autonomous Swarms",
-  "author": "Nexus Research Fellow",
+  "author": "RAGHUL AI Research Fellow",
   "abstract": "This paper presents a formal evaluation of decentralized memory structures.",
   "sections": [
     {
@@ -75,7 +75,7 @@ Generate a new binary document in PDF, DOCX, PPTX, or CSV.
     {
       "caption": "Memory Overhead Across Topologies",
       "headers": ["Architecture", "P50 Latency (ms)", "RAM (MB)"],
-      "rows": [["Monolith", "140", "450"], ["Nexus Swarm", "18", "68"]]
+      "rows": [["Monolith", "140", "450"], ["RAGHUL AI Swarm", "18", "68"]]
     }
   ],
   "citations": [

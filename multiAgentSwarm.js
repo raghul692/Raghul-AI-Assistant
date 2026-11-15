@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — 10-ROLE SPECIALIZED MULTI-AGENT SWARM (Upgrade 02)
+ * RAGHUL AI — 10-ROLE SPECIALIZED MULTI-AGENT SWARM (Upgrade 02)
  * 
  * Production Agentic Architecture:
  * 1. Master Orchestrator Agent (Task decomposition & DAG coordination)

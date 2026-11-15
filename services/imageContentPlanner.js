@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — IMAGE CONTENT PLANNER (Phase 4)
+ * RAGHUL AI — IMAGE CONTENT PLANNER (Phase 4)
  * 
  * Pre-generation content planning and completeness verification:
  * - Extracts and structures source facts before visual generation

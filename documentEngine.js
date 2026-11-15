@@ -143,7 +143,7 @@ export async function renderHtmlToPdf(htmlContent, outputPdfPath, options = {}) 
  */
 export async function generateIEEEPdf({
   title = 'Autonomous Agentic Systems in Distributed Computing',
-  authors = [{ name: 'Nexus AI Research Fellow', affiliation: 'Advanced AI Architecture Labs' }],
+  authors = [{ name: 'RAGHUL AI Research Fellow', affiliation: 'Advanced AI Architecture Labs' }],
   abstract = '',
   keywords = ['Artificial Intelligence', 'Autonomous Agents', 'Model Context Protocol', 'Distributed Reasoning'],
   sections = [],
@@ -187,7 +187,7 @@ export async function generateIEEEPdf({
       <h2 class="ieee-h2">${romanNumerals[sections.length] || 'REF'}. REFERENCES</h2>
       <ol class="ieee-ref-list">
         ${citations.map((c, i) => `
-          <li><span class="ref-num">[${i + 1}]</span> ${c.authors || 'Nexus AI Corpus'}, "${c.title || c.snippet || 'Research Data'}", <em>${c.journal || 'Nexus AI Archive'}</em>, ${c.year || '2026'}. ${c.url ? `<span class="ref-url">&lt;${c.url}&gt;</span>` : ''}</li>
+          <li><span class="ref-num">[${i + 1}]</span> ${c.authors || 'RAGHUL AI Corpus'}, "${c.title || c.snippet || 'Research Data'}", <em>${c.journal || 'RAGHUL AI Archive'}</em>, ${c.year || '2026'}. ${c.url ? `<span class="ref-url">&lt;${c.url}&gt;</span>` : ''}</li>
         `).join('')}
       </ol>
     </section>
@@ -371,7 +371,7 @@ export async function generateIEEEPdf({
 <body>
   <div class="header-banner">
     <span>IEEE TRANSACTIONS ON ARTIFICIAL INTELLIGENCE & RESEARCH, VOL. 28, NO. 2, 2026</span>
-    <span>NEXUS RESEARCH LABS</span>
+    <span>RAGHUL AI RESEARCH LABS</span>
   </div>
 
   <div class="title-banner">
@@ -430,8 +430,8 @@ export async function generateIEEEPdf({
  */
 export async function generateExecutivePdf({
   title = 'Enterprise AI Strategy & Architecture Dossier',
-  author = 'Nexus Principal Research Fellow',
-  organization = 'Nexus Technologies International',
+  author = 'RAGHUL AI Principal Research Fellow',
+  organization = 'RAGHUL AI Technologies International',
   date = new Date().toLocaleDateString('en-US', { dateStyle: 'long' }),
   executiveSummary = '',
   kpis = [],
@@ -738,7 +738,7 @@ export async function generateExecutivePdf({
 export async function generateDocxDocument({
   title = 'Technical Specification Document',
   subtitle = 'Enterprise Systems Architecture & Research',
-  author = 'Nexus AI Principal Architect',
+  author = 'RAGHUL AI Principal Architect',
   abstract = '',
   sections = [],
   tables = []
@@ -866,7 +866,7 @@ export async function generateDocxDocument({
             new Paragraph({
               alignment: AlignmentType.CENTER,
               children: [
-                new TextRun('Nexus Intelligence Report • Page '),
+                new TextRun('RAGHUL AI Intelligence Report • Page '),
                 new TextRun({ children: [PageNumber.CURRENT] }),
                 new TextRun(' of '),
                 new TextRun({ children: [PageNumber.TOTAL_PAGES] })
@@ -908,7 +908,7 @@ export async function generateDocxDocument({
 export async function generatePptxDeck({
   title = 'Architectural Briefing Deck',
   subtitle = 'Deep Systems & Research Overview',
-  author = 'Nexus AI Principal Architect',
+  author = 'RAGHUL AI Principal Architect',
   theme = 'dark', // 'dark' | 'light'
   slides = []
 }) {
@@ -953,7 +953,7 @@ export async function generatePptxDeck({
     fontFace: 'Arial'
   });
 
-  cover.addText(`Presented by ${author} • Nexus Intelligence Labs`, {
+  cover.addText(`Presented by ${author} • RAGHUL AI Intelligence Labs`, {
     x: 0.8, y: 6.2, w: 10.0, h: 0.5,
     fontSize: 12, color: colors.accentCyan, bold: true
   });

@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * NEXUS MODULAR PROMPT ENGINE (v3)
+ * RAGHUL AI MODULAR PROMPT ENGINE (v3)
  * Synthesis of:
  * - dontriskit/awesome-ai-system-prompts (Modular layers: Soul, Identity, Agents)
  * - dair-ai/Prompt-Engineering-Guide (ReAct, calibrated uncertainty)
@@ -9,7 +9,7 @@
  * ============================================================================
  */
 
-import { NEXUS_SOUL } from './soul.js';
+import { RAGHUL_SOUL, NEXUS_SOUL } from './soul.js';
 import { DEVELOPER_WORKFLOW } from './developerWorkflow.js';
 import { REACT_FRAMEWORK } from './reactFramework.js';
 import { PERSONA_CATALOG } from './personaCatalog.js';

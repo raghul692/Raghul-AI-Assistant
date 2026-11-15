@@ -1,39 +1,56 @@
 // ==========================================================================
-// NEXUS AI • FRONTEND APPLICATION ENGINE
+// RAGHUL AI • FRONTEND APPLICATION ENGINE
 // Floating '+' Action Dock, Voice AI, Live Artifacts, Tool Chips & Autocomplete
 // ==========================================================================
 
+// Backward-compatible persistent settings bridge (Raghul AI with legacy fallback)
+function getAppSetting(key, defaultVal = null) {
+  return localStorage.getItem('raghul_' + key) ?? localStorage.getItem('nexus_' + key) ?? defaultVal;
+}
+function setAppSetting(key, val) {
+  try {
+    localStorage.setItem('raghul_' + key, String(val));
+    localStorage.setItem('nexus_' + key, String(val));
+  } catch (e) {}
+}
+function removeAppSetting(key) {
+  try {
+    localStorage.removeItem('raghul_' + key);
+    localStorage.removeItem('nexus_' + key);
+  } catch (e) {}
+}
+
 let state = {
-  sessionId: localStorage.getItem('nexus_session_id') || generateSessionId(),
+  sessionId: getAppSetting('session_id') || generateSessionId(),
   activePersona: 'assistant', // Always default to friendly AI Assistant (like ChatGPT & Claude)
-  apiKey: localStorage.getItem('nexus_gemini_key') || '',
-  customPrompt: localStorage.getItem('nexus_custom_prompt') || '',
-  userName: localStorage.getItem('nexus_user_name') || 'Raghul',
-  userFullName: localStorage.getItem('nexus_user_fullname') || 'Raghul raja',
-  userRole: localStorage.getItem('nexus_user_role') || 'Full-Stack Software Engineer',
-  userAvatar: localStorage.getItem('nexus_user_avatar') || '/assets/raghul_profile.jpg',
-  customAbout: localStorage.getItem('nexus_custom_about') || 'I am Raghul, a Full-Stack Software Engineer and AI researcher based in Chennai. I build robust web apps, distributed systems, and modern AI pipelines. I prefer production-ready code with clean typing and zero placeholders.',
-  customInstructions: localStorage.getItem('nexus_custom_instructions') || 'Be direct, intelligent, and friendly. When speaking Tamil/Tanglish, converse warmly like a close buddy. Always write 100% complete runnable code without placeholders. Offer architectural tradeoffs.',
-  theme: localStorage.getItem('nexus_theme') || 'dark',
-  codeFont: localStorage.getItem('nexus_code_font') || "'JetBrains Mono', monospace",
-  compactSpacing: localStorage.getItem('nexus_compact_spacing') === 'true',
-  temperature: parseFloat(localStorage.getItem('nexus_temperature') || '0.7'),
-  memoryTurns: parseInt(localStorage.getItem('nexus_memory_turns') || '14', 10),
-  memoryEnabled: localStorage.getItem('nexus_memory_enabled') !== 'false',
-  modelChoice: localStorage.getItem('nexus_model_choice') || 'gemini-3.5-flash-lite',
-  language: localStorage.getItem('nexus_language') || 'auto',
-  always_show_code: localStorage.getItem('nexus_always_show_code') === 'true',
-  enter_sends_message: localStorage.getItem('nexus_enter_sends_message') !== 'false',
-  sound_effects: localStorage.getItem('nexus_sound_effects') === 'true',
+  apiKey: getAppSetting('gemini_key') || '',
+  customPrompt: getAppSetting('custom_prompt') || '',
+  userName: getAppSetting('user_name') || 'Raghul',
+  userFullName: getAppSetting('user_fullname') || 'Raghul raja',
+  userRole: getAppSetting('user_role') || 'Full-Stack Software Engineer',
+  userAvatar: getAppSetting('user_avatar') || '/assets/raghul_profile.jpg',
+  customAbout: getAppSetting('custom_about') || 'I am Raghul, a Full-Stack Software Engineer and AI researcher based in Chennai. I build robust web apps, distributed systems, and modern AI pipelines. I prefer production-ready code with clean typing and zero placeholders.',
+  customInstructions: getAppSetting('custom_instructions') || 'Be direct, intelligent, and friendly. When speaking Tamil/Tanglish, converse warmly like a close buddy. Always write 100% complete runnable code without placeholders. Offer architectural tradeoffs.',
+  theme: getAppSetting('theme') || 'dark',
+  codeFont: getAppSetting('code_font') || "'JetBrains Mono', monospace",
+  compactSpacing: getAppSetting('compact_spacing') === 'true',
+  temperature: parseFloat(getAppSetting('temperature') || '0.7'),
+  memoryTurns: parseInt(getAppSetting('memory_turns') || '14', 10),
+  memoryEnabled: getAppSetting('memory_enabled') !== 'false',
+  modelChoice: getAppSetting('model_choice') || 'gemini-3.5-flash-lite',
+  language: getAppSetting('language') || 'auto',
+  always_show_code: getAppSetting('always_show_code') === 'true',
+  enter_sends_message: getAppSetting('enter_sends_message') !== 'false',
+  sound_effects: getAppSetting('sound_effects') === 'true',
   personas: {},
   chats: [],
   pendingAttachments: [], // [{ name, mimeType, size, data, dataUrl }]
-  webSearchEnabled: localStorage.getItem('nexus_default_web_search') !== 'false',
-  deepThinkingEnabled: localStorage.getItem('nexus_default_deep_thinking') === 'true',
+  webSearchEnabled: getAppSetting('default_web_search') !== 'false',
+  deepThinkingEnabled: getAppSetting('default_deep_thinking') === 'true',
   isDeepResearch: false,
   researchDepth: 'standard',
   workspaceMode: 'chat',
-  activeProjectId: localStorage.getItem('nexus_active_project_id') || null,
+  activeProjectId: getAppSetting('active_project_id') || null,
   isSending: false,
   isRecording: false,
   speechRecognition: null,
@@ -180,7 +197,7 @@ function downloadReport(content, title = 'Report') {
   const a = document.createElement('a');
   a.href = url;
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-  a.download = `Nexus-${title}-${timestamp}.md`;
+  a.download = `Raghul-AI-${title}-${timestamp}.md`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -193,14 +210,14 @@ function downloadPlainText(content, title = 'Report') {
   const a = document.createElement('a');
   a.href = url;
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-  a.download = `Nexus-${title}-${timestamp}.txt`;
+  a.download = `Raghul-AI-${title}-${timestamp}.txt`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
 
-function printDocument(content, title = 'Nexus AI Export') {
+function printDocument(content, title = 'Raghul AI Export') {
   const win = window.open('', '_blank');
   if (!win) {
     alert('Please allow popups to print/export PDF.');
@@ -224,7 +241,7 @@ function printDocument(content, title = 'Nexus AI Export') {
       <body>
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:12px; margin-bottom:20px;">
           <h2 style="margin:0;">${escapeHtml(title)}</h2>
-          <span style="font-size:0.85rem; color:#666;">Generated by Nexus AI</span>
+          <span style="font-size:0.85rem; color:#666;">Generated by Raghul AI</span>
         </div>
         <div>${parseMarkdown(content)}</div>
       </body>
@@ -342,7 +359,7 @@ function getPersonaIconSvg(iconKey) {
 
 function generateSessionId() {
   const id = 'sess_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
-  localStorage.setItem('nexus_session_id', id);
+  setAppSetting('session_id', id);
   return id;
 }
 
@@ -359,7 +376,7 @@ async function initApp() {
   }
   
   // Restore saved sidebar collapsed rail state (ChatGPT standard)
-  const savedSidebar = localStorage.getItem('nexus_sidebar_collapsed');
+  const savedSidebar = getAppSetting('sidebar_collapsed');
   if (savedSidebar === 'true' && window.innerWidth > 768 && sidebar) {
     sidebar.classList.add('collapsed');
   }
@@ -555,7 +572,7 @@ function renderPersonaList() {
 
 function selectPersona(key) {
   state.activePersona = key;
-  localStorage.setItem('nexus_persona', key);
+  setAppSetting('persona', key);
   renderPersonaList();
   renderPersonaDropdown();
   updateActivePersonaUI();
@@ -688,7 +705,7 @@ function setupComposerActionMenu() {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Nexus Canvas App</title>
+  <title>Raghul AI Canvas App</title>
   <style>
     body { font-family: system-ui, sans-serif; background: #0b0f19; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
     .card { background: #151c2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 28px; text-align: center; max-width: 400px; box-shadow: 0 12px 30px rgba(0,0,0,0.5); }
@@ -698,13 +715,13 @@ function setupComposerActionMenu() {
 </head>
 <body>
   <div class="card">
-    <h2>🚀 Nexus Canvas Studio</h2>
+    <h2>🚀 Raghul AI Canvas Studio</h2>
     <p>Live interactive web preview sandbox.</p>
-    <button onclick="alert('Hello from Nexus Canvas!')">Click Me</button>
+    <button onclick="alert('Hello from Raghul AI Canvas!')">Click Me</button>
   </div>
 </body>
 </html>`;
-      openCanvasEditor(defaultHtml, 'html', 'Nexus Canvas Studio V2', 'split');
+      openCanvasEditor(defaultHtml, 'html', 'Raghul AI Canvas Studio V2', 'split');
     });
   }
 
@@ -1110,7 +1127,7 @@ function renderChatHistoryList() {
 async function selectChat(id) {
   if (state.isSending) return;
   state.sessionId = id;
-  localStorage.setItem('nexus_session_id', id);
+  setAppSetting('session_id', id);
   renderChatHistoryList();
   await loadChatSession(id);
 }
@@ -1145,7 +1162,7 @@ window.showConfirmDialog = function({
   isDanger = true
 } = {}) {
   return new Promise((resolve) => {
-    const modal = document.getElementById('nexusConfirmModal');
+    const modal = document.getElementById('raghulConfirmModal') || document.getElementById('nexusConfirmModal');
     const titleEl = document.getElementById('confirmModalTitle');
     const msgEl = document.getElementById('confirmModalMessage');
     const confirmBtn = document.getElementById('confirmModalConfirmBtn');
@@ -1693,7 +1710,7 @@ function enhanceCodeBlocks(container) {
       <span class="code-lang-tag">${lang}</span>
       <div class="code-header-right">
         ${tabsHtml}
-        <button type="button" class="btn-code-canvas" title="Open in Nexus Canvas Studio IDE">
+        <button type="button" class="btn-code-canvas" title="Open in Raghul AI Canvas Studio IDE">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:3px; vertical-align:-1px;"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
           <span>Studio</span>
         </button>
@@ -1814,13 +1831,13 @@ function enhanceCodeBlocks(container) {
 }
 
 // =========================================================================
-// NEXUS CANVAS STUDIO V2: TIER-1 DEVELOPER-GRADE IDE & RUNTIME ENGINE
+// RAGHUL AI CANVAS STUDIO V2: TIER-1 DEVELOPER-GRADE IDE & RUNTIME ENGINE
 // =========================================================================
 
 window.canvasStudio = {
   isOpen: false,
   files: [
-    { name: 'main.js', language: 'javascript', content: '// Welcome to Nexus Canvas Studio\nconsole.log("Nexus Developer IDE ready.");' }
+    { name: 'main.js', language: 'javascript', content: '// Welcome to Raghul AI Canvas Studio\nconsole.log("Raghul AI Developer IDE ready.");' }
   ],
   activeFileIndex: 0,
   openTabs: [0],
@@ -2601,7 +2618,7 @@ function formatStudioActiveFile() {
 function compileWebProjectBundle() {
   const files = window.canvasStudio.files;
   let htmlFile = files.find(f => f.name.endsWith('.html'));
-  let htmlContent = htmlFile ? htmlFile.content : '<div id="root" style="padding:24px;"><h1>Nexus Preview</h1><p>No index.html file found in project.</p></div>';
+  let htmlContent = htmlFile ? htmlFile.content : '<div id="root" style="padding:24px;"><h1>Raghul AI Preview</h1><p>No index.html file found in project.</p></div>';
 
   const cssFiles = files.filter(f => f.name.endsWith('.css'));
   const jsFiles = files.filter(f => f.name.endsWith('.js') && !f.name.endsWith('.min.js'));
@@ -2616,7 +2633,7 @@ function compileWebProjectBundle() {
     const _log = console.log, _err = console.error, _warn = console.warn, _info = console.info;
     function send(type, args) {
       window.parent.postMessage({
-        type: 'NEXUS_STUDIO_LOG',
+        type: 'RAGHUL_STUDIO_LOG',
         logType: type,
         message: Array.from(args).map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ')
       }, '*');
@@ -2642,7 +2659,7 @@ function compileWebProjectBundle() {
 
   let fullHtml = htmlContent;
   if (!/<html/i.test(fullHtml)) {
-    fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Nexus Studio Live View</title><script src="https://cdn.tailwindcss.com"><\/script>${darkThemeReset}<style>${combinedCss}</style>${consoleBridge}</head><body>${fullHtml}<script>${combinedJs}<\/script></body></html>`;
+    fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Raghul AI Studio Live View</title><script src="https://cdn.tailwindcss.com"><\/script>${darkThemeReset}<style>${combinedCss}</style>${consoleBridge}</head><body>${fullHtml}<script>${combinedJs}<\/script></body></html>`;
   } else {
     if (fullHtml.includes('</head>')) {
       fullHtml = fullHtml.replace('</head>', `${darkThemeReset}<style>${combinedCss}</style>${consoleBridge}</head>`);
@@ -2850,7 +2867,7 @@ async function executeStudioAiAction(action) {
 }
 
 // Master Open Canvas Studio Method
-function openCanvasEditor(rawCodeOrFiles, lang = 'javascript', title = 'Nexus Interactive Project', defaultView = null, targetFileIndex = 0) {
+function openCanvasEditor(rawCodeOrFiles, lang = 'javascript', title = 'Raghul AI Interactive Project', defaultView = null, targetFileIndex = 0) {
   const modal = document.getElementById('artifactModal');
   const titleEl = document.getElementById('artifactTitle');
   if (!modal) return;
@@ -3215,7 +3232,7 @@ function wireMessageActionDock(actionDock, text) {
       } else if (choice === "2") {
         downloadPlainText(content, state.activePersona === 'researcher' ? 'Research-Report' : 'Report');
       } else if (choice === "3") {
-        printDocument(content, 'Nexus AI Response Export');
+        printDocument(content, 'Raghul AI Response Export');
       }
     };
   }
@@ -3250,7 +3267,7 @@ function appendAssistantMessage(text, scroll = true) {
 
   const header = document.createElement('div');
   header.className = 'assistant-header';
-  const p = state.personas[state.activePersona] || { name: 'Nexus AI', icon: 'sparkles' };
+  const p = state.personas[state.activePersona] || { name: 'Raghul AI', icon: 'sparkles' };
   header.innerHTML = `
     <div class="assistant-avatar">${getPersonaIconSvg(p.icon)}</div>
     <span class="assistant-name">${p.name}</span>
@@ -3286,7 +3303,7 @@ function createStreamingAssistantTarget() {
 
   const header = document.createElement('div');
   header.className = 'assistant-header';
-  const p = state.personas[state.activePersona] || { name: 'Nexus AI', icon: 'sparkles' };
+  const p = state.personas[state.activePersona] || { name: 'Raghul AI', icon: 'sparkles' };
   header.innerHTML = `
     <div class="assistant-avatar">${getPersonaIconSvg(p.icon)}</div>
     <span class="assistant-name">${p.name}</span>
@@ -3734,7 +3751,7 @@ function setupEventListeners() {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Nexus Canvas App</title>
+  <title>Raghul AI Canvas App</title>
   <style>
     body { font-family: system-ui, sans-serif; background: #0b0f19; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
     .card { background: #151c2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 28px; text-align: center; max-width: 400px; box-shadow: 0 12px 30px rgba(0,0,0,0.5); }
@@ -3744,13 +3761,13 @@ function setupEventListeners() {
 </head>
 <body>
   <div class="card">
-    <h2>🚀 Nexus Canvas Studio</h2>
+    <h2>🚀 Raghul AI Canvas Studio</h2>
     <p>Live interactive web preview sandbox.</p>
-    <button onclick="alert('Hello from Nexus Canvas!')">Click Me</button>
+    <button onclick="alert('Hello from Raghul AI Canvas!')">Click Me</button>
   </div>
 </body>
 </html>`;
-          openCanvasEditor(defaultHtml, 'html', 'Nexus Canvas Studio V2', 'split');
+          openCanvasEditor(defaultHtml, 'html', 'Raghul AI Canvas Studio V2', 'split');
         }
       }
     });
@@ -3979,7 +3996,7 @@ function setupEventListeners() {
   if (modelSelector) {
     modelSelector.addEventListener('change', (e) => {
       state.modelChoice = e.target.value;
-      localStorage.setItem('nexus_model_choice', state.modelChoice);
+      setAppSetting('model_choice', state.modelChoice);
       syncChatGPTModelLabel();
     });
   }
@@ -4002,7 +4019,7 @@ function setupEventListeners() {
       } else {
         sidebar.classList.toggle('collapsed');
       }
-      localStorage.setItem('nexus_sidebar_collapsed', sidebar.classList.contains('collapsed'));
+      setAppSetting('sidebar_collapsed', sidebar.classList.contains('collapsed'));
     }
   };
 
@@ -4154,7 +4171,7 @@ function applyTheme(theme) {
   }
   document.documentElement.setAttribute('data-theme', effectiveTheme);
   document.documentElement.setAttribute('data-theme-setting', theme);
-  localStorage.setItem('nexus_theme', theme);
+  setAppSetting('theme', theme);
   
   // Sync General Settings Theme select
   const generalThemeSelect = document.getElementById('generalThemeSelect');
@@ -4183,7 +4200,7 @@ if (window.matchMedia) {
 
 function applyCodeFont(font) {
   state.codeFont = font;
-  localStorage.setItem('nexus_code_font', font);
+  setAppSetting('code_font', font);
   document.documentElement.style.setProperty('--font-mono', font);
   document.querySelectorAll('pre, code').forEach(el => {
     el.style.fontFamily = font;
@@ -4192,7 +4209,7 @@ function applyCodeFont(font) {
 
 function applyCompactSpacing(isCompact) {
   state.compactSpacing = isCompact;
-  localStorage.setItem('nexus_compact_spacing', isCompact ? 'true' : 'false');
+  setAppSetting('compact_spacing', isCompact ? 'true' : 'false');
   if (chatMessages) {
     if (isCompact) {
       chatMessages.classList.add('compact-density');
@@ -4335,19 +4352,19 @@ async function loadChatGPTGeneralSettings() {
       }
       if (s.language) {
         state.language = s.language;
-        localStorage.setItem('nexus_language', s.language);
+        setAppSetting('language', s.language);
       }
       if (typeof s.always_show_code === 'boolean') {
         state.always_show_code = s.always_show_code;
-        localStorage.setItem('nexus_always_show_code', s.always_show_code ? 'true' : 'false');
+        setAppSetting('always_show_code', s.always_show_code ? 'true' : 'false');
       }
       if (typeof s.enter_sends_message === 'boolean') {
         state.enter_sends_message = s.enter_sends_message;
-        localStorage.setItem('nexus_enter_sends_message', s.enter_sends_message ? 'true' : 'false');
+        setAppSetting('enter_sends_message', s.enter_sends_message ? 'true' : 'false');
       }
       if (typeof s.sound_effects === 'boolean') {
         state.sound_effects = s.sound_effects;
-        localStorage.setItem('nexus_sound_effects', s.sound_effects ? 'true' : 'false');
+        setAppSetting('sound_effects', s.sound_effects ? 'true' : 'false');
       }
 
       // Sync DOM controls if present
@@ -4384,11 +4401,11 @@ async function saveChatGPTSetting(key, value) {
       throw new Error(data.error || 'Failed to save setting');
     }
 
-    if (key === 'theme') localStorage.setItem('nexus_theme', value);
-    if (key === 'language') localStorage.setItem('nexus_language', value);
-    if (key === 'always_show_code') localStorage.setItem('nexus_always_show_code', value ? 'true' : 'false');
-    if (key === 'enter_sends_message') localStorage.setItem('nexus_enter_sends_message', value ? 'true' : 'false');
-    if (key === 'sound_effects') localStorage.setItem('nexus_sound_effects', value ? 'true' : 'false');
+    if (key === 'theme') setAppSetting('theme', value);
+    if (key === 'language') setAppSetting('language', value);
+    if (key === 'always_show_code') setAppSetting('always_show_code', value ? 'true' : 'false');
+    if (key === 'enter_sends_message') setAppSetting('enter_sends_message', value ? 'true' : 'false');
+    if (key === 'sound_effects') setAppSetting('sound_effects', value ? 'true' : 'false');
 
     if (statusEl) {
       statusEl.style.display = 'inline-flex';
@@ -4776,7 +4793,7 @@ function setupSettingsModal() {
       reader.onload = (evt) => {
         const dataUrl = evt.target.result;
         state.userAvatar = dataUrl;
-        localStorage.setItem('nexus_user_avatar', dataUrl);
+        setAppSetting('user_avatar', dataUrl);
         updateProfileDisplay();
       };
       reader.readAsDataURL(file);
@@ -4787,7 +4804,7 @@ function setupSettingsModal() {
   if (removeAvatarBtn) {
     removeAvatarBtn.addEventListener('click', () => {
       state.userAvatar = '/assets/raghul_profile.jpg';
-      localStorage.setItem('nexus_user_avatar', '/assets/raghul_profile.jpg');
+      setAppSetting('user_avatar', '/assets/raghul_profile.jpg');
       updateProfileDisplay();
     });
   }
@@ -4884,7 +4901,7 @@ function setupSettingsModal() {
         const a = document.createElement('a');
         a.href = url;
         const dateStr = new Date().toISOString().slice(0, 10);
-        a.download = `nexus-raghul-chats-backup-${dateStr}.json`;
+        a.download = `raghul-ai-chats-backup-${dateStr}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -4991,57 +5008,57 @@ function setupSettingsModal() {
       state.userFullName = profileFullName ? profileFullName.value.trim() : 'Raghul raja';
       state.userName = profileNickname ? profileNickname.value.trim() : 'Raghul';
       state.userRole = profileRole ? profileRole.value : 'Full-Stack Software Engineer';
-      localStorage.setItem('nexus_user_fullname', state.userFullName);
-      localStorage.setItem('nexus_user_name', state.userName);
-      localStorage.setItem('nexus_user_role', state.userRole);
+      setAppSetting('user_fullname', state.userFullName);
+      setAppSetting('user_name', state.userName);
+      setAppSetting('user_role', state.userRole);
 
       // 2. Personalization
       if (customAboutInput) {
         state.customAbout = customAboutInput.value.trim();
-        localStorage.setItem('nexus_custom_about', state.customAbout);
+        setAppSetting('custom_about', state.customAbout);
       }
       if (customInstructionsInput) {
         state.customInstructions = customInstructionsInput.value.trim();
-        localStorage.setItem('nexus_custom_instructions', state.customInstructions);
+        setAppSetting('custom_instructions', state.customInstructions);
       }
       if (memoryEnabledToggle) {
         state.memoryEnabled = memoryEnabledToggle.checked;
-        localStorage.setItem('nexus_memory_enabled', state.memoryEnabled ? 'true' : 'false');
+        setAppSetting('memory_enabled', state.memoryEnabled ? 'true' : 'false');
       }
 
       // 3. Capabilities
       if (settingsDefaultModel) {
         state.modelChoice = settingsDefaultModel.value;
-        localStorage.setItem('nexus_model_choice', state.modelChoice);
+        setAppSetting('model_choice', state.modelChoice);
         if (modelSelector) modelSelector.value = state.modelChoice;
       }
       if (temperatureSlider) {
         state.temperature = parseFloat(temperatureSlider.value);
-        localStorage.setItem('nexus_temperature', state.temperature);
+        setAppSetting('temperature', state.temperature);
       }
       if (settingsWebSearchToggle) {
         state.webSearchEnabled = settingsWebSearchToggle.checked;
-        localStorage.setItem('nexus_default_web_search', state.webSearchEnabled ? 'true' : 'false');
+        setAppSetting('default_web_search', state.webSearchEnabled ? 'true' : 'false');
         if (pillWebSearch) {
           pillWebSearch.classList.toggle('active', state.webSearchEnabled);
         }
       }
       if (settingsDeepThinkingToggle) {
         state.deepThinkingEnabled = settingsDeepThinkingToggle.checked;
-        localStorage.setItem('nexus_default_deep_thinking', state.deepThinkingEnabled ? 'true' : 'false');
+        setAppSetting('default_deep_thinking', state.deepThinkingEnabled ? 'true' : 'false');
         if (pillDeepThink) {
           pillDeepThink.classList.toggle('active', state.deepThinkingEnabled);
         }
       }
       if (memoryTurnsSlider) {
         state.memoryTurns = parseInt(memoryTurnsSlider.value, 10);
-        localStorage.setItem('nexus_memory_turns', state.memoryTurns);
+        setAppSetting('memory_turns', state.memoryTurns);
       }
 
       // 4. API Key
       if (apiKeyInput) {
         state.apiKey = apiKeyInput.value.trim();
-        localStorage.setItem('nexus_gemini_key', state.apiKey);
+        setAppSetting('gemini_key', state.apiKey);
         await updateKeyStatusDisplay();
       }
 
@@ -5058,7 +5075,7 @@ function setupSettingsModal() {
     });
   }
 
-  // Nexus Canvas Studio V2: Tier-1 Developer-Grade IDE Controls
+  // Raghul AI Canvas Studio V2: Tier-1 Developer-Grade IDE Controls
   const artifactModal = document.getElementById('artifactModal');
   const closeArtifactBtn = document.getElementById('closeArtifactBtn');
   const btnStudioRunCode = document.getElementById('btnStudioRunCode');
@@ -5103,7 +5120,7 @@ function setupSettingsModal() {
         const blob = new Blob([bytes], { type: 'application/zip' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        const filename = `nexus_studio_bundle_${Date.now()}.zip`;
+        const filename = `raghul_studio_bundle_${Date.now()}.zip`;
         a.href = url;
         a.download = filename;
         document.body.appendChild(a);
@@ -5277,7 +5294,7 @@ function setupSettingsModal() {
 
   // Cross-Origin Console Log Bridge from Preview Iframe
   window.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'NEXUS_STUDIO_LOG') {
+    if (event.data && (event.data.type === 'RAGHUL_STUDIO_LOG' || event.data.type === 'NEXUS_STUDIO_LOG')) {
       appendTerminalLog(event.data.logType || 'stdout', event.data.message || '');
     }
   });
@@ -5766,7 +5783,7 @@ function setupSettingsModal() {
   window.deleteMemoryItem = async (id) => {
     const ok = await showConfirmDialog({
       title: 'Delete Stored Memory?',
-      message: 'This fact will be permanently removed from your persistent memory profile. Nexus will no longer ground future conversations on this fact.',
+      message: 'This fact will be permanently removed from your persistent memory profile. Raghul AI will no longer ground future conversations on this fact.',
       confirmText: 'Delete Fact',
       isDanger: true
     });
@@ -5892,14 +5909,14 @@ function setupSettingsModal() {
 
   window.setActiveProject = (id) => {
     state.activeProjectId = id;
-    localStorage.setItem('nexus_active_project_id', id);
+    setAppSetting('active_project_id', id);
     loadProjectsDashboard();
   };
 
   if (clearActiveProjectBtn) {
     clearActiveProjectBtn.addEventListener('click', () => {
       state.activeProjectId = null;
-      localStorage.removeItem('nexus_active_project_id');
+      removeAppSetting('active_project_id');
       loadProjectsDashboard();
     });
   }
@@ -5916,7 +5933,7 @@ function setupSettingsModal() {
       await fetch(`/api/projects/${id}`, { method: 'DELETE' });
       if (state.activeProjectId === id) {
         state.activeProjectId = null;
-        localStorage.removeItem('nexus_active_project_id');
+        removeAppSetting('active_project_id');
       }
       loadProjectsDashboard();
     } catch (e) {
@@ -5996,7 +6013,7 @@ function setupSettingsModal() {
 }
 
 // Global helper for downloading generated artwork as PNG (works with SVG & raster images)
-window.downloadArtworkAsPng = function(url, filename = 'nexus_artwork.png') {
+window.downloadArtworkAsPng = function(url, filename = 'raghul_artwork.png') {
   if (url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg')) {
     const a = document.createElement('a');
     a.href = url;
@@ -6048,7 +6065,7 @@ window.downloadArtworkAsPng = function(url, filename = 'nexus_artwork.png') {
 };
 
 /* ==========================================================================
-   NEXUS AI — OFFICIAL GITHUB MCP SERVER PLATFORM & AUTOMATION HUB
+   RAGHUL AI — OFFICIAL GITHUB MCP SERVER PLATFORM & AUTOMATION HUB
    ========================================================================== */
 
 window.githubState = {
@@ -6874,7 +6891,7 @@ async function loadGitHubActions() {
       <div style="display:flex; align-items:center; gap:12px;">
         <span class="status-dot online"></span>
         <div>
-          <strong style="font-size:0.86rem; color:#f8fafc;">Nexus Autonomous Code & Security Audit Gate</strong>
+          <strong style="font-size:0.86rem; color:#f8fafc;">RAGHUL AI Autonomous Code & Security Audit Gate</strong>
           <div style="font-size:0.74rem; color:#94a3b8; margin-top:2px;">AST Static analysis & secret scan completed</div>
         </div>
       </div>
@@ -7649,7 +7666,7 @@ function renderPortfolioProjects() {
       repo: 'raghul692/LinkedIn-AI-Growth-Operating-System'
     },
     {
-      title: 'Nexus Autonomous AI Assistant',
+      title: 'RAGHUL AI Assistant',
       description: 'Frontier AI assistant with multi-provider model routing, official GitHub MCP protocol integration, streaming SSE, and persistent memory.',
       tags: ['Agentic AI', 'MCP Protocol', 'SQLite FTS5', 'SSE Streaming', 'Express'],
       repo: 'raghul692/raghulraja_portfolio'
@@ -8355,7 +8372,7 @@ function openImageLightbox(img) {
       lightbox.style.display = 'none';
       const galleryModal = document.getElementById('imagesGalleryModal');
       if (galleryModal) galleryModal.style.display = 'none';
-      userInput.value = `/image cinematic variation of ${img.filename.replace(/nexus_|\.jpg|\.png|\.svg/g, ' ')}`;
+      userInput.value = `/image cinematic variation of ${img.filename.replace(/nexus_|raghul_|\.jpg|\.png|\.svg/g, ' ')}`;
       updateComposerState();
       userInput.focus();
     };

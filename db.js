@@ -1106,7 +1106,7 @@ export function recordGitHubWebhook({
 import crypto from 'crypto';
 
 export function logGitHubAudit({
-  actor = 'Nexus AI',
+  actor = 'Raghul AI',
   action,
   resource,
   status = 'SUCCESS',
@@ -1237,7 +1237,7 @@ export function recordPortfolioDeployment({
   status = 'building',
   url = '',
   logs = '',
-  triggeredBy = 'Nexus AI Assistant'
+  triggeredBy = 'Raghul AI Assistant'
 }) {
   const id = `dep_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
   const now = Date.now();

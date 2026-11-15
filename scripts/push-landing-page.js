@@ -271,7 +271,7 @@ body {
 
 An ultra-modern, high-converting SaaS landing page engineered with clean HTML5, CSS3 glassmorphism, and vanilla JavaScript.
 
-Developed autonomously via **Nexus AI Assistant** and published to GitHub using the **Official GitHub MCP Server**.
+Developed autonomously via **Raghul AI Assistant** and published to GitHub using the **Official GitHub MCP Server**.
 
 ## 🚀 Live Demo & Repository
 - **Author:** RAGHUL RAJA M ([@raghul692](https://github.com/raghul692))

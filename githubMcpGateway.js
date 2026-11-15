@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — OFFICIAL GITHUB MCP SERVER GATEWAY & REPOSITORY ENGINE
+ * RAGHUL AI — OFFICIAL GITHUB MCP SERVER GATEWAY & REPOSITORY ENGINE
  * 
  * Features:
  * 1. Streamable HTTP JSON-RPC 2.0 Client for Official GitHub Remote MCP (https://api.githubcopilot.com/mcp/)
@@ -94,7 +94,7 @@ export class GitHubMCPGateway {
             sampling: {}
           },
           clientInfo: {
-            name: 'Nexus-AI-Assistant',
+            name: 'Raghul-AI-Assistant',
             version: '2.0.0'
           }
         }
@@ -412,7 +412,7 @@ export class GitHubMCPGateway {
     const res = await fetch('https://api.github.com/user', {
       headers: {
         'Authorization': `Bearer ${token}`,
-        'User-Agent': 'Nexus-AI-Assistant',
+        'User-Agent': 'Raghul-AI-Assistant',
         'Accept': 'application/vnd.github.v3+json'
       }
     });
@@ -449,7 +449,7 @@ export class GitHubMCPGateway {
     
     const headers = {
       'Authorization': `Bearer ${token}`,
-      'User-Agent': 'Nexus-AI-Assistant',
+      'User-Agent': 'Raghul-AI-Assistant',
       'Accept': options.accept || 'application/vnd.github.v3+json',
       ...(options.headers || {})
     };
@@ -590,7 +590,7 @@ export class GitHubMCPGateway {
   /**
    * Create or update a file in a repository with Automatic Conflict Resolution (409 Retry)
    */
-  async createOrUpdateFile(owner, repo, filePath, content, commitMessage = 'Add file via Nexus AI', branch = null) {
+  async createOrUpdateFile(owner, repo, filePath, content, commitMessage = 'Add file via Raghul AI', branch = null) {
     const targetBranch = branch || await this.resolveDefaultBranch(owner, repo);
     const base64Content = Buffer.from(content, 'utf-8').toString('base64');
 
@@ -636,7 +636,7 @@ export class GitHubMCPGateway {
   /**
    * Delete a file in a repository
    */
-  async deleteFile(owner, repo, filePath, commitMessage = 'Delete file via Nexus AI', branch = null) {
+  async deleteFile(owner, repo, filePath, commitMessage = 'Delete file via Raghul AI', branch = null) {
     const targetBranch = branch || await this.resolveDefaultBranch(owner, repo);
     const existing = await this.fetchRest(`/repos/${owner}/${repo}/contents/${filePath}?ref=${targetBranch}`);
     if (!existing || !existing.sha) {

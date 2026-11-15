@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — PORTFOLIO INTELLIGENCE & AUTONOMOUS MANAGEMENT API ROUTES
+ * RAGHUL AI — PORTFOLIO INTELLIGENCE & AUTONOMOUS MANAGEMENT API ROUTES
  */
 
 import express from 'express';
@@ -1256,7 +1256,7 @@ router.post('/database/backup', (req, res) => {
     if (!fs.existsSync(backupDir)) {
       fs.mkdirSync(backupDir, { recursive: true });
     }
-    const backupFile = `nexus_backup_${Date.now()}.db`;
+    const backupFile = `raghul_backup_${Date.now()}.db`;
     const backupPath = path.join(backupDir, backupFile);
     
     db.backup(backupPath).then(() => {

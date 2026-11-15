@@ -95,7 +95,7 @@ export class OpenRouterProvider extends BaseProvider {
           'Authorization': `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
           'HTTP-Referer': 'http://localhost:3000',
-          'X-Title': 'Nexus AI'
+          'X-Title': 'RAGHUL AI'
         },
         body: JSON.stringify({
           model: activeModel,

@@ -60,7 +60,7 @@ router.post('/generate', async (req, res) => {
       if (style === 'executive') {
         result = await generateExecutivePdf({ title, author, executiveSummary: abstract, kpis, sections });
       } else {
-        result = await generateIEEEPdf({ title, authors: [{ name: author || 'Nexus Fellow', affiliation: 'Nexus Labs' }], abstract, sections, tables });
+        result = await generateIEEEPdf({ title, authors: [{ name: author || 'RAGHUL AI Fellow', affiliation: 'RAGHUL AI Labs' }], abstract, sections, tables });
       }
     } else if (format === 'docx') {
       result = await generateDocxDocument({ title, subtitle, author, abstract, sections, tables });

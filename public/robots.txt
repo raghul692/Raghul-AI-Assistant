@@ -1,0 +1,32 @@
+# ==============================================================================
+# RAGHUL AI — SEARCH ENGINE ROBOTS DIRECTIVES (RFC 9309 COMPLIANT)
+# Application: Raghul AI Assistant & Autonomous Multi-Agent Swarms
+# Canonical URL: https://raghulraja.is-a.dev/
+# ==============================================================================
+
+User-agent: *
+Allow: /
+Allow: /assets/
+Allow: /style.css
+Allow: /app.js
+Allow: /studioIde.js
+
+# Protected Private / Developer Dashboard Endpoints
+Disallow: /os
+Disallow: /portfolio-os
+Disallow: /os.html
+Disallow: /os.css
+Disallow: /osEngine.js
+Disallow: /portfolioOsEngine.js
+
+# Internal Backend & Runtime Data Protection
+Disallow: /api/
+Disallow: /data/
+Disallow: /scratch/
+Disallow: /generated/
+
+# Search Engine Crawl Delay (Polite rate control)
+Crawl-delay: 1
+
+# Canonical Sitemap Declaration
+Sitemap: https://raghulraja.is-a.dev/sitemap.xml

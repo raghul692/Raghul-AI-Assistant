@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — STRUCTURED VISUAL BRIEF BUILDER (Phase 3 Upgrade)
+ * RAGHUL AI — STRUCTURED VISUAL BRIEF BUILDER (Phase 3 Upgrade)
  * 
  * Transforms pre-generation thinking and validated planning into a complete structured visual brief:
  * - Adheres strictly to the production schema (intent, subject, objective, source_context, content_plan, visual_plan, quality_requirements)

@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — PORTFOLIO TELEMETRY & REAL-TIME INTELLIGENCE ENGINE
+ * RAGHUL AI — PORTFOLIO TELEMETRY & REAL-TIME INTELLIGENCE ENGINE
  * 
  * Production real-time telemetry service:
  * 1. Live Host OS & Process Telemetry (Real CPU, Memory, Disk, Network)

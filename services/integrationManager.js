@@ -1,5 +1,5 @@
 /**
- * NEXUS AI — CENTRAL INTEGRATION MANAGER
+ * RAGHUL AI — CENTRAL INTEGRATION MANAGER
  * 
  * Production Integration Service for:
  * 1. GitHub API (PAT: fine-grained / classic)

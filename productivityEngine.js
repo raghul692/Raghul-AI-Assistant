@@ -60,11 +60,11 @@ export function exportCalendarToICS(eventId) {
   const ics = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Nexus AI Frontier Assistant//EN',
+    'PRODID:-//Raghul AI Frontier Assistant//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    `UID:${event.id}@nexus.local`,
+    `UID:${event.id}@raghul.ai`,
     `DTSTAMP:${formatICSDate(Date.now())}`,
     `DTSTART:${formatICSDate(event.start_time)}`,
     `DTEND:${formatICSDate(event.end_time)}`,
@@ -94,7 +94,7 @@ export function exportEmailToEML(emailId) {
     'MIME-Version: 1.0',
     'Content-Type: text/plain; charset=utf-8',
     'Content-Transfer-Encoding: 8bit',
-    `Message-ID: <${email.id}@nexus.local>`,
+    `Message-ID: <${email.id}@raghul.ai>`,
     '',
     email.body
   ].join('\r\n');
@@ -126,7 +126,7 @@ export function getLocalGitRepositoryInfo() {
     };
   }
 }
-export function draftEmail({ to, subject, body, sender = 'raghul.engineer@nexus.local' }) {
+export function draftEmail({ to, subject, body, sender = 'raghul.engineer@raghul.ai' }) {
   const id = `email_draft_${Date.now()}`;
   db.prepare(`
     INSERT INTO emails (id, folder, sender, recipient, subject, body, timestamp, is_read)
@@ -143,7 +143,7 @@ export function draftEmail({ to, subject, body, sender = 'raghul.engineer@nexus.
   return { id, folder: 'drafts', to, subject, body };
 }
 
-export function sendEmail({ to, subject, body, sender = 'raghul.engineer@nexus.local' }) {
+export function sendEmail({ to, subject, body, sender = 'raghul.engineer@raghul.ai' }) {
   const id = `email_${Date.now()}`;
   db.prepare(`
     INSERT INTO emails (id, folder, sender, recipient, subject, body, timestamp, is_read)
@@ -366,7 +366,7 @@ export function generateChart({ type = 'bar', title = 'Chart', labels = [], data
 /**
  * 5. PRESENTATION SLIDE DECK GENERATOR
  */
-export function generatePresentationDeck({ title = 'Nexus Presentation', slides = [] }) {
+export function generatePresentationDeck({ title = 'Raghul AI Presentation', slides = [] }) {
   const slidesHtml = slides.map((s, idx) => `
     <div class="slide" id="slide-${idx + 1}" style="${idx === 0 ? 'display:block;' : 'display:none;'}">
       <div class="slide-badge">SLIDE ${idx + 1} OF ${slides.length}</div>
@@ -474,7 +474,7 @@ export function generatePublicationDocument({ title, author = 'Raghul (Full-Stac
   <div class="doc-page">
     <header class="doc-header">
       <h1 class="doc-title">${title}</h1>
-      <div class="doc-meta">Prepared by <strong>${author}</strong> • Date: ${new Date().toLocaleDateString('en-US', { dateStyle: 'long' })} • Nexus Verified Document</div>
+      <div class="doc-meta">Prepared by <strong>${author}</strong> • Date: ${new Date().toLocaleDateString('en-US', { dateStyle: 'long' })} • RAGHUL AI Verified Document</div>
     </header>
     ${abstract ? `<div class="doc-abstract"><strong>Abstract:</strong> ${abstract}</div>` : ''}
     ${sectionsHtml}
