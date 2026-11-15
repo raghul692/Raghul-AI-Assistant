@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { saveUserMemory, deleteUserMemory, extractAndSaveFacts } from './memory/persistentMemoryEngine.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -86,6 +87,19 @@ export function addMemory(category, key, value) {
     memories.push(entry);
   }
   saveMemories(memories);
+
+  // Sync to SQLite persistent memory store
+  try {
+    saveUserMemory({
+      id: entry.id,
+      category: category === 'profile' ? 'preference' : (category || 'fact'),
+      content: `${entry.key}: ${entry.value}`,
+      importance: category === 'profile' ? 0.95 : 0.8
+    });
+  } catch (err) {
+    // Non-blocking sync notice
+  }
+
   return entry;
 }
 
@@ -93,6 +107,9 @@ export function deleteMemory(id) {
   const memories = loadMemories();
   const filtered = memories.filter(m => m.id !== id);
   saveMemories(filtered);
+  try {
+    deleteUserMemory(id);
+  } catch (err) {}
   return filtered.length < memories.length;
 }
 
@@ -121,7 +138,7 @@ export function recallRelevantMemories(userMessage = '') {
 
   if (topMemories.length === 0) return '';
 
-  return `\n\n### 🧠 LONG-TERM PERSISTENT MEMORY RECALL (Known User Context):\n` +
+  return `\n\n### LONG-TERM PERSISTENT MEMORY RECALL (Known User Context):\n` +
     topMemories.map(m => `- **${m.key}** (${m.category}): ${m.value}`).join('\n') +
     `\nMandate: Seamlessly align responses with these recalled user preferences and identity facts without redundantly repeating them.`;
 }
@@ -143,5 +160,10 @@ export function autoExtractFact(userMessage = '') {
   if (techMatch) {
     addMemory('preference', 'tech_stack', techMatch[1].trim());
   }
+
+  // Run comprehensive fact extraction
+  try {
+    extractAndSaveFacts(userMessage);
+  } catch (err) {}
 }
 

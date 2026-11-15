@@ -27,7 +27,7 @@ class PromptEngine {
     if (!message || typeof message !== 'string') return false;
     const lower = message.toLowerCase();
     return (
-      /(?:code|coding|function|class|middleware|api|frontend|backend|html|css|javascript|typescript|python|react|express|fastapi|sql|script|bug|debug|refactor|unit\s*test|எழுது|எழுதி\s*காட்டு|கோட்)/i.test(lower)
+      /(?:code|coding|function|class|middleware|api|frontend|backend|html|css|javascript|typescript|python|react|express|fastapi|sql|script|bug|debug|refactor|unit\s*test|ezhuthu|ezhuthi\s*kaatu|ezhuthikattu)/i.test(lower)
     );
   }
 
@@ -38,8 +38,8 @@ class PromptEngine {
     if (!message || typeof message !== 'string') return false;
     const clean = message.trim().toLowerCase();
     return (
-      /^(?:hi|hello|hey|vanakkam|வணக்கம்|epdi\s*iruka|epdi\s*irukinga|how\s*are\s*you|good\s*(?:morning|evening|afternoon)|sup|yo|machi|bro|nanba)[.?!]*$/i.test(clean) ||
-      clean.length <= 15 && /(?:hi|hello|hey|vanakkam|வணக்கம்)/i.test(clean)
+      /^(?:hi|hello|hey|vanakkam|epdi\s*iruka|epdi\s*irukinga|how\s*are\s*you|good\s*(?:morning|evening|afternoon)|sup|yo|machi|bro|nanba)[.?!]*$/i.test(clean) ||
+      clean.length <= 15 && /(?:hi|hello|hey|vanakkam)/i.test(clean)
     );
   }
 
@@ -49,8 +49,8 @@ class PromptEngine {
   isGitHubQuery(message = '') {
     if (!message || typeof message !== 'string') return false;
     const lower = message.toLowerCase();
-    // Exclude general code generation requests like "Express.js-ல் middleware எழுதி காட்டு"
-    if (/(?:எழுதி\s*காட்டு|write\s+(?:a|an|the|code|middleware|api)|generate\s+code)/i.test(lower) && 
+    // Exclude general code generation requests like "Express.js-il middleware ezhuthi kaattu"
+    if (/(?:ezhuthi\s*kaatu|ezhuthikattu|write\s+(?:a|an|the|code|middleware|api)|generate\s+code)/i.test(lower) && 
         !/(?:github|repo|push|commit|pr|pull\s*request)/i.test(lower)) {
       return false;
     }
@@ -63,7 +63,7 @@ class PromptEngine {
   isPortfolioQuery(message = '') {
     if (!message || typeof message !== 'string') return false;
     const lower = message.toLowerCase();
-    return /(?:port?foli[oa]\w*|raghulraja|website status|portfolio status|deployments?|drafts?|போர்ட்ஃபோலியோ|resume|cv)/i.test(lower);
+    return /(?:port?foli[oa]\w*|raghulraja|website status|portfolio status|deployments?|drafts?|resume|cv)/i.test(lower);
   }
 
   /**

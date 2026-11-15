@@ -808,7 +808,9 @@ app.post('/api/chat/stream', async (req, res) => {
       modelChoice = 'gemini-3-flash-preview',
       attachments = [], // Multimodal images & PDFs
       webSearchEnabled = null, // Explicit boolean toggle (true/false/null)
-      deepThinkingEnabled = false // Explicit extended reasoning toggle
+      deepThinkingEnabled = false, // Explicit extended reasoning toggle
+      memoryTurns = MAX_MEMORY_TURNS,
+      memoryEnabled = true
     } = req.body;
 
     const hasMessage = message && typeof message === 'string' && message.trim().length > 0;
@@ -1674,13 +1676,14 @@ Mandate: Answer all questions about Raghul Raja's portfolio, about section, educ
     }
 
     // 5. Build Unified Context & Persistent Memory (Provider-Independent)
+    const effectiveTurns = memoryEnabled === false ? 2 : (parseInt(memoryTurns, 10) || MAX_MEMORY_TURNS);
     const unifiedContext = buildUnifiedContext({
       chatId: sessionId,
       personaConfig,
       baseInstruction: effectiveSystemInstruction,
       userMessage: sanitizedMessage,
       history: chat.history,
-      maxRecentTurns: MAX_MEMORY_TURNS,
+      maxRecentTurns: effectiveTurns,
       userName,
       userRole
     });
@@ -1801,16 +1804,37 @@ app.post('/api/chat', async (req, res) => {
     }
 
     const client = getGenAIClient(apiKey);
-    const session = sessions.get(sessionId) || { history: [] };
-    const systemInstruction = promptEngine.buildSystemInstruction({
-      personaKey,
+    let chat = getChat(sessionId);
+    if (!chat) {
+      chat = createOrUpdateChat({
+        id: sessionId,
+        title: 'Chat',
+        persona: personaKey,
+        history: []
+      });
+    }
+    if (personaKey) chat.persona = personaKey;
+
+    const personaConfig = PERSONAS[chat.persona] || PERSONAS.assistant;
+    const baseInstruction = promptEngine.buildSystemInstruction({
+      personaKey: chat.persona,
       customPrompt,
       message,
       userName: 'Raghul'
     });
 
-    const contents = getManagedContext(session.history).map(m => ({
-      role: m.role,
+    const unifiedContext = buildUnifiedContext({
+      chatId: sessionId,
+      personaConfig,
+      baseInstruction,
+      userMessage: message,
+      history: chat.history,
+      maxRecentTurns: MAX_MEMORY_TURNS,
+      userName: 'Raghul'
+    });
+
+    const contents = unifiedContext.recentHistory.map(m => ({
+      role: (m.role === 'assistant' || m.role === 'model') ? 'model' : 'user',
       parts: [{ text: m.text }]
     }));
     contents.push({ role: 'user', parts: [{ text: message }] });
@@ -1818,15 +1842,18 @@ app.post('/api/chat', async (req, res) => {
     const response = await client.models.generateContent({
       model: modelChoice,
       contents,
-      config: { systemInstruction }
+      config: { systemInstruction: unifiedContext.systemInstruction }
     });
 
-    const reply = response.text || 'No response.';
-    session.history.push({ role: 'user', text: message, timestamp: Date.now() });
-    session.history.push({ role: 'model', text: reply, timestamp: Date.now() });
-    sessions.set(sessionId, session);
+    const reply = ensureEnglishOrTanglish(response.text || 'No response.');
+    chat.history.push({ role: 'user', text: message, timestamp: Date.now() });
+    chat.history.push({ role: 'model', text: reply, timestamp: Date.now() });
+    createOrUpdateChat(chat);
 
-    res.json({ reply, memoryTurns: session.history.length, model: modelChoice });
+    // Asynchronously summarize if turn threshold met
+    checkAndSummarizeConversation(chat, aiProviderManager).catch(e => console.warn('Summarization notice:', e.message));
+
+    res.json({ reply, memoryTurns: chat.history.length, model: modelChoice });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

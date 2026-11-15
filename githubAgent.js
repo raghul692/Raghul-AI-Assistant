@@ -1025,7 +1025,7 @@ ${prRes?.html_url ? `- **Pull Request:** [${prRes.html_url}](${prRes.html_url})`
     const commits = await githubMcpGateway.listCommits(owner, repoName, '', 10);
 
     if (!Array.isArray(commits) || commits.length === 0) {
-      return `### 📜 Recent Commits for \`${owner}/${repoName}\`\n\nஇந்த repository-ல் commits எதுவும் இல்லை அல்லது fetch செய்ய முடியவில்லை.`;
+      return `### 📜 Recent Commits for \`${owner}/${repoName}\`\n\nIntha repository-il commits ethuvum illai allathu fetch seiya mudiyavillai.`;
     }
 
     const commitList = commits.map(c => {

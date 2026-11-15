@@ -146,7 +146,7 @@ export function clearUserMemories() {
 function tokenize(text = '') {
   return text
     .toLowerCase()
-    .replace(/[^\w\s\u0B80-\u0BFF]/g, ' ')
+    .replace(/[^\w\s]/g, ' ')
     .split(/\s+/)
     .filter(t => t.length > 2);
 }
@@ -221,7 +221,215 @@ export function searchSemanticMemories(query = '', topK = 4) {
   return relevant;
 }
 
-// 5. Conversation Summarization & Context Compression
+// 5. High-Precision User Fact & Preference Extractor
+export function extractAndSaveFacts(userMessage = '') {
+  if (!userMessage || typeof userMessage !== 'string' || userMessage.trim().length < 4) return [];
+  const text = userMessage.trim();
+  const extracted = [];
+
+  // 1. Name patterns
+  const nameMatch = text.match(/(?:my name is|i am|call me|en peyar)\s+([A-Za-z\s]{2,30})/i);
+  if (nameMatch && !/(?:trying|going|building|working|looking|coding)/i.test(nameMatch[1])) {
+    const name = nameMatch[1].trim().replace(/[.,!?;]+$/, '');
+    if (name.length >= 2 && name.length <= 30) {
+      const saved = saveUserMemory({
+        category: 'preference',
+        content: `User's name is ${name}.`,
+        importance: 0.95
+      });
+      if (saved) extracted.push(saved);
+    }
+  }
+
+  // 2. Role & Profession patterns
+  const roleMatch = text.match(/(?:i work as(?: a| an)?|i am a(?:n)?|my role is(?: a| an)?|working as(?: a| an)?)\s+([A-Za-z0-9\s\-]{3,40})/i);
+  if (roleMatch && !/(?:user|beginner|fan|person|human|trying|wondering)/i.test(roleMatch[1])) {
+    const role = roleMatch[1].trim().replace(/[.,!?;]+$/, '');
+    if (role.length >= 3 && role.length <= 40) {
+      const saved = saveUserMemory({
+        category: 'preference',
+        content: `User's professional role: ${role}.`,
+        importance: 0.9
+      });
+      if (saved) extracted.push(saved);
+    }
+  }
+
+  // 3. Tech Stack & Language patterns
+  const techMatch = text.match(/(?:my (?:tech )?stack is|i (?:usually )?(?:use|build with|develop with|code in)|we use)\s+([A-Za-z0-9,.\s\+\#]{3,60})/i);
+  if (techMatch) {
+    const stack = techMatch[1].trim().replace(/[.,!?;]+$/, '');
+    if (stack.length >= 3 && !/(?:it|this|that|something|nothing)/i.test(stack)) {
+      const saved = saveUserMemory({
+        category: 'preference',
+        content: `User tech stack & tools: ${stack}.`,
+        importance: 0.88
+      });
+      if (saved) extracted.push(saved);
+    }
+  }
+
+  // 4. Database patterns
+  const dbMatch = text.match(/(?:my (?:favorite )?(?:database|db) is|favorite db is|db is|database is)\s+([A-Za-z0-9\s]{3,30})/i);
+  if (dbMatch) {
+    const dbName = dbMatch[1].trim().replace(/[.,!?;]+$/, '');
+    const saved = saveUserMemory({
+      category: 'preference',
+      content: `User preferred database: ${dbName}.`,
+      importance: 0.85
+    });
+    if (saved) extracted.push(saved);
+  }
+
+  // 5. Active Project patterns
+  const projectMatch = text.match(/(?:i am building|working on a project called|my project is|building an?)\s+([A-Za-z0-9\s\-_]{3,50})/i);
+  if (projectMatch && !/(?:code|website|app|system|logic)/i.test(projectMatch[1].trim())) {
+    const project = projectMatch[1].trim().replace(/[.,!?;]+$/, '');
+    const saved = saveUserMemory({
+      category: 'project',
+      content: `Current user project: ${project}.`,
+      importance: 0.86
+    });
+    if (saved) extracted.push(saved);
+  }
+
+  // 6. Conciseness / Communication preference
+  if (/(?:keep (?:it|answers|your\s+answers|explanations|responses) (?:short|concise|brief)|be brief|no fluff|less talking|avoid fluff)/i.test(text)) {
+    const saved = saveUserMemory({
+      category: 'instruction',
+      content: 'User prefers concise, high-signal explanations with minimal fluff.',
+      importance: 0.92
+    });
+    if (saved) extracted.push(saved);
+  }
+
+  // 7. Language tone preference
+  if (/(?:talk (?:to me )?in tanglish|reply in tanglish|tanglish la pesu|conversational tanglish)/i.test(text)) {
+    const saved = saveUserMemory({
+      category: 'instruction',
+      content: 'User prefers responses in conversational Tanglish using Latin script.',
+      importance: 0.94
+    });
+    if (saved) extracted.push(saved);
+  } else if (/(?:reply in english only|english la mattum|only english please)/i.test(text)) {
+    const saved = saveUserMemory({
+      category: 'instruction',
+      content: 'User prefers responses in direct, professional English only.',
+      importance: 0.94
+    });
+    if (saved) extracted.push(saved);
+  }
+
+  return extracted;
+}
+
+// 6. Follow-Up Query Resolver (Anaphora & Reference Resolution)
+export function resolveFollowUpContext(query = '', history = []) {
+  if (!query || typeof query !== 'string') return '';
+  const clean = query.trim();
+
+  // If query is short or has pronouns ("it", "that", "this", "they", "the first one", "which one", "why")
+  const isAnaphoric = clean.split(/\s+/).length <= 4 || 
+    /\b(it|that|this|they|them|these|those|which|first|second|former|latter|why|how|explain|compare|difference)\b/i.test(clean);
+
+  if (!isAnaphoric || !Array.isArray(history) || history.length === 0) {
+    return clean;
+  }
+
+  // Extract key terms from the most recent assistant and user turns
+  const recentTurns = history.slice(-2);
+  const contextWords = [];
+  for (const turn of recentTurns) {
+    if (turn.text) {
+      // Extract code tokens, PascalCase, CamelCase, or technical nouns
+      const matches = turn.text.match(/\b([A-Z][a-zA-Z0-9]+|[a-z]+[A-Z][a-zA-Z0-9]*|[a-zA-Z0-9_\-\.]{4,})\b/g);
+      if (matches) {
+        contextWords.push(...matches.slice(0, 8));
+      }
+    }
+  }
+
+  const uniqueContext = [...new Set(contextWords)].slice(0, 6).join(' ');
+  return uniqueContext ? `${clean} (${uniqueContext})` : clean;
+}
+
+// 7. In-Session Deep Recall (Search turns older than the sliding window)
+export function searchInSessionHistory(query = '', history = [], maxRecentTurns = 12) {
+  if (!query || !Array.isArray(history) || history.length <= maxRecentTurns) return [];
+  const olderTurns = history.slice(0, -maxRecentTurns);
+  if (olderTurns.length === 0) return [];
+
+  const tokensQuery = tokenize(query);
+  if (tokensQuery.length === 0) return [];
+
+  const scoredTurns = [];
+  for (let i = 0; i < olderTurns.length; i++) {
+    const turn = olderTurns[i];
+    const sim = calculateSimilarity(query, turn.text || '');
+    if (sim > 0.12) {
+      scoredTurns.push({
+        index: i + 1,
+        role: turn.role,
+        text: turn.text || '',
+        score: sim
+      });
+    }
+  }
+
+  scoredTurns.sort((a, b) => b.score - a.score);
+  return scoredTurns.slice(0, 3);
+}
+
+// 8. Cross-Session Chat History Recall
+export function isPastChatRecallIntent(query = '') {
+  if (!query || typeof query !== 'string') return false;
+  return /(?:previous|past|other|earlier|last|yesterday|before)\s*(?:chat|conversation|discussion|session|message|topic)|(?:did we (?:talk|discuss|mention|say)|what did (?:we|i|you) (?:discuss|talk|say)|recall (?:our|the|my) (?:previous|past|earlier|last)|search (?:my )?(?:past|previous|old) (?:chats|conversations))/i.test(query);
+}
+
+export function searchPastConversations(query = '', currentChatId = null, limit = 4) {
+  if (!query || typeof query !== 'string') return [];
+  try {
+    const clean = query
+      .replace(/(?:what did we discuss|what did we talk about|did we talk about|recall our|in our|previous|past|chats?|conversations?|sessions?)/gi, '')
+      .trim();
+    const searchQuery = clean.length > 2 ? clean : query;
+
+    // FTS5 and SQLite query across all chats
+    const tokens = tokenize(searchQuery);
+    if (tokens.length === 0) return [];
+
+    const ftsPattern = tokens.map(t => `"${t.replace(/["*]/g, '')}"*`).join(' OR ');
+    const stmt = db.prepare(`
+      SELECT 
+        m.chat_id,
+        c.title as chat_title,
+        m.role,
+        m.text,
+        m.timestamp,
+        snippet(messages_fts, 2, '<b>', '</b>', '...', 20) as snippet
+      FROM messages_fts f
+      JOIN messages m ON f.message_id = m.id
+      JOIN chats c ON m.chat_id = c.id
+      WHERE messages_fts MATCH ? AND m.chat_id != ?
+      ORDER BY bm25(messages_fts)
+      LIMIT ?
+    `);
+
+    const rows = stmt.all(ftsPattern, currentChatId || '', limit);
+    return rows.map(r => ({
+      chatId: r.chat_id,
+      chatTitle: r.chat_title,
+      role: r.role,
+      timestamp: r.timestamp,
+      snippet: r.snippet || (r.text ? r.text.slice(0, 160) : '')
+    }));
+  } catch (err) {
+    console.warn('Past conversation search notice:', err.message);
+    return [];
+  }
+}
+
+// 9. Conversation Summarization & Context Compression
 export function getConversationSummary(chatId) {
   if (!chatId) return null;
   return db.prepare('SELECT * FROM conversation_summaries WHERE chat_id = ?').get(chatId);
@@ -245,20 +453,68 @@ export function saveConversationSummary(chatId, { summary, keyDecisions = '', un
 }
 
 /**
+ * Heuristic Extractive Summarizer fallback (Guarantees robust summary even without LLM)
+ */
+function createExtractiveSummary(messages = []) {
+  const topics = [];
+  const decisions = [];
+  const pending = [];
+
+  for (const m of messages) {
+    const text = m.text || '';
+    if (m.role === 'user') {
+      const qMatch = text.match(/(?:how (?:to|can)|what is|explain|why|compare|implement|create|deploy|write)\s+([^?.!\n]{5,50})/i);
+      if (qMatch) {
+        topics.push(qMatch[0].trim());
+      } else if (text.length > 5 && text.length < 80) {
+        topics.push(text.trim());
+      }
+    } else {
+      if (/(?:decided|configured|recommended|chosen|selected|architecture|implemented)\b/i.test(text)) {
+        const sentence = text.split(/[.\n]/).find(s => /(?:recommend|use|configure|setup|install)\b/i.test(s));
+        if (sentence && sentence.trim().length > 10) {
+          decisions.push(sentence.trim().slice(0, 100));
+        }
+      }
+      if (/(?:next step|todo|remaining|need to|pending|later)\b/i.test(text)) {
+        const sentence = text.split(/[.\n]/).find(s => /(?:next|todo|pending)\b/i.test(s));
+        if (sentence && sentence.trim().length > 10) {
+          pending.push(sentence.trim().slice(0, 100));
+        }
+      }
+    }
+  }
+
+  const uniqueTopics = [...new Set(topics)].slice(0, 4);
+  const overview = uniqueTopics.length > 0 
+    ? `Discussion covering: ${uniqueTopics.join('; ')}.`
+    : 'Ongoing technical conversation with active solutions and explanations.';
+
+  return {
+    summary: overview,
+    keyDecisions: decisions.slice(0, 3).join('; ') || 'Followed modular, test-driven implementation patterns.',
+    unresolvedTasks: pending.slice(0, 2).join('; ') || 'None pending'
+  };
+}
+
+/**
  * Checks if conversation should be summarized and compresses history
  */
 export async function checkAndSummarizeConversation(chat, orchestrator) {
-  if (!chat || !chat.history || chat.history.length < 12) return;
+  if (!chat || !chat.history || chat.history.length < 8) return;
   const existing = getConversationSummary(chat.id);
   const lastIdx = existing ? existing.last_summarized_msg_idx : 0;
   
-  // Summarize if 8 new turns have occurred since last summary
-  if (chat.history.length - lastIdx >= 8) {
-    try {
-      const messagesToSummarize = chat.history.slice(lastIdx);
-      const textBlock = messagesToSummarize.map(m => `${m.role.toUpperCase()}: ${m.text || ''}`).join('\n');
+  // Summarize if 6 new turns have occurred since last summary
+  if (chat.history.length - lastIdx >= 6) {
+    const messagesToSummarize = chat.history.slice(lastIdx);
+    const textBlock = messagesToSummarize.map(m => `${m.role.toUpperCase()}: ${m.text || ''}`).join('\n');
 
-      const prompt = `You are a conversational context compression engine.
+    let summaryData = null;
+
+    if (orchestrator && typeof orchestrator.generateText === 'function') {
+      try {
+        const prompt = `You are a conversational context compression engine.
 Summarize the key information, decisions, and any unresolved tasks from this conversation snippet into a concise briefing.
 Preserve technical details, project stack, user decisions, and pending tasks.
 
@@ -272,31 +528,41 @@ Format as JSON:
 Conversation:
 ${textBlock.slice(0, 3000)}`;
 
-      if (orchestrator && typeof orchestrator.generateText === 'function') {
         const result = await orchestrator.generateText({
           prompt,
           taskCategory: 'summarization',
           maxTokens: 500
         });
 
-        const jsonMatch = result.text.match(/\{[\s\S]*?\}/);
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]);
-          saveConversationSummary(chat.id, {
-            summary: parsed.summary || 'Ongoing technical conversation',
-            keyDecisions: parsed.keyDecisions || '',
-            unresolvedTasks: parsed.unresolvedTasks || '',
-            lastIdx: chat.history.length
-          });
+        if (result && result.text) {
+          const jsonMatch = result.text.match(/\{[\s\S]*?\}/);
+          if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[0]);
+            summaryData = {
+              summary: parsed.summary || 'Ongoing technical conversation',
+              keyDecisions: parsed.keyDecisions || '',
+              unresolvedTasks: parsed.unresolvedTasks || ''
+            };
+          }
         }
+      } catch (err) {
+        console.warn('LLM summarization notice, falling back to extractive summary:', err.message);
       }
-    } catch (err) {
-      console.warn('Auto-summarization notice:', err.message);
     }
+
+    // Extractive fallback if LLM was unavailable or timed out
+    if (!summaryData) {
+      summaryData = createExtractiveSummary(messagesToSummarize);
+    }
+
+    saveConversationSummary(chat.id, {
+      ...summaryData,
+      lastIdx: chat.history.length
+    });
   }
 }
 
-// 6. Unified Context Assembler (Provider-Independent)
+// 10. Unified Context Assembler (Provider-Independent)
 export function buildUnifiedContext({
   chatId,
   personaConfig,
@@ -307,16 +573,32 @@ export function buildUnifiedContext({
   userName = 'Raghul',
   userRole = 'Full-Stack Software Engineer'
 }) {
-  // A. Semantic Search over long-term memories
-  const relevantMemories = searchSemanticMemories(userMessage, 4);
+  // A. Auto-extract user facts & preferences from current turn
+  if (userMessage) {
+    extractAndSaveFacts(userMessage);
+  }
 
-  // B. Active Conversation Summary
+  // B. Follow-Up Resolution & Semantic Search over persistent memories
+  const resolvedQuery = resolveFollowUpContext(userMessage, history);
+  const relevantMemories = searchSemanticMemories(resolvedQuery || userMessage, 5);
+
+  // C. Active Conversation Summary
   const summaryRow = getConversationSummary(chatId);
 
-  // C. Short-Term History (Sliding Window)
+  // D. Short-Term History (Sliding Window)
   const recentHistory = history.length > maxRecentTurns ? history.slice(-maxRecentTurns) : history;
 
-  // D. Build Unified System Directive
+  // E. In-Session Deep Recall (For turns older than sliding window)
+  const inSessionRecalls = history.length > maxRecentTurns
+    ? searchInSessionHistory(resolvedQuery || userMessage, history, maxRecentTurns)
+    : [];
+
+  // F. Cross-Session Past Chat Recall (If user asks about past conversations)
+  const pastChatRecalls = isPastChatRecallIntent(userMessage)
+    ? searchPastConversations(userMessage, chatId, 3)
+    : [];
+
+  // G. Build Unified System Directive
   let unifiedSystemPrompt = baseInstruction || personaConfig?.systemPrompt || 'You are Nexus AI, an advanced conversational companion.';
 
   // Add Temporal Context (only if not already present)
@@ -324,34 +606,57 @@ export function buildUnifiedContext({
     unifiedSystemPrompt += `\n\n[Context: Current local date & time is ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata', dateStyle: 'full', timeStyle: 'short' })}]`;
   }
 
-  // Add User Profile & Long-Term Memory (avoid duplicate profile headers)
+  // Add User Profile & Long-Term Memory
   if (!unifiedSystemPrompt.includes('USER IDENTITY CONTEXT') && !unifiedSystemPrompt.includes('USER PROFILE')) {
-    unifiedSystemPrompt += `\n\n### 👤 USER PROFILE & PERSISTENT MEMORY:
+    unifiedSystemPrompt += `\n\n### USER PROFILE & PERSISTENT MEMORY:
 - Name: ${userName}
 - Role: ${userRole}`;
   }
 
-  if (relevantMemories.length > 0 && !unifiedSystemPrompt.includes('Recalled Long-Term Facts:')) {
-    unifiedSystemPrompt += `\n\n### 🧠 RECALLED PERSISTENT MEMORIES:\n` + relevantMemories.map(m => `  * [${m.category.toUpperCase()}] ${m.content}`).join('\n');
+  if (relevantMemories.length > 0 && !unifiedSystemPrompt.includes('RECALLED PERSISTENT MEMORIES')) {
+    unifiedSystemPrompt += `\n\n### RECALLED PERSISTENT MEMORIES (User Facts & Preferences across sessions):\n` + 
+      relevantMemories.map(m => `  * [${m.category.toUpperCase()}] ${m.content}`).join('\n') +
+      `\nMandate: Naturally adhere to these remembered user preferences and facts without asking the user to repeat them.`;
   }
 
   // Add Active Conversation Summary if available
   if (summaryRow && summaryRow.summary) {
-    unifiedSystemPrompt += `\n\n### 📝 PREVIOUS CONVERSATION CONTEXT SUMMARY:
-${summaryRow.summary}`;
+    unifiedSystemPrompt += `\n\n### ACTIVE CONVERSATION WORKING MEMORY SUMMARY:
+- Summary of Prior Discussion: ${summaryRow.summary}`;
     if (summaryRow.key_decisions) {
-      unifiedSystemPrompt += `\nKey Decisions: ${summaryRow.key_decisions}`;
+      unifiedSystemPrompt += `\n- Confirmed Decisions & Stack: ${summaryRow.key_decisions}`;
     }
     if (summaryRow.unresolved_tasks) {
-      unifiedSystemPrompt += `\nUnresolved Tasks: ${summaryRow.unresolved_tasks}`;
+      unifiedSystemPrompt += `\n- Unresolved / Next Tasks: ${summaryRow.unresolved_tasks}`;
     }
+    unifiedSystemPrompt += `\nMandate: Ground all answers on this prior discussion summary. If the user refers to an earlier decision or code approach, maintain full continuity.`;
   }
+
+  // Add In-Session Deep Recall if older turns matched
+  if (inSessionRecalls.length > 0) {
+    unifiedSystemPrompt += `\n\n### RECALLED IN-SESSION CONVERSATION EXCERPTS (Earlier turns in this chat):\n` +
+      inSessionRecalls.map(r => `  * [Turn #${r.index} ${r.role}]: ${r.text.slice(0, 300)}`).join('\n') +
+      `\nMandate: Reference these earlier discussion details to answer follow-ups accurately without asking the user to repeat past explanations.`;
+  }
+
+  // Add Cross-Session Past Chat Recall if user asked about previous chats
+  if (pastChatRecalls.length > 0) {
+    unifiedSystemPrompt += `\n\n### RECALLED PAST CHAT SESSIONS (Real conversation history from your database):\n` +
+      pastChatRecalls.map(p => `  * [Session: "${p.chatTitle}" | Role: ${p.role}]: ${p.snippet}`).join('\n') +
+      `\nMandate: The user is explicitly asking about their past conversations. Answer using these verified records. Accurately report what was discussed; do NOT invent or hallucinate past chats.`;
+  }
+
+  // Conversational Continuity & Reference Resolution Directives
+  unifiedSystemPrompt += `\n\n### CONVERSATIONAL CONTINUITY & CONTEXT GROUNDING:
+- Maintain unbroken conversational context. Resolve pronouns ("it", "that", "this", "they", "which one") using the immediate previous messages.
+- Never ask the user to repeat information already stated in the conversation history, working memory, or persistent memories.
+- Provide direct, logically connected answers that build upon previous explanations.`;
 
   // Ensure Language Invariant is always reinforced
   if (!unifiedSystemPrompt.includes('MANDATORY LANGUAGE INVARIANT')) {
-    unifiedSystemPrompt += `\n\n### 🌐 MANDATORY LANGUAGE INVARIANT:
+    unifiedSystemPrompt += `\n\n### MANDATORY LANGUAGE INVARIANT:
 - Respond ONLY in **English** or **Tanglish** (Tamil written phonetically using the English/Latin alphabet).
-- STRICT PROHIBITION: DO NOT output any Tamil script characters (U+0B80–U+0BFF).
+- STRICT PROHIBITION: DO NOT output any Tamil script characters (U+0B80-U+0BFF).
 - When the user communicates in Tamil or Tanglish, reply in conversational Tanglish using English letters.
 - When the user communicates in English, reply in English.`;
   }
@@ -360,7 +665,9 @@ ${summaryRow.summary}`;
     systemInstruction: unifiedSystemPrompt,
     recentHistory,
     relevantMemories,
-    activeSummary: summaryRow
+    activeSummary: summaryRow,
+    inSessionRecalls,
+    pastChatRecalls
   };
 }
 

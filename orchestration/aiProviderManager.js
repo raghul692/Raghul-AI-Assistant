@@ -385,14 +385,19 @@ export class AIProviderManager {
   }) {
     const msgs = messages.length > 0 ? messages : [{ role: 'user', content: prompt }];
     let fullText = '';
-    return this.orchestrateStream({
+    const streamResult = await this.orchestrateStream({
       messages: msgs,
       systemInstruction,
       temperature,
       maxTokens,
       preferredProvider,
+      taskCategory,
       onToken: (tok) => { fullText += tok; }
     });
+    return {
+      text: fullText,
+      ...streamResult
+    };
   }
 
   // Provider Status & Monitoring API

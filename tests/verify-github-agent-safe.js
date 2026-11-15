@@ -19,10 +19,23 @@ async function run() {
     }
   }
 
+  async function withRetry(fn, retries = 2) {
+    let lastErr;
+    for (let i = 0; i <= retries; i++) {
+      try {
+        return await fn();
+      } catch (err) {
+        lastErr = err;
+        if (i < retries) await new Promise(r => setTimeout(r, 800));
+      }
+    }
+    throw lastErr;
+  }
+
   // 1. List Repositories
   console.log('--- 1. List Repositories (Read-Only) ---');
   try {
-    const repos = await githubMcpGateway.listRepositories({ perPage: 10 });
+    const repos = await withRetry(() => githubMcpGateway.listRepositories({ perPage: 10 }));
     assert(Array.isArray(repos) && repos.length > 0, `Listed ${repos.length} live repositories`);
     assert(repos.some(r => r.name === 'raghulraja_portfolio' || r.name === 'modern-saas-landing-page'), 'Contains verified repositories');
   } catch (err) {
@@ -32,7 +45,7 @@ async function run() {
   // 2. Read Repository Metadata
   console.log('\n--- 2. Read Repository Metadata ---');
   try {
-    const repoMeta = await githubMcpGateway.getRepository('raghul692', 'modern-saas-landing-page');
+    const repoMeta = await withRetry(() => githubMcpGateway.getRepository('raghul692', 'modern-saas-landing-page'));
     assert(repoMeta && repoMeta.name === 'modern-saas-landing-page', 'Fetched correct repository metadata');
     assert(repoMeta.owner && repoMeta.owner.login === 'raghul692', 'Owner matches raghul692');
   } catch (err) {
@@ -42,10 +55,10 @@ async function run() {
   // 3. Read File Content
   console.log('\n--- 3. Read Source File ---');
   try {
-    const fileRes = await githubAgent.executeIntent({
+    const fileRes = await withRetry(() => githubAgent.executeIntent({
       message: 'Show index.html from repo modern-saas-landing-page',
       sendSSE: () => {}
-    });
+    }));
     assert(fileRes && (fileRes.includes('html') || fileRes.includes('NexusSaaS') || fileRes.includes('DOCTYPE')), 'Read real file content from GitHub');
   } catch (err) {
     assert(false, `Read file failed: ${err.message}`);
@@ -54,7 +67,7 @@ async function run() {
   // 4. Read Commits
   console.log('\n--- 4. Read Verified Commits ---');
   try {
-    const commits = await githubMcpGateway.listCommits('raghul692', 'modern-saas-landing-page', '', 5);
+    const commits = await withRetry(() => githubMcpGateway.listCommits('raghul692', 'modern-saas-landing-page', '', 5));
     assert(Array.isArray(commits) && commits.length > 0, `Retrieved ${commits.length} recent commits`);
     assert(Boolean(commits[0].sha), `First commit has valid SHA: ${commits[0].sha?.slice(0, 7)}`);
   } catch (err) {

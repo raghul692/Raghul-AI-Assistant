@@ -24,7 +24,8 @@ const SUITES = [
   { name: 'Stage 10: Advanced AI Coding Engine & AST Validator', file: 'tests/test-coding-engine.js' },
   { name: 'Stage 11: Canvas Studio IDE, Terminal & Workspace', file: 'tests/test-canvas-studio-ide.js' },
   { name: 'Stage 12: Portfolio OS Intelligence, Governance & Real-Time Telemetry', file: 'tests/test-portfolio-intelligence.js' },
-  { name: 'Stage 13: Real-Time Voice Mode & Audio Intelligence', file: 'tests/test-voice-chat-mode.js' }
+  { name: 'Stage 13: Real-Time Voice Mode & Audio Intelligence', file: 'tests/test-voice-chat-mode.js' },
+  { name: 'Stage 14: Conversational Memory, Context Awareness & History Recall', file: 'tests/test-chatgpt-memory-context.js' }
 ];
 
 async function runSuite(suite) {

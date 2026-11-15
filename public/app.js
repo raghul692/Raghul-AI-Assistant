@@ -3397,6 +3397,8 @@ async function handleSubmit(e) {
         modelChoice: state.modelChoice,
         language: state.language || 'auto',
         alwaysShowCode: state.always_show_code,
+        memoryTurns: state.memoryTurns,
+        memoryEnabled: state.memoryEnabled,
         webSearchEnabled: state.webSearchEnabled,
         deepThinkingEnabled: state.deepThinkingEnabled,
         isDeepResearch: state.isDeepResearch,
