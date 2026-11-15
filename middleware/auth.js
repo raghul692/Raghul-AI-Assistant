@@ -18,6 +18,36 @@ export function requestIdMiddleware(req, res, next) {
 }
 
 export function requireLocalDeveloperOrigin(req, res, next) {
+  const authHeader = req.headers['authorization'] || req.headers['x-api-key'] || req.headers['x-admin-key'];
+  const devKey = process.env.ADMIN_API_KEY || process.env.DEVELOPER_API_KEY;
+
+  const hasValidKey = Boolean(
+    devKey &&
+    authHeader &&
+    (authHeader === devKey || authHeader === `Bearer ${devKey}`)
+  );
+
+  // In production: Server-side token authentication is strictly mandatory.
+  // Origin and loopback headers are never trusted as identity in production.
+  if (process.env.NODE_ENV === 'production') {
+    if (!devKey) {
+      return res.status(500).json({
+        error: 'Configuration Error: ADMIN_API_KEY is required in production for privileged endpoints.',
+        requestId: req.id
+      });
+    }
+
+    if (hasValidKey) {
+      return next();
+    }
+
+    return res.status(401).json({
+      error: 'Unauthorized: Valid ADMIN_API_KEY Bearer token or x-api-key is required for privileged operations.',
+      requestId: req.id
+    });
+  }
+
+  // Local development & testing environment:
   const remoteIp = req.ip || req.connection?.remoteAddress || '';
   const isLoopback = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].some(ip => remoteIp.includes(ip));
   const origin = req.headers.origin || '';
@@ -32,15 +62,7 @@ export function requireLocalDeveloperOrigin(req, res, next) {
     || /\.onrender\.com$/.test(origin)
     || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
 
-  const authHeader = req.headers['authorization'] || req.headers['x-api-key'] || req.headers['x-admin-key'];
-  const devKey = process.env.ADMIN_API_KEY || process.env.DEVELOPER_API_KEY;
-
-  const hasValidKey = devKey && authHeader && (
-    authHeader === devKey ||
-    authHeader === `Bearer ${devKey}`
-  );
-
-  if (isLoopback || hasValidKey || (isAllowedOrigin && process.env.NODE_ENV !== 'production')) {
+  if (hasValidKey || isLoopback || isAllowedOrigin) {
     return next();
   }
 
@@ -49,3 +71,5 @@ export function requireLocalDeveloperOrigin(req, res, next) {
     requestId: req.id
   });
 }
+
+export const requireSensitiveOperationAuth = requireLocalDeveloperOrigin;

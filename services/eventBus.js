@@ -87,7 +87,8 @@ class CrossProcessEventBus extends EventEmitter {
         return;
       }
 
-      if (!getPostgresPool()) return;
+      const pool = getPostgresPool();
+      if (!pool || pool.ending || pool.ended) return;
 
       for (const [jobId, sub] of this.activeJobSubscriptions.entries()) {
         try {

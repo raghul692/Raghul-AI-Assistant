@@ -82,6 +82,18 @@ export function validateSafeUrl(urlString) {
     if (octet1 === 0) return { valid: false, reason: 'Current network IP addresses (0.0.0.0/8) are blocked.' };
   }
 
+  // 5. IPv6 Loopback, Link-Local & Unique Local Address Checking (RFC 4193, RFC 4291)
+  const cleanIpv6 = hostname.replace(/^\[|\]$/g, '');
+  if (
+    cleanIpv6 === '::1' ||
+    cleanIpv6 === '::' ||
+    cleanIpv6.startsWith('fe80:') ||
+    cleanIpv6.startsWith('fc00:') ||
+    cleanIpv6.startsWith('fd00:')
+  ) {
+    return { valid: false, reason: `IPv6 private / link-local address "${hostname}" is blocked (SSRF Protection).` };
+  }
+
   return { valid: true, url: parsed.toString() };
 }
 

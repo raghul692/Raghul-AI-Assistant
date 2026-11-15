@@ -134,6 +134,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const MAX_MEMORY_TURNS = parseInt(process.env.MAX_MEMORY_TURNS || '14', 10);
 
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.DATABASE_URL && !process.env.SUPABASE_DATABASE_URL) {
+    console.error('❌ FATAL PRODUCTION CONFIGURATION ERROR: DATABASE_URL is not set.');
+  }
+}
+
 app.use(requestIdMiddleware);
 app.use(compression());
 

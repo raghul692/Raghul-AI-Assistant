@@ -17,11 +17,11 @@ The platform implements layered authentication middleware:
 ### A. Request ID Stamping (`requestIdMiddleware`)
 Every incoming HTTP request is assigned a unique UUID (`X-Request-ID`). This ID is included in response headers and propagated across all database queries and worker jobs to enable end-to-end distributed tracing.
 
-### B. High-Privilege Route Guard (`requireLocalDeveloperOrigin`)
-Critical development endpoints (such as `/api/code/run`, `/api/terminal`, `/api/git/commit`, `/api/workspace/delete`) are guarded against arbitrary remote execution:
-1. **Loopback Authorization:** Permitted if the request originates from `localhost`, `127.0.0.1`, or `::1`.
-2. **API Key Authorization:** Remote calls from legitimate operators are accepted if the request supplies a matching `x-api-key` header or `Authorization: Bearer <token>` corresponding to `ADMIN_API_KEY` or `DEVELOPER_API_KEY`.
-3. **Strict Origin Rejection:** Requests originating from unknown third-party domains without a valid API key are rejected immediately with `HTTP 403 Forbidden`.
+### B. High-Privilege Route Guard (`requireLocalDeveloperOrigin` / `requireSensitiveOperationAuth`)
+Critical operational endpoints (such as `/api/code/run`, `/api/terminal/*`, `/api/git/*`, `/api/workspace/*`) are guarded against unauthorized execution:
+1. **Production Token Authentication:** In production (`NODE_ENV === 'production'`), requests MUST supply a valid `ADMIN_API_KEY` or `DEVELOPER_API_KEY` via `Authorization: Bearer <token>` or `x-api-key`.
+2. **CORS & Origin Hardening:** CORS is explicitly decoupled from authentication. Browser `Origin` headers and loopback IP headers are NEVER trusted as proof of developer identity in production. Unauthenticated requests from any origin are rejected with `HTTP 401 Unauthorized`.
+3. **Local Development Fallback:** In local offline development (`NODE_ENV !== 'production'`), loopback access (`127.0.0.1`, `::1`) is permitted for local IDE operations.
 
 ```javascript
 import { requireLocalDeveloperOrigin } from './middleware/auth.js';
@@ -29,6 +29,8 @@ import { requireLocalDeveloperOrigin } from './middleware/auth.js';
 // Protect sensitive endpoints
 app.use('/api/code', requireLocalDeveloperOrigin, codeRouter);
 app.use('/api/terminal', requireLocalDeveloperOrigin, terminalRouter);
+app.use('/api/git', requireLocalDeveloperOrigin, gitRouter);
+app.use('/api/workspace', requireLocalDeveloperOrigin, workspaceRouter);
 ```
 
 ---

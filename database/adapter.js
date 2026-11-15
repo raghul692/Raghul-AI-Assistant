@@ -27,8 +27,43 @@ export class DatabaseAdapter {
     return this.usePostgres && Boolean(getPostgresPool());
   }
 
+  isProduction() {
+    return process.env.NODE_ENV === 'production';
+  }
+
   async healthCheck() {
     const start = Date.now();
+
+    // Production constraint: Postgres is mandatory. Silent fallback is prohibited.
+    if (this.isProduction()) {
+      if (!this.usePostgres || !getPostgresPool()) {
+        return {
+          driver: 'postgresql',
+          status: 'unhealthy',
+          error: 'DATABASE_URL is required in production environment. SQLite fallback is strictly blocked.',
+          latencyMs: Date.now() - start
+        };
+      }
+      try {
+        const row = await pgQueryRow('SELECT NOW() as now, version() as version');
+        return {
+          driver: 'postgresql',
+          status: 'healthy',
+          latencyMs: Date.now() - start,
+          timestamp: row.now,
+          version: row.version
+        };
+      } catch (err) {
+        return {
+          driver: 'postgresql',
+          status: 'unhealthy',
+          error: err.message,
+          latencyMs: Date.now() - start
+        };
+      }
+    }
+
+    // Local / Testing environment
     if (this.isPostgres()) {
       try {
         const row = await pgQueryRow('SELECT NOW() as now, version() as version');
@@ -67,10 +102,20 @@ export class DatabaseAdapter {
     }
   }
 
+  _assertValidDriver() {
+    if (this.isProduction() && !this.isPostgres()) {
+      throw new Error(
+        'PRODUCTION DATABASE VIOLATION: DATABASE_URL is not configured or PostgreSQL is offline. ' +
+        'Silent SQLite fallback is strictly blocked in production.'
+      );
+    }
+  }
+
   async query(sql, params = []) {
     if (this.isPostgres()) {
       return await pgQuery(sql, params);
     } else {
+      this._assertValidDriver();
       const stmt = sqliteDb.prepare(sql);
       if (/^\s*(SELECT|PRAGMA|EXPLAIN)/i.test(sql)) {
         const rows = stmt.all(...params);
@@ -86,6 +131,7 @@ export class DatabaseAdapter {
     if (this.isPostgres()) {
       return await pgQueryRow(sql, params);
     } else {
+      this._assertValidDriver();
       const stmt = sqliteDb.prepare(sql);
       return stmt.get(...params) || null;
     }
@@ -95,6 +141,7 @@ export class DatabaseAdapter {
     if (this.isPostgres()) {
       return await pgQueryAll(sql, params);
     } else {
+      this._assertValidDriver();
       const stmt = sqliteDb.prepare(sql);
       return stmt.all(...params);
     }
@@ -105,6 +152,7 @@ export class DatabaseAdapter {
       const res = await pgQuery(sql, params);
       return { changes: res.rowCount };
     } else {
+      this._assertValidDriver();
       const stmt = sqliteDb.prepare(sql);
       const info = stmt.run(...params);
       return { changes: info.changes };

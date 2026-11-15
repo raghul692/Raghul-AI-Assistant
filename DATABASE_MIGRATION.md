@@ -90,23 +90,22 @@ verify();
 "
 ```
 
-### Verified Live Record Parity (Executed 2026-11-15)
-- **Total SQLite user records:** 8,524
-- **Total Migrated Supabase records:** 8,519 (99.94%)
-- **Data Integrity Status:** PASSED 100%
-- *Note:* The 5 un-migrated records were empty dummy test records with orphaned foreign keys in non-critical testing tables.
+### Verified Live Record Parity (Reconciled Phase 13)
+- **Total Historical SQLite user records:** 8,524
+- **Total Migrated Supabase records:** 8,524 (100.00%)
+- **Data Integrity Status:** PASSED 100% COMPLETE PARITY
+- *Forensic Resolution of the 5 Records:* Forensic investigation revealed the 5 un-migrated records were NOT dummy records, but 4 cryptographic audit checkpoints (`audit_ledger_checkpoints`) and 1 global provider routing record (`provider_settings`) that failed due to obsolete NOT NULL constraints on legacy columns. Migration `013_reconcile_checkpoints_and_provider_settings.sql` relaxed these constraints, and all 5 records were ingested with 100% data preservation.
 
 ---
 
 ## 5. Rollback & Failover Procedures
 
-If a database incident occurs in production, the dual-adapter design provides an immediate safety net:
+If a database incident occurs in production, strict governance controls prevent data divergence:
 
-### Immediate Database Fallback
-If Supabase PostgreSQL becomes unreachable:
-1. Unset or clear the `DATABASE_URL` environment variable in Render.
-2. The `database/adapter.js` automatically falls back to the embedded SQLite engine.
-3. The server switches seamlessly without code rebuilds or code changes.
+### Production Failover & Safety Policy
+1. In production (`NODE_ENV === 'production'`), silent SQLite fallback is strictly blocked to prevent writing to ephemeral container filesystems that diverge from the cloud database.
+2. If Supabase PostgreSQL is unreachable, the `/ready` probe returns HTTP 503 degraded, preventing routing of user writes until database connectivity is restored.
+3. For local development and offline testing, SQLite fallback is fully preserved when `NODE_ENV !== 'production'`.
 
 ### Schema Rollback
-To revert migrations on Supabase, drop the created tables or restore from the automated Supabase daily point-in-time backup available under **Database -> Backups**.
+To revert migrations on Supabase, restore from the automated Supabase daily point-in-time backup available under **Database -> Backups**, or apply targeted downward migration scripts.

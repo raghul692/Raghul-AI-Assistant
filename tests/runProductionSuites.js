@@ -25,7 +25,7 @@ let failedCount = 0;
 for (const suite of productionSuites) {
   console.log(`▶️ Executing: ${suite}...`);
   const fullPath = path.resolve(rootDir, suite);
-  const result = spawnSync('node', [fullPath], {
+  const result = spawnSync('node', ['--dns-result-order=ipv4first', fullPath], {
     cwd: rootDir,
     stdio: 'inherit',
     env: process.env

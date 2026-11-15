@@ -5,6 +5,14 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/health",
+      "destination": "https://raghul-ai-api.onrender.com/health"
+    },
+    {
+      "source": "/ready",
+      "destination": "https://raghul-ai-api.onrender.com/ready"
+    },
+    {
       "source": "/api/:path*",
       "destination": "https://raghul-ai-api.onrender.com/api/:path*"
     },

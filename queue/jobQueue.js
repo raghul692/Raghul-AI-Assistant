@@ -27,6 +27,15 @@ export class JobQueue {
     return this.usePostgres && Boolean(getPostgresPool());
   }
 
+  _assertValidDriver() {
+    if (process.env.NODE_ENV === 'production' && !this.isPostgres()) {
+      throw new Error(
+        'PRODUCTION QUEUE VIOLATION: Distributed PostgreSQL queue is required in production. ' +
+        'Silent SQLite fallback is strictly blocked.'
+      );
+    }
+  }
+
   /**
    * Submit a job to the queue
    */
@@ -91,7 +100,8 @@ export class JobQueue {
       await eventBus.publish(jobId, 'enqueued', { jobId, jobType, priority, status: 'pending' });
       return { jobId, status: 'pending', jobType };
     } else {
-      // SQLite fallback
+      // SQLite fallback (local development / testing only)
+      this._assertValidDriver();
       if (effectiveKey) {
         const existing = sqliteDb.prepare(
           'SELECT * FROM portfolio_job_queue WHERE idempotency_key = ?'
@@ -170,7 +180,8 @@ export class JobQueue {
         payload
       };
     } else {
-      // SQLite fallback
+      // SQLite fallback (local development / testing only)
+      this._assertValidDriver();
       const candidate = sqliteDb.prepare(`
         SELECT * FROM portfolio_job_queue
         WHERE status = 'pending'
@@ -227,6 +238,7 @@ export class JobQueue {
         WHERE id = $3
       `, [resultJson, now, jobId]);
     } else {
+      this._assertValidDriver();
       sqliteDb.prepare(`
         UPDATE portfolio_job_queue
         SET status = 'completed',
@@ -263,6 +275,7 @@ export class JobQueue {
           WHERE id = $3
         `, [nextRetryAt, errorMsg, jobId]);
       } else {
+        this._assertValidDriver();
         sqliteDb.prepare(`
           UPDATE portfolio_job_queue
           SET status = 'pending',
@@ -291,6 +304,7 @@ export class JobQueue {
         WHERE id = $3
         `, [now, errorMsg, jobId]);
       } else {
+        this._assertValidDriver();
         sqliteDb.prepare(`
           UPDATE portfolio_job_queue
           SET status = 'dlq',
@@ -322,6 +336,7 @@ export class JobQueue {
         result: typeof row.result === 'string' ? JSON.parse(row.result) : (row.result || null)
       };
     } else {
+      this._assertValidDriver();
       const row = sqliteDb.prepare('SELECT * FROM portfolio_job_queue WHERE id = ?').get(jobId);
       if (!row) return null;
       return {
@@ -344,6 +359,7 @@ export class JobQueue {
         WHERE id = $2 AND status = 'running'
       `, [now, jobId]);
     } else {
+      this._assertValidDriver();
       sqliteDb.prepare(`
         UPDATE portfolio_job_queue
         SET updated_at = ?

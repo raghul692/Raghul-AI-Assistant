@@ -66,6 +66,8 @@ async function runTest() {
   console.log('✅ [PASS] Test artifact cleanup verified.\n');
 
   console.log('🎉 Production Database Adapter verification completed successfully!');
+  await dbAdapter.close();
+  process.exit(0);
 }
 
 runTest().catch((err) => {
