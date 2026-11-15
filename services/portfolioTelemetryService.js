@@ -403,7 +403,7 @@ class PortfolioTelemetryService {
 
   _initBackgroundLoops() {
     // 1. Telemetry broadcast tick (every 2 seconds)
-    setInterval(() => {
+    const tickInterval = setInterval(() => {
       if (this.streamClients.size > 0) {
         const sys = this.getLiveSystemMetrics();
         this.broadcast({
@@ -413,19 +413,22 @@ class PortfolioTelemetryService {
         });
       }
     }, 2000);
+    if (tickInterval.unref) tickInterval.unref();
 
     // 2. Periodic site & backend health probes (every 45 seconds)
-    setInterval(() => {
+    const probeInterval = setInterval(() => {
       this.probeSiteHealth().catch(() => {});
       this.probeRenderHealth().catch(() => {});
     }, 45000);
+    if (probeInterval.unref) probeInterval.unref();
 
     // Initial probe
-    setTimeout(() => {
+    const initTimeout = setTimeout(() => {
       this.probeSiteHealth().catch(() => {});
       this.probeRenderHealth().catch(() => {});
       integrationManager.probeAll().catch(() => {});
     }, 1000);
+    if (initTimeout.unref) initTimeout.unref();
   }
 }
 

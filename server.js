@@ -19,6 +19,7 @@ import compression from 'compression';
 import { GoogleGenAI } from '@google/genai';
 import { listChats, getChat, createOrUpdateChat, renameChat, deleteChat, clearChatHistory, exportAllChats, importAllChats, clearAllChats, searchFullText } from './storage.js';
 import { detectPromptInjection, redactSensitiveData, sanitizeUserInput, rateLimiterMiddleware } from './security.js';
+import { validateSafeUrl } from './research/security/guardrails.js';
 import { getSessionIndex } from './rag.js';
 import { detectImagePrompt, generateNativeImage } from './imageGenerator.js';
 import { classifyImageIntent } from './services/imageIntentRouter.js';
@@ -253,6 +254,11 @@ function shouldTriggerLiveSearch(persona, message) {
 // Deep Web Page Reader: Extracts readable content from any provided URL
 async function fetchWebPage(url) {
   try {
+    const safeCheck = validateSafeUrl(url);
+    if (!safeCheck || !safeCheck.valid) {
+      console.warn('[Security] Blocked potentially unsafe / SSRF URL in Deep Web Reader:', safeCheck?.reason || 'Invalid URL');
+      return null;
+    }
     const parsed = new URL(url);
     if (!['http:', 'https:'].includes(parsed.protocol)) return null;
 
@@ -2015,28 +2021,7 @@ app.post('/api/tasks/resume', async (req, res) => {
   }
 });
 
-// 4. Standard Formats & Integrations (Upgrade 07)
-app.get('/api/calendar/export-ics/:id', (req, res) => {
-  try {
-    const result = exportCalendarToICS(req.params.id);
-    res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
-    res.setHeader('Content-Disposition', `attachment; filename="${result.filename}"`);
-    res.send(result.ics);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.get('/api/emails/export-eml/:id', (req, res) => {
-  try {
-    const result = exportEmailToEML(req.params.id);
-    res.setHeader('Content-Type', 'message/rfc822; charset=utf-8');
-    res.setHeader('Content-Disposition', `attachment; filename="${result.filename}"`);
-    res.send(result.eml);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// 4. Standard Formats & Integrations (Mounted under /api/productivity/)
 
 app.get('/api/git/repo-info', (req, res) => {
   res.json(getLocalGitRepositoryInfo());

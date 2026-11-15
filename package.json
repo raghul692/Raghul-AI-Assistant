@@ -29,5 +29,8 @@
     "pdf-parse": "^2.4.5",
     "pptxgenjs": "^4.0.1",
     "undici": "^8.12.3"
+  },
+  "overrides": {
+    "image-size": "2.1.0"
   }
 }
