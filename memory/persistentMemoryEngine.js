@@ -10,6 +10,47 @@
  */
 
 import { db } from '../db.js';
+import { getPostgresPool, pgQuery, pgQueryAll } from '../database/postgresPool.js';
+
+// Hydrate memories from Supabase PostgreSQL in production
+async function hydrateMemoriesFromPostgres() {
+  if (!getPostgresPool()) return;
+  try {
+    const rows = await pgQueryAll('SELECT * FROM user_memories ORDER BY updated_at DESC LIMIT 500');
+    if (!rows || rows.length === 0) return;
+    const stmt = db.prepare(`
+      INSERT INTO user_memories (id, category, content, importance, access_count, last_accessed, expires_at, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        category = excluded.category,
+        content = excluded.content,
+        importance = excluded.importance,
+        access_count = excluded.access_count,
+        last_accessed = excluded.last_accessed,
+        expires_at = excluded.expires_at,
+        updated_at = excluded.updated_at
+    `);
+    for (const r of rows) {
+      stmt.run(
+        r.id,
+        r.category,
+        r.content,
+        r.importance,
+        r.access_count || 0,
+        r.last_accessed ? Number(r.last_accessed) : null,
+        r.expires_at ? Number(r.expires_at) : null,
+        Number(r.created_at),
+        Number(r.updated_at)
+      );
+    }
+  } catch (err) {
+    console.warn('[Memory] Notice hydrating memories from PostgreSQL:', err.message);
+  }
+}
+
+if (process.env.DATABASE_URL || process.env.SUPABASE_DATABASE_URL) {
+  hydrateMemoriesFromPostgres().catch(() => {});
+}
 
 // 1. Initialize Tables for Persistent Memory
 export function initMemoryTables() {
@@ -109,6 +150,20 @@ export function saveUserMemory({
   `);
 
   stmt.run(memId, category, cleanContent, importance, now, now, expiresAt);
+
+  if (getPostgresPool()) {
+    pgQuery(`
+      INSERT INTO user_memories (id, category, content, importance, created_at, updated_at, expires_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      ON CONFLICT(id) DO UPDATE SET
+        category = EXCLUDED.category,
+        content = EXCLUDED.content,
+        importance = EXCLUDED.importance,
+        updated_at = EXCLUDED.updated_at,
+        expires_at = EXCLUDED.expires_at
+    `, [memId, category, cleanContent, importance, now, now, expiresAt]).catch(() => {});
+  }
+
   return getUserMemory(memId);
 }
 
@@ -134,11 +189,17 @@ export function listUserMemories(category = null) {
 
 export function deleteUserMemory(id) {
   const info = db.prepare('DELETE FROM user_memories WHERE id = ?').run(id);
+  if (getPostgresPool()) {
+    pgQuery('DELETE FROM user_memories WHERE id = $1', [id]).catch(() => {});
+  }
   return info.changes > 0;
 }
 
 export function clearUserMemories() {
   db.prepare('DELETE FROM user_memories').run();
+  if (getPostgresPool()) {
+    pgQuery('DELETE FROM user_memories').catch(() => {});
+  }
   return true;
 }
 

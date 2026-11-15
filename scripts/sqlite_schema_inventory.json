@@ -1,0 +1,5687 @@
+[
+  {
+    "name": "audit_ledger_checkpoints",
+    "isFtsShadow": false,
+    "count": 4,
+    "sql": "CREATE TABLE audit_ledger_checkpoints (\n    checkpoint_id TEXT PRIMARY KEY,\n    block_height INTEGER NOT NULL,\n    checkpoint_block_hash TEXT NOT NULL,\n    checkpoint_merkle_root TEXT NOT NULL,\n    operator_id TEXT NOT NULL,\n    signature TEXT NOT NULL,\n    created_at INTEGER NOT NULL\n  )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "checkpoint_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "block_height",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "checkpoint_block_hash",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "checkpoint_merkle_root",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "operator_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "signature",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_audit_ledger_checkpoints_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "audit_logs",
+    "isFtsShadow": false,
+    "count": 779,
+    "sql": "CREATE TABLE audit_logs (\n    id TEXT PRIMARY KEY,\n    timestamp INTEGER NOT NULL,\n    actor TEXT NOT NULL,\n    action TEXT NOT NULL,\n    target TEXT,\n    risk_level TEXT NOT NULL,\n    status TEXT NOT NULL,\n    justification TEXT,\n    metadata TEXT\n  , previous_hash TEXT, hash TEXT)",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "timestamp",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "actor",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "action",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "target",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "risk_level",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "justification",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "metadata",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "previous_hash",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "hash",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_audit_action",
+        "unique": 0
+      },
+      {
+        "name": "idx_audit_timestamp",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_audit_logs_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "autonomous_tasks",
+    "isFtsShadow": false,
+    "count": 7,
+    "sql": "CREATE TABLE autonomous_tasks (\n    id TEXT PRIMARY KEY,\n    title TEXT NOT NULL,\n    goal TEXT NOT NULL,\n    status TEXT NOT NULL DEFAULT 'planned', -- planned, running, paused, completed, failed\n    progress INTEGER NOT NULL DEFAULT 0,\n    plan_json TEXT NOT NULL,\n    results_json TEXT,\n    created_at INTEGER NOT NULL,\n    updated_at INTEGER NOT NULL,\n    scheduled_for INTEGER\n  )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "title",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "goal",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'planned'",
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "progress",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "plan_json",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "results_json",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "scheduled_for",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_tasks_status",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_autonomous_tasks_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "calendar_events",
+    "isFtsShadow": false,
+    "count": 20,
+    "sql": "CREATE TABLE calendar_events (\n    id TEXT PRIMARY KEY,\n    title TEXT NOT NULL,\n    start_time INTEGER NOT NULL,\n    end_time INTEGER NOT NULL,\n    location TEXT,\n    description TEXT,\n    created_at INTEGER NOT NULL\n  )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "title",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "start_time",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "end_time",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "location",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "description",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_calendar_time",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_calendar_events_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "chats",
+    "isFtsShadow": false,
+    "count": 119,
+    "sql": "CREATE TABLE chats (\n      id TEXT PRIMARY KEY,\n      title TEXT NOT NULL,\n      persona TEXT NOT NULL DEFAULT 'assistant',\n      created_at INTEGER NOT NULL,\n      updated_at INTEGER NOT NULL\n    , project_id TEXT DEFAULT NULL, is_archived INTEGER NOT NULL DEFAULT 0, archived_at INTEGER DEFAULT NULL)",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "title",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "persona",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'assistant'",
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "project_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "NULL",
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "is_archived",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "archived_at",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "NULL",
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_chats_is_archived",
+        "unique": 0
+      },
+      {
+        "name": "idx_chats_updated_at",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_chats_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "claim_evidence",
+    "isFtsShadow": false,
+    "count": 621,
+    "sql": "CREATE TABLE claim_evidence (\n      claim_id TEXT NOT NULL,\n      evidence_id TEXT NOT NULL,\n      relationship TEXT NOT NULL DEFAULT 'supports', -- 'supports' | 'contradicts' | 'qualifies'\n      PRIMARY KEY (claim_id, evidence_id),\n      FOREIGN KEY (claim_id) REFERENCES research_claims(id) ON DELETE CASCADE,\n      FOREIGN KEY (evidence_id) REFERENCES evidence_items(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "claim_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "evidence_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 2
+      },
+      {
+        "cid": 2,
+        "name": "relationship",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'supports'",
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "evidence_items",
+        "from": "evidence_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      },
+      {
+        "table": "research_claims",
+        "from": "claim_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_claim_evidence_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "conversation_summaries",
+    "isFtsShadow": false,
+    "count": 10,
+    "sql": "CREATE TABLE conversation_summaries (\n      chat_id TEXT PRIMARY KEY,\n      summary TEXT NOT NULL,\n      key_decisions TEXT,\n      unresolved_tasks TEXT,\n      last_summarized_msg_idx INTEGER DEFAULT 0,\n      updated_at INTEGER NOT NULL,\n      FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "chat_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "summary",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "key_decisions",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "unresolved_tasks",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "last_summarized_msg_idx",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "chats",
+        "from": "chat_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_conversation_summaries_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "emails",
+    "isFtsShadow": false,
+    "count": 20,
+    "sql": "CREATE TABLE emails (\n    id TEXT PRIMARY KEY,\n    folder TEXT NOT NULL DEFAULT 'inbox',\n    sender TEXT NOT NULL,\n    recipient TEXT NOT NULL,\n    subject TEXT NOT NULL,\n    body TEXT NOT NULL,\n    timestamp INTEGER NOT NULL,\n    is_read INTEGER NOT NULL DEFAULT 0\n  )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "folder",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'inbox'",
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "sender",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "recipient",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "subject",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "body",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "timestamp",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "is_read",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_emails_folder",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_emails_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "evidence_items",
+    "isFtsShadow": false,
+    "count": 426,
+    "sql": "CREATE TABLE evidence_items (\n      id TEXT PRIMARY KEY,\n      job_id TEXT NOT NULL,\n      source_id TEXT NOT NULL,\n      snippet TEXT NOT NULL,\n      relevance_score REAL NOT NULL DEFAULT 0.5,\n      supports_subtopic TEXT,\n      is_counter_evidence INTEGER NOT NULL DEFAULT 0,\n      created_at INTEGER NOT NULL, char_count INTEGER, passage_index INTEGER, content_hash TEXT,\n      FOREIGN KEY (job_id) REFERENCES research_jobs(id) ON DELETE CASCADE,\n      FOREIGN KEY (source_id) REFERENCES research_sources(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "job_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "source_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "snippet",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "relevance_score",
+        "type": "REAL",
+        "notnull": 1,
+        "dflt_value": "0.5",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "supports_subtopic",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "is_counter_evidence",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "char_count",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "passage_index",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "content_hash",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "research_sources",
+        "from": "source_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      },
+      {
+        "table": "research_jobs",
+        "from": "job_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "idx_evidence_items_job",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_evidence_items_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "github_approvals",
+    "isFtsShadow": false,
+    "count": 1,
+    "sql": "CREATE TABLE github_approvals (\n      id TEXT PRIMARY KEY,\n      action TEXT NOT NULL,\n      repo TEXT NOT NULL,\n      branch TEXT,\n      agent_role TEXT NOT NULL,\n      risk_level TEXT NOT NULL,\n      reason TEXT NOT NULL,\n      details TEXT,\n      diff TEXT,\n      status TEXT NOT NULL DEFAULT 'pending',\n      decision_reason TEXT,\n      created_at INTEGER NOT NULL,\n      resolved_at INTEGER\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "action",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "repo",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "branch",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "agent_role",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "risk_level",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "reason",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "details",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "diff",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'pending'",
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "decision_reason",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 12,
+        "name": "resolved_at",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_gh_approvals_status",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_github_approvals_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "github_audit_ledger",
+    "isFtsShadow": false,
+    "count": 61,
+    "sql": "CREATE TABLE github_audit_ledger (\n      id INTEGER PRIMARY KEY AUTOINCREMENT,\n      timestamp INTEGER NOT NULL,\n      actor TEXT NOT NULL,\n      action TEXT NOT NULL,\n      resource TEXT NOT NULL,\n      status TEXT NOT NULL,\n      details TEXT,\n      prev_hash TEXT NOT NULL,\n      curr_hash TEXT NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "timestamp",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "actor",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "action",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "resource",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "details",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "prev_hash",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "curr_hash",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_gh_audit_timestamp",
+        "unique": 0
+      }
+    ]
+  },
+  {
+    "name": "github_automation_runs",
+    "isFtsShadow": false,
+    "count": 5,
+    "sql": "CREATE TABLE github_automation_runs (\n      id TEXT PRIMARY KEY,\n      automation_id TEXT NOT NULL,\n      trigger_source TEXT NOT NULL,\n      repo TEXT NOT NULL,\n      status TEXT NOT NULL DEFAULT 'running',\n      current_step TEXT,\n      step_count INTEGER NOT NULL DEFAULT 1,\n      logs TEXT,\n      result TEXT,\n      error TEXT,\n      started_at INTEGER NOT NULL,\n      finished_at INTEGER,\n      FOREIGN KEY (automation_id) REFERENCES github_automations(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "automation_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "trigger_source",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "repo",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'running'",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "current_step",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "step_count",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "1",
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "logs",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "result",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "error",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "started_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "finished_at",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "github_automations",
+        "from": "automation_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "idx_gh_runs_started",
+        "unique": 0
+      },
+      {
+        "name": "idx_gh_runs_auto_id",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_github_automation_runs_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "github_automations",
+    "isFtsShadow": false,
+    "count": 15,
+    "sql": "CREATE TABLE github_automations (\n      id TEXT PRIMARY KEY,\n      name TEXT NOT NULL,\n      description TEXT,\n      trigger_type TEXT NOT NULL,\n      cron_expression TEXT,\n      webhook_event TEXT,\n      repo_scope TEXT NOT NULL,\n      config TEXT,\n      agent_role TEXT NOT NULL DEFAULT 'GitHub Orchestrator',\n      risk_level TEXT NOT NULL DEFAULT 'read_only',\n      approval_policy TEXT NOT NULL DEFAULT 'automatic',\n      state TEXT NOT NULL DEFAULT 'active',\n      retry_policy TEXT,\n      timeout_ms INTEGER NOT NULL DEFAULT 60000,\n      created_at INTEGER NOT NULL,\n      updated_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "name",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "description",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "trigger_type",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "cron_expression",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "webhook_event",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "repo_scope",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "config",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "agent_role",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'GitHub Orchestrator'",
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "risk_level",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'read_only'",
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "approval_policy",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'automatic'",
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "state",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'active'",
+        "pk": 0
+      },
+      {
+        "cid": 12,
+        "name": "retry_policy",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 13,
+        "name": "timeout_ms",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "60000",
+        "pk": 0
+      },
+      {
+        "cid": 14,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 15,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_github_automations_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "github_connections",
+    "isFtsShadow": false,
+    "count": 1,
+    "sql": "CREATE TABLE github_connections (\n      id TEXT PRIMARY KEY,\n      provider TEXT NOT NULL DEFAULT 'github_pat',\n      username TEXT NOT NULL,\n      display_name TEXT,\n      avatar_url TEXT,\n      profile_url TEXT,\n      status TEXT NOT NULL DEFAULT 'active',\n      scopes TEXT,\n      last_verified INTEGER NOT NULL,\n      created_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "provider",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'github_pat'",
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "username",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "display_name",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "avatar_url",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "profile_url",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'active'",
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "scopes",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "last_verified",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_github_connections_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "github_webhooks",
+    "isFtsShadow": false,
+    "count": 1,
+    "sql": "CREATE TABLE github_webhooks (\n      delivery_id TEXT PRIMARY KEY,\n      event TEXT NOT NULL,\n      repo TEXT NOT NULL,\n      sender TEXT,\n      signature_valid INTEGER NOT NULL DEFAULT 1,\n      payload TEXT NOT NULL,\n      processed INTEGER NOT NULL DEFAULT 0,\n      automation_id TEXT,\n      created_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "delivery_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "event",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "repo",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "sender",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "signature_valid",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "1",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "payload",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "processed",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "automation_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_github_webhooks_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "image_assets",
+    "isFtsShadow": false,
+    "count": 26,
+    "sql": "CREATE TABLE image_assets (\n      id TEXT PRIMARY KEY,\n      session_id TEXT,\n      message_id TEXT,\n      file_path TEXT NOT NULL,\n      url TEXT NOT NULL,\n      mime_type TEXT NOT NULL,\n      width INTEGER,\n      height INTEGER,\n      file_size INTEGER NOT NULL,\n      provider TEXT NOT NULL,\n      model TEXT NOT NULL,\n      prompt TEXT NOT NULL,\n      image_brief TEXT,\n      parent_asset_id TEXT,\n      version INTEGER NOT NULL DEFAULT 1,\n      created_at INTEGER NOT NULL,\n      FOREIGN KEY (session_id) REFERENCES chats(id) ON DELETE SET NULL,\n      FOREIGN KEY (parent_asset_id) REFERENCES image_assets(id) ON DELETE SET NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "session_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "message_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "file_path",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "url",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "mime_type",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "width",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "height",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "file_size",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "provider",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "model",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "prompt",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 12,
+        "name": "image_brief",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 13,
+        "name": "parent_asset_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 14,
+        "name": "version",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "1",
+        "pk": 0
+      },
+      {
+        "cid": 15,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "image_assets",
+        "from": "parent_asset_id",
+        "to": "id",
+        "on_delete": "SET NULL"
+      },
+      {
+        "table": "chats",
+        "from": "session_id",
+        "to": "id",
+        "on_delete": "SET NULL"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "idx_image_assets_created",
+        "unique": 0
+      },
+      {
+        "name": "idx_image_assets_parent",
+        "unique": 0
+      },
+      {
+        "name": "idx_image_assets_session",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_image_assets_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "messages",
+    "isFtsShadow": false,
+    "count": 402,
+    "sql": "CREATE TABLE messages (\n      id TEXT PRIMARY KEY,\n      chat_id TEXT NOT NULL,\n      role TEXT NOT NULL,\n      text TEXT NOT NULL,\n      timestamp INTEGER NOT NULL,\n      metadata TEXT,\n      FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "chat_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "role",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "text",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "timestamp",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "metadata",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "chats",
+        "from": "chat_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "idx_messages_chat_id",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_messages_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "messages_fts",
+    "isFtsShadow": true,
+    "count": 401,
+    "sql": "CREATE VIRTUAL TABLE messages_fts USING fts5(\n      message_id UNINDEXED,\n      chat_id UNINDEXED,\n      content,\n      tokenize = 'unicode61'\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "message_id",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 1,
+        "name": "chat_id",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "content",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": []
+  },
+  {
+    "name": "messages_fts_config",
+    "isFtsShadow": true,
+    "count": 1,
+    "sql": "CREATE TABLE 'messages_fts_config'(k PRIMARY KEY, v) WITHOUT ROWID",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "k",
+        "type": "",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "v",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_messages_fts_config_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "messages_fts_content",
+    "isFtsShadow": true,
+    "count": 401,
+    "sql": "CREATE TABLE 'messages_fts_content'(id INTEGER PRIMARY KEY, c0, c1, c2)",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "c0",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "c1",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "c2",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": []
+  },
+  {
+    "name": "messages_fts_data",
+    "isFtsShadow": true,
+    "count": 115,
+    "sql": "CREATE TABLE 'messages_fts_data'(id INTEGER PRIMARY KEY, block BLOB)",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "block",
+        "type": "BLOB",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": []
+  },
+  {
+    "name": "messages_fts_docsize",
+    "isFtsShadow": true,
+    "count": 401,
+    "sql": "CREATE TABLE 'messages_fts_docsize'(id INTEGER PRIMARY KEY, sz BLOB)",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "sz",
+        "type": "BLOB",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": []
+  },
+  {
+    "name": "messages_fts_idx",
+    "isFtsShadow": true,
+    "count": 113,
+    "sql": "CREATE TABLE 'messages_fts_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "segid",
+        "type": "",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "term",
+        "type": "",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 2
+      },
+      {
+        "cid": 2,
+        "name": "pgno",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_messages_fts_idx_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "operator_keystore",
+    "isFtsShadow": false,
+    "count": 1,
+    "sql": "CREATE TABLE operator_keystore (\n    operator_id TEXT PRIMARY KEY,\n    public_key_pem TEXT NOT NULL,\n    role TEXT NOT NULL,\n    created_at INTEGER NOT NULL,\n    active INTEGER NOT NULL DEFAULT 1\n  )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "operator_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "public_key_pem",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "role",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "active",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "1",
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_operator_keystore_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "pending_approvals",
+    "isFtsShadow": false,
+    "count": 40,
+    "sql": "CREATE TABLE pending_approvals (\n    id TEXT PRIMARY KEY,\n    timestamp INTEGER NOT NULL,\n    action TEXT NOT NULL,\n    target TEXT,\n    params TEXT,\n    status TEXT NOT NULL DEFAULT 'pending',\n    requested_by TEXT NOT NULL\n  , payload_hash TEXT, operator_id TEXT, expires_at INTEGER, nonce TEXT, signature TEXT, consumed_at INTEGER)",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "timestamp",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "action",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "target",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "params",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'pending'",
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "requested_by",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "payload_hash",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "operator_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "expires_at",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "nonce",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "signature",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 12,
+        "name": "consumed_at",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_approvals_status",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_pending_approvals_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "portfolio_analytics_cache",
+    "isFtsShadow": false,
+    "count": 0,
+    "sql": "CREATE TABLE portfolio_analytics_cache (\n      id TEXT PRIMARY KEY,\n      date TEXT NOT NULL,\n      total_visitors INTEGER DEFAULT 0,\n      page_views INTEGER DEFAULT 0,\n      top_referrers TEXT,\n      metrics_summary TEXT,\n      cached_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "date",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "total_visitors",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "page_views",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "top_referrers",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "metrics_summary",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "cached_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_portfolio_analytics_cache_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "portfolio_analytics_events",
+    "isFtsShadow": false,
+    "count": 40,
+    "sql": "CREATE TABLE portfolio_analytics_events (\n      id TEXT PRIMARY KEY,\n      event_type TEXT NOT NULL,\n      path TEXT,\n      target TEXT,\n      referrer TEXT,\n      country TEXT DEFAULT 'India',\n      country_code TEXT DEFAULT 'IN',\n      ip_hash TEXT,\n      user_agent TEXT,\n      created_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "event_type",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "path",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "target",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "referrer",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "country",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'India'",
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "country_code",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'IN'",
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "ip_hash",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "user_agent",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_port_events_type",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_portfolio_analytics_events_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "portfolio_automation_tasks",
+    "isFtsShadow": false,
+    "count": 0,
+    "sql": "CREATE TABLE portfolio_automation_tasks (\n      id TEXT PRIMARY KEY,\n      name TEXT NOT NULL,\n      status TEXT NOT NULL,\n      progress INTEGER DEFAULT 0,\n      current_step TEXT,\n      started_at INTEGER,\n      completed_at INTEGER,\n      details TEXT\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "name",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "progress",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "current_step",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "started_at",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "completed_at",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "details",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_portfolio_automation_tasks_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "portfolio_config",
+    "isFtsShadow": false,
+    "count": 1,
+    "sql": "CREATE TABLE portfolio_config (\n      id TEXT PRIMARY KEY DEFAULT 'primary',\n      site_url TEXT NOT NULL DEFAULT 'https://raghulraja.is-a.dev/',\n      github_repo TEXT NOT NULL DEFAULT 'raghul692/raghulraja_portfolio',\n      vercel_project TEXT DEFAULT 'raghulraja_portfolio',\n      render_service TEXT DEFAULT 'raghulraja-portfolio',\n      last_synced INTEGER,\n      created_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'primary'",
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "site_url",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'https://raghulraja.is-a.dev/'",
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "github_repo",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'raghul692/raghulraja_portfolio'",
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "vercel_project",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'raghulraja_portfolio'",
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "render_service",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'raghulraja-portfolio'",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "last_synced",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_portfolio_config_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "portfolio_contacts_cache",
+    "isFtsShadow": false,
+    "count": 36,
+    "sql": "CREATE TABLE portfolio_contacts_cache (\n      id TEXT PRIMARY KEY,\n      name TEXT NOT NULL,\n      email TEXT NOT NULL,\n      message TEXT NOT NULL,\n      status TEXT DEFAULT 'new',\n      created_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "name",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "email",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "message",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'new'",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_portfolio_contacts_cache_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "portfolio_content_drafts",
+    "isFtsShadow": false,
+    "count": 23,
+    "sql": "CREATE TABLE portfolio_content_drafts (\n      id TEXT PRIMARY KEY,\n      section TEXT NOT NULL,\n      title TEXT NOT NULL,\n      content TEXT NOT NULL,\n      status TEXT NOT NULL DEFAULT 'draft',\n      approval_id TEXT,\n      created_at INTEGER NOT NULL,\n      updated_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "section",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "title",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "content",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'draft'",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "approval_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_port_drafts_section",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_portfolio_content_drafts_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "portfolio_deployments",
+    "isFtsShadow": false,
+    "count": 0,
+    "sql": "CREATE TABLE portfolio_deployments (\n      id TEXT PRIMARY KEY,\n      target TEXT NOT NULL,\n      deployment_id TEXT NOT NULL,\n      commit_sha TEXT,\n      status TEXT NOT NULL,\n      url TEXT,\n      logs TEXT,\n      triggered_by TEXT NOT NULL,\n      verified_live INTEGER DEFAULT 0,\n      created_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "target",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "deployment_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "commit_sha",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "url",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "logs",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "triggered_by",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "verified_live",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_port_deploy_target",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_portfolio_deployments_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "portfolio_incidents",
+    "isFtsShadow": false,
+    "count": 4,
+    "sql": "CREATE TABLE portfolio_incidents (\n      id TEXT PRIMARY KEY,\n      title TEXT NOT NULL,\n      service TEXT NOT NULL,\n      severity TEXT DEFAULT 'warning',\n      status TEXT DEFAULT 'active',\n      error_code TEXT,\n      error_stack TEXT,\n      resolution_notes TEXT,\n      resolved_at INTEGER,\n      created_at INTEGER NOT NULL,\n      updated_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "title",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "service",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "severity",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'warning'",
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'active'",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "error_code",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "error_stack",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "resolution_notes",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "resolved_at",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_port_incidents_status",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_portfolio_incidents_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "portfolio_job_queue",
+    "isFtsShadow": false,
+    "count": 9,
+    "sql": "CREATE TABLE portfolio_job_queue (\n        id TEXT PRIMARY KEY,\n        idempotency_key TEXT UNIQUE,\n        name TEXT NOT NULL,\n        job_type TEXT NOT NULL,\n        payload TEXT,\n        status TEXT NOT NULL DEFAULT 'pending', -- pending, running, completed, failed, cancelled, dlq\n        attempts INTEGER NOT NULL DEFAULT 0,\n        max_attempts INTEGER NOT NULL DEFAULT 3,\n        error_message TEXT,\n        result TEXT,\n        created_at INTEGER NOT NULL,\n        started_at INTEGER,\n        finished_at INTEGER\n      , next_retry_at INTEGER)",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "idempotency_key",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "name",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "job_type",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "payload",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'pending'",
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "attempts",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "max_attempts",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "3",
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "error_message",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "result",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "started_at",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 12,
+        "name": "finished_at",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 13,
+        "name": "next_retry_at",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_pjq_next_retry",
+        "unique": 0
+      },
+      {
+        "name": "idx_pjq_created",
+        "unique": 0
+      },
+      {
+        "name": "idx_pjq_status",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_portfolio_job_queue_2",
+        "unique": 1
+      },
+      {
+        "name": "sqlite_autoindex_portfolio_job_queue_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "portfolio_knowledge_index",
+    "isFtsShadow": false,
+    "count": 70,
+    "sql": "CREATE TABLE portfolio_knowledge_index (\n      id TEXT PRIMARY KEY,\n      source_path TEXT NOT NULL,\n      title TEXT NOT NULL,\n      category TEXT NOT NULL,\n      content TEXT NOT NULL,\n      token_count INTEGER,\n      embedding_version TEXT DEFAULT 'v1',\n      indexed_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "source_path",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "title",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "category",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "content",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "token_count",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "embedding_version",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'v1'",
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "indexed_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_port_knowledge_cat",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_portfolio_knowledge_index_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "portfolio_live_activity",
+    "isFtsShadow": false,
+    "count": 245,
+    "sql": "CREATE TABLE portfolio_live_activity (\n      id TEXT PRIMARY KEY,\n      type TEXT NOT NULL,\n      title TEXT NOT NULL,\n      detail TEXT,\n      country TEXT DEFAULT 'India',\n      country_code TEXT DEFAULT 'IN',\n      status TEXT DEFAULT 'SUCCESS',\n      badge TEXT DEFAULT 'Page View',\n      created_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "type",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "title",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "detail",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "country",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'India'",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "country_code",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'IN'",
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'SUCCESS'",
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "badge",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'Page View'",
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_port_activity_time",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_portfolio_live_activity_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "portfolio_notifications",
+    "isFtsShadow": false,
+    "count": 15,
+    "sql": "CREATE TABLE portfolio_notifications (\n      id TEXT PRIMARY KEY,\n      title TEXT NOT NULL,\n      message TEXT NOT NULL,\n      severity TEXT DEFAULT 'info',\n      category TEXT DEFAULT 'system',\n      read INTEGER DEFAULT 0,\n      entity_id TEXT,\n      entity_type TEXT,\n      created_at INTEGER NOT NULL,\n      read_at INTEGER\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "title",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "message",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "severity",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'info'",
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "category",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'system'",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "read",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "entity_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "entity_type",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "read_at",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_port_notif_created",
+        "unique": 0
+      },
+      {
+        "name": "idx_port_notif_read",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_portfolio_notifications_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "portfolio_system_state",
+    "isFtsShadow": false,
+    "count": 1,
+    "sql": "CREATE TABLE portfolio_system_state (\n        key TEXT PRIMARY KEY,\n        value TEXT NOT NULL,\n        updated_at INTEGER NOT NULL\n      )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "key",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "value",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_portfolio_system_state_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "portfolio_user_settings",
+    "isFtsShadow": false,
+    "count": 6,
+    "sql": "CREATE TABLE portfolio_user_settings (\n      key TEXT PRIMARY KEY,\n      value TEXT NOT NULL,\n      updated_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "key",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "value",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_portfolio_user_settings_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "project_files",
+    "isFtsShadow": false,
+    "count": 0,
+    "sql": "CREATE TABLE project_files (\n      id TEXT PRIMARY KEY,\n      project_id TEXT NOT NULL,\n      filename TEXT NOT NULL,\n      file_type TEXT,\n      content TEXT NOT NULL,\n      size INTEGER NOT NULL,\n      created_at INTEGER NOT NULL,\n      FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "project_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "filename",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "file_type",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "content",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "size",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "projects",
+        "from": "project_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_project_files_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "projects",
+    "isFtsShadow": false,
+    "count": 0,
+    "sql": "CREATE TABLE projects (\n      id TEXT PRIMARY KEY,\n      name TEXT NOT NULL,\n      description TEXT,\n      custom_instructions TEXT,\n      created_at INTEGER NOT NULL,\n      updated_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "name",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "description",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "custom_instructions",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_projects_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "provider_settings",
+    "isFtsShadow": false,
+    "count": 1,
+    "sql": "CREATE TABLE provider_settings (\n        id TEXT PRIMARY KEY,\n        priority TEXT NOT NULL,\n        primary_provider TEXT NOT NULL,\n        auto_failover INTEGER NOT NULL DEFAULT 1,\n        auto_recovery INTEGER NOT NULL DEFAULT 1,\n        updated_at INTEGER NOT NULL\n      )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "priority",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "primary_provider",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "auto_failover",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "1",
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "auto_recovery",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "1",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_provider_settings_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "rag_chunks",
+    "isFtsShadow": false,
+    "count": 7,
+    "sql": "CREATE TABLE rag_chunks (\n      id TEXT PRIMARY KEY,\n      document_id TEXT NOT NULL,\n      project_id TEXT,\n      chunk_index INTEGER NOT NULL,\n      text TEXT NOT NULL,\n      heading TEXT,\n      token_count INTEGER NOT NULL,\n      created_at INTEGER NOT NULL,\n      FOREIGN KEY (document_id) REFERENCES rag_documents(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "document_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "project_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "chunk_index",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "text",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "heading",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "token_count",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "rag_documents",
+        "from": "document_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_rag_chunks_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "rag_chunks_fts",
+    "isFtsShadow": true,
+    "count": 7,
+    "sql": "CREATE VIRTUAL TABLE rag_chunks_fts USING fts5(\n      chunk_id UNINDEXED,\n      project_id UNINDEXED,\n      text,\n      heading,\n      tokenize = 'unicode61'\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "chunk_id",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 1,
+        "name": "project_id",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "text",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "heading",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": []
+  },
+  {
+    "name": "rag_chunks_fts_config",
+    "isFtsShadow": true,
+    "count": 1,
+    "sql": "CREATE TABLE 'rag_chunks_fts_config'(k PRIMARY KEY, v) WITHOUT ROWID",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "k",
+        "type": "",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "v",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_rag_chunks_fts_config_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "rag_chunks_fts_content",
+    "isFtsShadow": true,
+    "count": 7,
+    "sql": "CREATE TABLE 'rag_chunks_fts_content'(id INTEGER PRIMARY KEY, c0, c1, c2, c3)",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "c0",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "c1",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "c2",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "c3",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": []
+  },
+  {
+    "name": "rag_chunks_fts_data",
+    "isFtsShadow": true,
+    "count": 9,
+    "sql": "CREATE TABLE 'rag_chunks_fts_data'(id INTEGER PRIMARY KEY, block BLOB)",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "block",
+        "type": "BLOB",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": []
+  },
+  {
+    "name": "rag_chunks_fts_docsize",
+    "isFtsShadow": true,
+    "count": 7,
+    "sql": "CREATE TABLE 'rag_chunks_fts_docsize'(id INTEGER PRIMARY KEY, sz BLOB)",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "sz",
+        "type": "BLOB",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": []
+  },
+  {
+    "name": "rag_chunks_fts_idx",
+    "isFtsShadow": true,
+    "count": 7,
+    "sql": "CREATE TABLE 'rag_chunks_fts_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "segid",
+        "type": "",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "term",
+        "type": "",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 2
+      },
+      {
+        "cid": 2,
+        "name": "pgno",
+        "type": "",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_rag_chunks_fts_idx_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "rag_documents",
+    "isFtsShadow": false,
+    "count": 5,
+    "sql": "CREATE TABLE rag_documents (\n      id TEXT PRIMARY KEY,\n      project_id TEXT,\n      filename TEXT NOT NULL,\n      file_type TEXT,\n      content_hash TEXT NOT NULL,\n      chunk_count INTEGER NOT NULL,\n      provider TEXT NOT NULL,\n      model TEXT NOT NULL,\n      dimension INTEGER NOT NULL,\n      version TEXT NOT NULL DEFAULT 'v1',\n      created_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "project_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "filename",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "file_type",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "content_hash",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "chunk_count",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "provider",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "model",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "dimension",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "version",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'v1'",
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_rag_documents_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "rag_embeddings",
+    "isFtsShadow": false,
+    "count": 7,
+    "sql": "CREATE TABLE rag_embeddings (\n      chunk_id TEXT PRIMARY KEY,\n      document_id TEXT NOT NULL,\n      project_id TEXT,\n      provider TEXT NOT NULL,\n      model TEXT NOT NULL,\n      dimension INTEGER NOT NULL,\n      vector BLOB NOT NULL,\n      created_at INTEGER NOT NULL,\n      FOREIGN KEY (chunk_id) REFERENCES rag_chunks(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "chunk_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "document_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "project_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "provider",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "model",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "dimension",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "vector",
+        "type": "BLOB",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "rag_chunks",
+        "from": "chunk_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_rag_embeddings_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "reminders",
+    "isFtsShadow": false,
+    "count": 14,
+    "sql": "CREATE TABLE reminders (\n    id TEXT PRIMARY KEY,\n    title TEXT NOT NULL,\n    due_time INTEGER NOT NULL,\n    priority TEXT NOT NULL DEFAULT 'medium',\n    status TEXT NOT NULL DEFAULT 'pending',\n    created_at INTEGER NOT NULL\n  )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "title",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "due_time",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "priority",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'medium'",
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'pending'",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_reminders_status",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_reminders_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "research_artifacts",
+    "isFtsShadow": false,
+    "count": 0,
+    "sql": "CREATE TABLE research_artifacts (\n      id TEXT PRIMARY KEY,\n      job_id TEXT NOT NULL,\n      artifact_type TEXT NOT NULL, -- 'pdf' | 'markdown' | 'json_dossier'\n      filename TEXT NOT NULL,\n      file_path TEXT NOT NULL,\n      file_size INTEGER NOT NULL,\n      content_hash TEXT NOT NULL,\n      page_count INTEGER,\n      validation_passed INTEGER NOT NULL DEFAULT 0,\n      validation_report TEXT, -- JSON report\n      created_at INTEGER NOT NULL,\n      FOREIGN KEY (job_id) REFERENCES research_jobs(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "job_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "artifact_type",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "filename",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "file_path",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "file_size",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "content_hash",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "page_count",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "validation_passed",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "validation_report",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "research_jobs",
+        "from": "job_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "idx_research_artifacts_job",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_research_artifacts_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "research_citations",
+    "isFtsShadow": false,
+    "count": 0,
+    "sql": "CREATE TABLE research_citations (\n      id TEXT PRIMARY KEY,\n      job_id TEXT NOT NULL,\n      citation_number INTEGER NOT NULL,\n      source_id TEXT NOT NULL,\n      claim_id TEXT,\n      formatted_text TEXT NOT NULL,\n      url TEXT,\n      doi TEXT,\n      verified INTEGER NOT NULL DEFAULT 1,\n      FOREIGN KEY (job_id) REFERENCES research_jobs(id) ON DELETE CASCADE,\n      FOREIGN KEY (source_id) REFERENCES research_sources(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "job_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "citation_number",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "source_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "claim_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "formatted_text",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "url",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "doi",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "verified",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "1",
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "research_sources",
+        "from": "source_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      },
+      {
+        "table": "research_jobs",
+        "from": "job_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "idx_research_citations_job",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_research_citations_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "research_claims",
+    "isFtsShadow": false,
+    "count": 1809,
+    "sql": "CREATE TABLE research_claims (\n      id TEXT PRIMARY KEY,\n      job_id TEXT NOT NULL,\n      statement TEXT NOT NULL,\n      category TEXT NOT NULL, -- 'fact' | 'statistic' | 'finding' | 'market_metric'\n      verification_status TEXT NOT NULL DEFAULT 'UNVERIFIED', -- 'SUPPORTED' | 'PARTIALLY_SUPPORTED' | 'DISPUTED' | 'CONTRADICTED' | 'UNVERIFIED' | 'OUTDATED'\n      confidence_score REAL NOT NULL DEFAULT 0.5,\n      verification_notes TEXT,\n      is_critical INTEGER NOT NULL DEFAULT 0,\n      created_at INTEGER NOT NULL, exact_quote TEXT, primary_source_id TEXT, verified_at INTEGER,\n      FOREIGN KEY (job_id) REFERENCES research_jobs(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "job_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "statement",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "category",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "verification_status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'UNVERIFIED'",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "confidence_score",
+        "type": "REAL",
+        "notnull": 1,
+        "dflt_value": "0.5",
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "verification_notes",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "is_critical",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "exact_quote",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "primary_source_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "verified_at",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "research_jobs",
+        "from": "job_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "idx_research_claims_job",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_research_claims_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "research_contradictions",
+    "isFtsShadow": false,
+    "count": 49,
+    "sql": "CREATE TABLE research_contradictions (\n      id TEXT PRIMARY KEY,\n      job_id TEXT NOT NULL,\n      claim_id TEXT,\n      source_a_id TEXT,\n      source_b_id TEXT,\n      disputed_topic TEXT NOT NULL,\n      source_a_assertion TEXT,\n      source_b_assertion TEXT,\n      resolution_strategy TEXT NOT NULL DEFAULT 'disputed_in_report',\n      final_disposition TEXT,\n      created_at INTEGER NOT NULL,\n      FOREIGN KEY (job_id) REFERENCES research_jobs(id) ON DELETE CASCADE,\n      FOREIGN KEY (claim_id) REFERENCES research_claims(id) ON DELETE SET NULL,\n      FOREIGN KEY (source_a_id) REFERENCES research_sources(id) ON DELETE SET NULL,\n      FOREIGN KEY (source_b_id) REFERENCES research_sources(id) ON DELETE SET NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "job_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "claim_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "source_a_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "source_b_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "disputed_topic",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "source_a_assertion",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "source_b_assertion",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "resolution_strategy",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'disputed_in_report'",
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "final_disposition",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "research_sources",
+        "from": "source_b_id",
+        "to": "id",
+        "on_delete": "SET NULL"
+      },
+      {
+        "table": "research_sources",
+        "from": "source_a_id",
+        "to": "id",
+        "on_delete": "SET NULL"
+      },
+      {
+        "table": "research_claims",
+        "from": "claim_id",
+        "to": "id",
+        "on_delete": "SET NULL"
+      },
+      {
+        "table": "research_jobs",
+        "from": "job_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "idx_research_contradictions_job",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_research_contradictions_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "research_jobs",
+    "isFtsShadow": false,
+    "count": 906,
+    "sql": "CREATE TABLE research_jobs (\n      id TEXT PRIMARY KEY,\n      session_id TEXT,\n      user_query TEXT NOT NULL,\n      domain TEXT,\n      mode TEXT NOT NULL DEFAULT 'deep', -- 'quick' | 'deep' | 'exhaustive'\n      status TEXT NOT NULL DEFAULT 'IDLE',\n      require_approval INTEGER NOT NULL DEFAULT 1,\n      approved_at INTEGER,\n      current_stage TEXT NOT NULL DEFAULT 'IDLE',\n      progress INTEGER NOT NULL DEFAULT 0,\n      estimated_duration_ms INTEGER,\n      actual_duration_ms INTEGER,\n      budget_usd REAL NOT NULL DEFAULT 2.00,\n      spent_usd REAL NOT NULL DEFAULT 0.00,\n      total_tokens INTEGER NOT NULL DEFAULT 0,\n      sources_count INTEGER NOT NULL DEFAULT 0,\n      claims_count INTEGER NOT NULL DEFAULT 0,\n      error_message TEXT,\n      created_at INTEGER NOT NULL,\n      updated_at INTEGER NOT NULL,\n      completed_at INTEGER\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "session_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "user_query",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "domain",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "mode",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'deep'",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'IDLE'",
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "require_approval",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "1",
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "approved_at",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "current_stage",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'IDLE'",
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "progress",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "estimated_duration_ms",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "actual_duration_ms",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 12,
+        "name": "budget_usd",
+        "type": "REAL",
+        "notnull": 1,
+        "dflt_value": "2.00",
+        "pk": 0
+      },
+      {
+        "cid": 13,
+        "name": "spent_usd",
+        "type": "REAL",
+        "notnull": 1,
+        "dflt_value": "0.00",
+        "pk": 0
+      },
+      {
+        "cid": 14,
+        "name": "total_tokens",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 15,
+        "name": "sources_count",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 16,
+        "name": "claims_count",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 17,
+        "name": "error_message",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 18,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 19,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 20,
+        "name": "completed_at",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_research_jobs_created",
+        "unique": 0
+      },
+      {
+        "name": "idx_research_jobs_status",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_research_jobs_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "research_plans",
+    "isFtsShadow": false,
+    "count": 16,
+    "sql": "CREATE TABLE research_plans (\n      id TEXT PRIMARY KEY,\n      job_id TEXT NOT NULL,\n      title TEXT NOT NULL,\n      domain TEXT NOT NULL,\n      time_sensitivity TEXT,\n      target_entities TEXT, -- JSON array\n      constraints TEXT, -- JSON array\n      subtopics TEXT NOT NULL, -- JSON array of subtopics\n      primary_questions TEXT NOT NULL, -- JSON array\n      search_strategy TEXT NOT NULL, -- JSON object\n      approved INTEGER NOT NULL DEFAULT 0,\n      user_feedback TEXT,\n      created_at INTEGER NOT NULL,\n      updated_at INTEGER NOT NULL,\n      FOREIGN KEY (job_id) REFERENCES research_jobs(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "job_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "title",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "domain",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "time_sensitivity",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "target_entities",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "constraints",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "subtopics",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "primary_questions",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "search_strategy",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "approved",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "user_feedback",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 12,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 13,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "research_jobs",
+        "from": "job_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "idx_research_plans_job",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_research_plans_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "research_quality_checks",
+    "isFtsShadow": false,
+    "count": 8,
+    "sql": "CREATE TABLE research_quality_checks (\n      id TEXT PRIMARY KEY,\n      job_id TEXT NOT NULL,\n      overall_score REAL NOT NULL, -- 0.0 to 100.0\n      passed INTEGER NOT NULL,\n      metrics_json TEXT NOT NULL, -- JSON object of all 15 evaluated criteria\n      blocking_failures TEXT, -- JSON array\n      audited_at INTEGER NOT NULL,\n      FOREIGN KEY (job_id) REFERENCES research_jobs(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "job_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "overall_score",
+        "type": "REAL",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "passed",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "metrics_json",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "blocking_failures",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "audited_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "research_jobs",
+        "from": "job_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "idx_research_quality_job",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_research_quality_checks_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "research_queries",
+    "isFtsShadow": false,
+    "count": 271,
+    "sql": "CREATE TABLE research_queries (\n      id TEXT PRIMARY KEY,\n      job_id TEXT NOT NULL,\n      channel TEXT NOT NULL, -- 'google' | 'tavily' | 'exa' | 'github' | 'academic'\n      subtopic TEXT,\n      query TEXT NOT NULL,\n      purpose TEXT NOT NULL, -- 'discovery' | 'deepening' | 'counter_research' | 'fact_check'\n      is_counter_research INTEGER NOT NULL DEFAULT 0,\n      status TEXT NOT NULL DEFAULT 'PENDING',\n      result_count INTEGER NOT NULL DEFAULT 0,\n      duration_ms INTEGER,\n      created_at INTEGER NOT NULL,\n      FOREIGN KEY (job_id) REFERENCES research_jobs(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "job_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "channel",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "subtopic",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "query",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "purpose",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "is_counter_research",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'PENDING'",
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "result_count",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "duration_ms",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "research_jobs",
+        "from": "job_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "idx_research_queries_job",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_research_queries_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "research_runs",
+    "isFtsShadow": false,
+    "count": 132,
+    "sql": "CREATE TABLE research_runs (\n      id TEXT PRIMARY KEY,\n      job_id TEXT NOT NULL,\n      agent_role TEXT NOT NULL,\n      provider TEXT NOT NULL,\n      model TEXT NOT NULL,\n      step_name TEXT NOT NULL,\n      prompt_tokens INTEGER NOT NULL DEFAULT 0,\n      completion_tokens INTEGER NOT NULL DEFAULT 0,\n      cost_usd REAL NOT NULL DEFAULT 0.00,\n      duration_ms INTEGER NOT NULL DEFAULT 0,\n      status TEXT NOT NULL DEFAULT 'COMPLETED',\n      created_at INTEGER NOT NULL,\n      FOREIGN KEY (job_id) REFERENCES research_jobs(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "job_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "agent_role",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "provider",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "model",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "step_name",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "prompt_tokens",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "completion_tokens",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "cost_usd",
+        "type": "REAL",
+        "notnull": 1,
+        "dflt_value": "0.00",
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "duration_ms",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'COMPLETED'",
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "research_jobs",
+        "from": "job_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "idx_research_runs_job",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_research_runs_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "research_sections",
+    "isFtsShadow": false,
+    "count": 11,
+    "sql": "CREATE TABLE research_sections (\n      id TEXT PRIMARY KEY,\n      job_id TEXT NOT NULL,\n      section_index INTEGER NOT NULL,\n      title TEXT NOT NULL,\n      section_type TEXT NOT NULL, -- 'executive_summary' | 'methodology' | 'chapter' | 'market' | 'comparison' | 'contradictions' | 'recommendations'\n      content_markdown TEXT NOT NULL,\n      tables_json TEXT, -- JSON array of structured tables\n      created_at INTEGER NOT NULL,\n      FOREIGN KEY (job_id) REFERENCES research_jobs(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "job_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "section_index",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "title",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "section_type",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "content_markdown",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "tables_json",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "research_jobs",
+        "from": "job_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "idx_research_sections_job",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_research_sections_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "research_sources",
+    "isFtsShadow": false,
+    "count": 1934,
+    "sql": "CREATE TABLE research_sources (\n      id TEXT PRIMARY KEY,\n      job_id TEXT NOT NULL,\n      url TEXT NOT NULL,\n      canonical_url TEXT,\n      domain TEXT NOT NULL,\n      title TEXT,\n      author TEXT,\n      published_date TEXT,\n      category TEXT NOT NULL DEFAULT 'web', -- 'primary_doc' | 'github' | 'academic' | 'news' | 'web'\n      credibility_score REAL NOT NULL DEFAULT 0.5, -- 0.0 to 1.0\n      credibility_reasons TEXT, -- JSON array\n      is_primary_source INTEGER NOT NULL DEFAULT 0,\n      created_at INTEGER NOT NULL,\n      UNIQUE(job_id, url),\n      FOREIGN KEY (job_id) REFERENCES research_jobs(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "job_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "url",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "canonical_url",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "domain",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "title",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "author",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "published_date",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "category",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'web'",
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "credibility_score",
+        "type": "REAL",
+        "notnull": 1,
+        "dflt_value": "0.5",
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "credibility_reasons",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "is_primary_source",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 12,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "research_jobs",
+        "from": "job_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "idx_research_sources_job",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_research_sources_2",
+        "unique": 1
+      },
+      {
+        "name": "sqlite_autoindex_research_sources_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "settings_audit_logs",
+    "isFtsShadow": false,
+    "count": 333,
+    "sql": "CREATE TABLE settings_audit_logs (\n      id TEXT PRIMARY KEY,\n      user_id TEXT NOT NULL,\n      setting_key TEXT NOT NULL,\n      previous_value TEXT,\n      new_value TEXT,\n      action TEXT NOT NULL,\n      created_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "user_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "setting_key",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "previous_value",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "new_value",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "action",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_settings_audit_created",
+        "unique": 0
+      },
+      {
+        "name": "idx_settings_audit_user",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_settings_audit_logs_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "source_fetches",
+    "isFtsShadow": false,
+    "count": 0,
+    "sql": "CREATE TABLE source_fetches (\n      id TEXT PRIMARY KEY,\n      source_id TEXT NOT NULL,\n      job_id TEXT NOT NULL,\n      content_hash TEXT NOT NULL,\n      http_status INTEGER NOT NULL DEFAULT 200,\n      content_type TEXT,\n      raw_text TEXT,\n      clean_text TEXT NOT NULL,\n      word_count INTEGER NOT NULL DEFAULT 0,\n      extraction_method TEXT NOT NULL, -- 'cheerio' | 'readability' | 'pdf_parse' | 'api'\n      fetched_at INTEGER NOT NULL,\n      FOREIGN KEY (source_id) REFERENCES research_sources(id) ON DELETE CASCADE,\n      FOREIGN KEY (job_id) REFERENCES research_jobs(id) ON DELETE CASCADE\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "source_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "job_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "content_hash",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "http_status",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "200",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "content_type",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "raw_text",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "clean_text",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "word_count",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "extraction_method",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "fetched_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [
+      {
+        "table": "research_jobs",
+        "from": "job_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      },
+      {
+        "table": "research_sources",
+        "from": "source_id",
+        "to": "id",
+        "on_delete": "CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "idx_source_fetches_source",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_source_fetches_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "user_memories",
+    "isFtsShadow": false,
+    "count": 7,
+    "sql": "CREATE TABLE user_memories (\n      id TEXT PRIMARY KEY,\n      category TEXT NOT NULL, -- 'preference', 'instruction', 'project', 'fact', 'context'\n      content TEXT NOT NULL,\n      importance REAL DEFAULT 0.5,\n      access_count INTEGER DEFAULT 0,\n      last_accessed INTEGER,\n      expires_at INTEGER,\n      created_at INTEGER NOT NULL,\n      updated_at INTEGER NOT NULL\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "category",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "content",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "importance",
+        "type": "REAL",
+        "notnull": 0,
+        "dflt_value": "0.5",
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "access_count",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "last_accessed",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "expires_at",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_memories_importance",
+        "unique": 0
+      },
+      {
+        "name": "idx_memories_category",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_user_memories_1",
+        "unique": 1
+      }
+    ]
+  },
+  {
+    "name": "user_settings",
+    "isFtsShadow": false,
+    "count": 5,
+    "sql": "CREATE TABLE user_settings (\n      id TEXT PRIMARY KEY,\n      user_id TEXT NOT NULL,\n      setting_key TEXT NOT NULL,\n      setting_value TEXT NOT NULL,\n      created_at INTEGER NOT NULL,\n      updated_at INTEGER NOT NULL,\n      UNIQUE(user_id, setting_key)\n    )",
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "user_id",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "setting_key",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "setting_value",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "created_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "foreignKeys": [],
+    "indexes": [
+      {
+        "name": "idx_user_settings_user",
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_user_settings_2",
+        "unique": 1
+      },
+      {
+        "name": "sqlite_autoindex_user_settings_1",
+        "unique": 1
+      }
+    ]
+  }
+]

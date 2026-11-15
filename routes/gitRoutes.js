@@ -16,20 +16,10 @@ import {
   getGitLog
 } from '../services/gitManager.js';
 
+import { requireLocalDeveloperOrigin } from '../middleware/auth.js';
+export { requireLocalDeveloperOrigin };
+
 const router = express.Router();
-
-// Middleware: Restrict access strictly to local developer origin
-export function requireLocalDeveloperOrigin(req, res, next) {
-  const remoteIp = req.ip || req.connection?.remoteAddress || '';
-  const isLoopback = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].some(ip => remoteIp.includes(ip));
-  const origin = req.headers.origin;
-  const isAllowedOrigin = !origin || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-  if (!isLoopback || !isAllowedOrigin) {
-    return res.status(403).json({ error: 'Forbidden: Access restricted to authorized local developer origin.' });
-  }
-  next();
-}
-
 router.use(requireLocalDeveloperOrigin);
 
 // 1. Get Status

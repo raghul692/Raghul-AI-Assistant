@@ -104,6 +104,13 @@ import { verifyAuditLedgerIntegrity } from './governanceAudit.js';
 import { MODEL_REGISTRY, classifyPromptIntent, selectModelForIntent, getReasoningBudget } from './orchestration/modelRegistry.js';
 import { promptEngine } from './prompts/promptEngine.js';
 import { PERSONA_CATALOG } from './prompts/personaCatalog.js';
+import { requestIdMiddleware, requireLocalDeveloperOrigin } from './middleware/auth.js';
+import { dbAdapter } from './database/adapter.js';
+import { storageService } from './services/storageService.js';
+import jobRoutes from './routes/jobRoutes.js';
+import { closePostgresPool } from './database/postgresPool.js';
+
+export { requireLocalDeveloperOrigin };
 
 // Prioritize IPv4 globally to eliminate IPv6 network connect timeouts on Windows
 dns.setDefaultResultOrder('ipv4first');
@@ -127,6 +134,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const MAX_MEMORY_TURNS = parseInt(process.env.MAX_MEMORY_TURNS || '14', 10);
 
+app.use(requestIdMiddleware);
 app.use(compression());
 
 // Security: Helmet HTTP Headers
@@ -135,7 +143,7 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
-// Security: Hardened CORS Policy
+// Security: Hardened CORS Policy (Vercel Frontend & Render Web Service)
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim())
   : [
@@ -148,7 +156,13 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+    if (
+      !origin ||
+      allowedOrigins.includes(origin) ||
+      /\.vercel\.app$/.test(origin) ||
+      /\.onrender\.com$/.test(origin) ||
+      /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
+    ) {
       return callback(null, true);
     }
     return callback(new Error('Blocked by CORS policy: Origin not allowed.'));
@@ -156,17 +170,35 @@ app.use(cors({
   credentials: true
 }));
 
-// Security Middleware: Require Localhost & Developer Origin for Sensitive Endpoints
-export function requireLocalDeveloperOrigin(req, res, next) {
-  const remoteIp = req.ip || req.connection?.remoteAddress || '';
-  const isLoopback = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].some(ip => remoteIp.includes(ip));
-  const origin = req.headers.origin;
-  const isAllowedOrigin = !origin || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-  if (!isLoopback || !isAllowedOrigin) {
-    return res.status(403).json({ error: 'Forbidden: Access restricted to authorized local developer origin.' });
+// Production Health & Readiness Endpoints (Render & Kubernetes standards)
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    service: 'raghul-ai-api',
+    uptime: Math.round(process.uptime()),
+    timestamp: Date.now()
+  });
+});
+
+app.get('/ready', async (req, res) => {
+  try {
+    const dbStatus = await dbAdapter.healthCheck();
+    const isReady = dbStatus.status === 'healthy';
+    res.status(isReady ? 200 : 503).json({
+      status: isReady ? 'ready' : 'degraded',
+      service: 'raghul-ai-api',
+      database: dbStatus,
+      cloudStorage: storageService.isCloudConfigured() ? 'active' : 'local_fallback',
+      timestamp: Date.now()
+    });
+  } catch (err) {
+    res.status(503).json({
+      status: 'unready',
+      error: err.message,
+      timestamp: Date.now()
+    });
   }
-  next();
-}
+});
 
 // Increased body limit to 50MB to support multimodal Image/Audio/PDF uploads cleanly
 app.use(express.json({ limit: '50mb' }));
@@ -626,6 +658,7 @@ app.use('/api/portfolio', portfolioRoutes);
 
 // Autonomous Deep Research Engine API (Tier-1 Standard)
 app.use('/api/research', researchRouter);
+app.use('/api/jobs', jobRoutes);
 
 // --- TIER-1 CAPABILITIES REST ENDPOINTS ---
 
@@ -2066,12 +2099,16 @@ const server = app.listen(PORT, () => {
 // ARCH-03: Graceful Shutdown Lifecycle
 function handleGracefulShutdown(signal) {
   console.log(`\n🛑 Received ${signal}. Commencing graceful system shutdown...`);
-  server.close(() => {
+  server.close(async () => {
     console.log('HTTP server closed.');
     try {
-      if (db) {
+      await closePostgresPool();
+      console.log('PostgreSQL connection pool closed cleanly.');
+    } catch (_) {}
+    try {
+      if (db && typeof db.close === 'function') {
         console.log('Flushing SQLite WAL checkpoint...');
-        db.pragma('wal_checkpoint(TRUNCATE)');
+        try { db.pragma('wal_checkpoint(TRUNCATE)'); } catch (_) {}
         db.close();
         console.log('SQLite database connection closed cleanly.');
       }

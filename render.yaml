@@ -1,0 +1,90 @@
+# ============================================================================
+# RAGHUL AI — RENDER INFRASTRUCTURE AS CODE SPECIFICATION
+# Architecture: Dual-Service (Web API + Dedicated Background Worker)
+# ============================================================================
+
+services:
+  # --------------------------------------------------------------------------
+  # 1. Primary REST & Real-Time API Web Service
+  # --------------------------------------------------------------------------
+  - type: web
+    name: raghul-ai-api
+    env: node
+    plan: starter
+    region: singapore
+    buildCommand: npm install
+    startCommand: npm run start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: MAX_MEMORY_TURNS
+        value: 14
+      - key: ALLOWED_ORIGINS
+        value: https://raghulraja-portfolio.vercel.app,https://raghulraja.is-a.dev,http://localhost:3000,http://localhost:5173
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: NVIDIA_API_KEY
+        sync: false
+      - key: CLOUDFLARE_API_TOKEN
+        sync: false
+      - key: CLOUDFLARE_ACCOUNT_ID
+        sync: false
+      - key: GITHUB_PERSONAL_ACCESS_TOKEN
+        sync: false
+      - key: ADMIN_API_KEY
+        sync: false
+
+  # --------------------------------------------------------------------------
+  # 2. Autonomous Multi-Agent Background Worker
+  # --------------------------------------------------------------------------
+  - type: worker
+    name: raghul-ai-worker
+    env: node
+    plan: starter
+    region: singapore
+    buildCommand: npm install
+    startCommand: npm run worker
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: WORKER_CONCURRENCY
+        value: 3
+      - key: WORKER_POLL_INTERVAL_MS
+        value: 1500
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: NVIDIA_API_KEY
+        sync: false
+      - key: CLOUDFLARE_API_TOKEN
+        sync: false
+      - key: CLOUDFLARE_ACCOUNT_ID
+        sync: false
+      - key: GITHUB_PERSONAL_ACCESS_TOKEN
+        sync: false

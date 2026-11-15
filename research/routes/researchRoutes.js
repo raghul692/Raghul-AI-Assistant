@@ -6,6 +6,8 @@ import { researchOrchestrator } from '../orchestration/researchOrchestrator.js';
 import { researchRepository } from '../db/repository.js';
 import { generateAndValidateReportPdf } from '../publishing/pdfEngine.js';
 import { RESEARCH_CONFIG } from '../config.js';
+import { eventBus } from '../../services/eventBus.js';
+import { jobQueue } from '../../queue/jobQueue.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,6 +19,9 @@ export const researchRouter = express.Router();
 const jobStreams = new Map();
 
 function broadcastJobEvent(jobId, eventData) {
+  // Cross-process event bus broadcast
+  eventBus.publish(jobId, eventData.step || 'progress', eventData).catch(() => {});
+
   const streams = jobStreams.get(jobId);
   if (streams && streams.size > 0) {
     const payload = `data: ${JSON.stringify(eventData)}\n\n`;
@@ -84,35 +89,46 @@ researchRouter.post('/start', async (req, res) => {
       status: 'running'
     });
 
-    // Run autonomous research loop in background with progress streaming
-    researchOrchestrator.startJob(
-      topic,
-      { mode },
-      (progressEvent) => {
-        broadcastJobEvent(jobId, progressEvent);
-      }
-    ).then(async (result) => {
-      try {
-        const pdfResult = await generateAndValidateReportPdf(jobId, result.reportMarkdown, {
-          title: topic.slice(0, 100),
-          sourcesCount: result.sourcesCount || 0,
-          citationsCount: result.citations ? result.citations.length : 0
-        });
-        broadcastJobEvent(jobId, {
-          step: 'pdf_ready',
-          message: 'A4 PDF report generated and validated.',
-          pdfUrl: pdfResult.url,
-          validation: pdfResult.validation
-        });
-      } catch (e) {
-        console.warn('[ResearchRouter] PDF build notice:', e.message);
-      }
-    }).catch((err) => {
-      broadcastJobEvent(jobId, {
-        step: 'failed',
-        error: err.message
+    // In production, delegate heavy research workload to Render Background Worker via JobQueue
+    if (jobQueue.isPostgres()) {
+      jobQueue.enqueue({
+        jobType: 'deep_research',
+        payload: { query: topic, mode, jobId },
+        priority: 2
+      }).catch(err => {
+        console.error('[ResearchRouter] Failed to enqueue deep_research job:', err.message);
       });
-    });
+    } else {
+      // Offline / Local SQLite fallback: run in-process for tests without standalone worker
+      researchOrchestrator.startJob(
+        topic,
+        { mode },
+        (progressEvent) => {
+          broadcastJobEvent(jobId, progressEvent);
+        }
+      ).then(async (result) => {
+        try {
+          const pdfResult = await generateAndValidateReportPdf(jobId, result.reportMarkdown, {
+            title: topic.slice(0, 100),
+            sourcesCount: result.sourcesCount || 0,
+            citationsCount: result.citations ? result.citations.length : 0
+          });
+          broadcastJobEvent(jobId, {
+            step: 'pdf_ready',
+            message: 'A4 PDF report generated and validated.',
+            pdfUrl: pdfResult.url,
+            validation: pdfResult.validation
+          });
+        } catch (e) {
+          console.warn('[ResearchRouter] PDF build notice:', e.message);
+        }
+      }).catch((err) => {
+        broadcastJobEvent(jobId, {
+          step: 'failed',
+          error: err.message
+        });
+      });
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -129,45 +145,57 @@ researchRouter.post('/plan/approve', async (req, res) => {
   // Respond immediately so user frontend can connect to SSE stream
   res.json({ success: true, jobId, status: 'running' });
 
-  // Run autonomous research loop in background
-  researchOrchestrator.startJob(
-    job.original_query,
-    { mode: job.mode },
-    (progressEvent) => {
-      broadcastJobEvent(jobId, progressEvent);
-    }
-  ).then(async (result) => {
-    // Auto-generate verified A4 PDF report
-    try {
-      const pdfResult = await generateAndValidateReportPdf(jobId, result.reportMarkdown, {
-        title: job.title,
-        sourcesCount: result.sourcesCount,
-        citationsCount: result.citations.length
-      });
-      broadcastJobEvent(jobId, {
-        step: 'pdf_ready',
-        message: 'A4 PDF report generated and validated.',
-        pdfUrl: pdfResult.url,
-        validation: pdfResult.validation
-      });
-    } catch (e) {
-      console.warn('[ResearchRouter] PDF build notice:', e.message);
-    }
-  }).catch((err) => {
-    broadcastJobEvent(jobId, {
-      step: 'failed',
-      error: err.message
+  // In production, delegate heavy research workload to Render Background Worker via JobQueue
+  if (jobQueue.isPostgres()) {
+    jobQueue.enqueue({
+      jobType: 'deep_research',
+      payload: { query: job.original_query, mode: job.mode, jobId },
+      priority: 2
+    }).catch(err => {
+      console.error('[ResearchRouter] Failed to enqueue approved plan job:', err.message);
     });
-  });
+  } else {
+    // Offline / Local SQLite fallback: run in-process for tests without standalone worker
+    researchOrchestrator.startJob(
+      job.original_query,
+      { mode: job.mode },
+      (progressEvent) => {
+        broadcastJobEvent(jobId, progressEvent);
+      }
+    ).then(async (result) => {
+      // Auto-generate verified A4 PDF report
+      try {
+        const pdfResult = await generateAndValidateReportPdf(jobId, result.reportMarkdown, {
+          title: job.title,
+          sourcesCount: result.sourcesCount,
+          citationsCount: result.citations.length
+        });
+        broadcastJobEvent(jobId, {
+          step: 'pdf_ready',
+          message: 'A4 PDF report generated and validated.',
+          pdfUrl: pdfResult.url,
+          validation: pdfResult.validation
+        });
+      } catch (e) {
+        console.warn('[ResearchRouter] PDF build notice:', e.message);
+      }
+    }).catch((err) => {
+      broadcastJobEvent(jobId, {
+        step: 'failed',
+        error: err.message
+      });
+    });
+  }
 });
 
 // 3. SSE Stream for Real-Time Research Execution
-researchRouter.get('/jobs/:id/stream', (req, res) => {
+researchRouter.get('/jobs/:id/stream', async (req, res) => {
   const jobId = req.params.id;
 
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders?.();
 
   if (!jobStreams.has(jobId)) {
@@ -178,7 +206,36 @@ researchRouter.get('/jobs/:id/stream', (req, res) => {
   // Send initial ping
   res.write(`data: ${JSON.stringify({ type: 'connected', jobId })}\n\n`);
 
+  // Event Replay on Reconnection (Last-Event-ID)
+  const lastEventId = req.headers['last-event-id'];
+  if (lastEventId) {
+    try {
+      const backlog = await eventBus.getEventsSince(jobId, lastEventId);
+      for (const evt of backlog) {
+        res.write(`id: ${evt.id}\ndata: ${JSON.stringify(evt.payload)}\n\n`);
+      }
+    } catch (_) {}
+  }
+
+  // Also subscribe to cross-process event bus
+  const unsubscribeBus = await eventBus.subscribe(jobId, (evt) => {
+    try {
+      const idPart = evt.id ? `id: ${evt.id}\n` : '';
+      res.write(`${idPart}data: ${JSON.stringify(evt.payload || evt)}\n\n`);
+    } catch (_) {}
+  });
+
+  const heartbeatTimer = setInterval(() => {
+    try {
+      res.write(': ping\n\n');
+    } catch (_) {
+      clearInterval(heartbeatTimer);
+    }
+  }, 15000);
+
   req.on('close', () => {
+    clearInterval(heartbeatTimer);
+    unsubscribeBus();
     const streams = jobStreams.get(jobId);
     if (streams) {
       streams.delete(res);
