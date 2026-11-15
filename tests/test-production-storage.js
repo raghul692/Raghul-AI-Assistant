@@ -66,6 +66,37 @@ async function runTest() {
   assert(deleteRes, 'File deletion should succeed');
   console.log('✅ [PASS] File deletion cleanup verified.\n');
 
+  // Test 5: Path Traversal Security Protection
+  console.log('--- Test 5: Path Traversal Protection ---');
+  let traversalCaught = false;
+  try {
+    await storageService.downloadBuffer({
+      bucket: 'raghul-ai-documents',
+      storagePath: '../../../../server.js'
+    });
+  } catch (err) {
+    traversalCaught = true;
+    assert(err.message.includes('traversal') || err.message.includes('blocked'), 'Error must identify traversal block');
+  }
+  assert(traversalCaught, 'Path traversal attempt must be blocked and throw an error');
+  console.log('✅ [PASS] Directory traversal protection verified.\n');
+
+  // Test 6: Bucket Whitelist Protection
+  console.log('--- Test 6: Bucket Whitelist Enforcement ---');
+  let bucketBlocked = false;
+  try {
+    await storageService.uploadBuffer({
+      bucket: 'unauthorized-hacker-bucket',
+      fileName: 'leak.txt',
+      buffer: Buffer.from('exploit')
+    });
+  } catch (err) {
+    bucketBlocked = true;
+    assert(err.message.includes('Invalid storage bucket'), 'Error must reject unauthorized bucket');
+  }
+  assert(bucketBlocked, 'Unauthorized bucket must be rejected');
+  console.log('✅ [PASS] Storage bucket whitelist enforcement verified.\n');
+
   console.log('🎉 Persistent Object Storage verification completed successfully!');
   process.exit(0);
 }

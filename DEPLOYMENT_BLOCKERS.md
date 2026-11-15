@@ -15,6 +15,10 @@
 | **BLK-04** | **HIGH** | 5 historical SQLite records rejected by PostgreSQL schema mismatch on NOT NULL constraints | Created Migration 013 relaxing obsolete legacy NOT NULLs and migrated all 5 records (100% parity). | `scripts/check-5-records.js` |
 | **BLK-05** | **MEDIUM** | Vercel rewrite configuration lacked `/health` and `/ready` routing | Updated `vercel.json` rewrites to proxy `/health` and `/ready` to `raghul-ai-api.onrender.com`. | Configuration inspection |
 | **BLK-06** | **MEDIUM** | SSRF filter lacked IPv6 Link-Local and ULA filtering | Added RFC 4193 and RFC 4291 IPv6 checks in `research/security/guardrails.js`. | `test-stage7-security.js` |
+| **BLK-07** | **HIGH** | Timing attack on token validation and lack of browser SSE token support | Implemented `crypto.timingSafeEqual()` on SHA-256 hashes + query parameter token extraction (`req.query.token`). | `test-production-health-ready.js` (Test 6) |
+| **BLK-08** | **CRITICAL** | Governance approval resolution, GitHub mutations, and Portfolio management routes unprotected | Attached `requireSensitiveOperationAuth` to all administrative mutation routes across all three route files. | `test-production-health-ready.js` (Test 5b) |
+| **BLK-09** | **CRITICAL** | SSRF redirect traversal & DNS rebinding in web scrapers | Implemented manual redirect loop (max 4 hops) with URL/IP re-validation per hop and async DNS resolution. | `test-stage7-security.js` |
+| **BLK-10** | **HIGH** | Worker shutdown abandoned locked jobs until stall timeout; no cancellation API | Implemented fail-fast startup, in-flight job release (`releaseJob`), job cancellation (`cancel`), and list API. | `test-production-queue-worker.js` (Tests 10, 11) |
 
 ---
 
@@ -52,7 +56,7 @@ The following environment variables MUST be populated in the Render dashboard fo
 | :--- | :--- | :--- | :--- |
 | **PostgreSQL Pooler Exhaustion** | High | Low | Pool max set to 10 connections per service; short transactions enforced. |
 | **Multi-Agent WAN Latency** | Medium | Medium | Deep Research and Swarms execute asynchronously in Worker; Web Service responds immediately with job ID. |
-| **Worker Container Restart** | Medium | Low | Queue uses processing leases (`locked_at`); orphaned jobs recovered automatically on restart. |
+| **Worker Container Restart** | Medium | Low | Worker gracefully releases active jobs to pending on shutdown; orphaned jobs recovered automatically on restart. |
 | **Network Partition / Outage** | High | Low | Exponential backoff retry policies (up to 3 attempts) before routing to Dead-Letter Queue (DLQ). |
 
 ---

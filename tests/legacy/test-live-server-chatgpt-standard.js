@@ -47,12 +47,12 @@ async function runTests() {
   console.log(`   ✅ Natural conversational tone verified: ${hasNoRoboticFluff}`);
 
   // 4. Test Live Code Generation (Express.js JWT Middleware in Tamil)
-  console.log('\n4. Testing Live Code Generation ("Express.js-ல் JWT Auth ... எழுதி காட்டு")...');
+  console.log('\n4. Testing Live Code Generation ("Express.js-\u0bb2\u0bcd JWT Auth ... \u0b8e\u0bb4\u0bc1\u0ba4\u0bbf \u0b95\u0bbe\u0b9f\u0bcd\u0b9f\u0bc1")...');
   const codeRes = await fetch(`${baseUrl}/api/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      message: 'Express.js-ல் JWT Auth + Refresh Token + Redis Rate Limiting உடன் கூடிய production-ready middleware எழுதி காட்டு.',
+      message: 'Express.js-\u0bb2\u0bcd JWT Auth + Refresh Token + Redis Rate Limiting \u0b89\u0b9f\u0ba9\u0bcd \u0b95\u0bc2\u0b9f\u0bbf\u0baf production-ready middleware \u0b8e\u0bb4\u0bc1\u0ba4\u0bbf \u0b95\u0bbe\u0b9f\u0bcd\u0b9f\u0bc1.',
       personaKey: 'coder',
       sessionId: 'test_session_live_2'
     })

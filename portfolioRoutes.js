@@ -56,6 +56,7 @@ import {
   setPortfolioUserSetting,
   bulkSetPortfolioUserSettings
 } from './db.js';
+import { requireSensitiveOperationAuth } from './middleware/auth.js';
 
 const router = express.Router();
 
@@ -321,7 +322,7 @@ router.post('/jobs/:id/cancel', async (req, res) => {
   }
 });
 
-router.post('/emergency-stop', (req, res) => {
+router.post('/emergency-stop', requireSensitiveOperationAuth, (req, res) => {
   try {
     const { enabled } = req.body;
     const status = portfolioJobQueue.setEmergencyStop(enabled);
@@ -367,7 +368,7 @@ router.get('/database/overview', async (req, res) => {
 });
 
 // Quick Action Control Dispatcher (Reference Image 2)
-router.post('/control/action', async (req, res) => {
+router.post('/control/action', requireSensitiveOperationAuth, async (req, res) => {
   const { action } = req.body;
   if (!action) return res.status(400).json({ error: 'Action required' });
 
@@ -511,7 +512,7 @@ router.post('/control/action', async (req, res) => {
 });
 
 // Autonomous Multi-Step AI Agent Task Execution (Genuine 7-Stage Pipeline)
-router.post('/agent/execute', async (req, res) => {
+router.post('/agent/execute', requireSensitiveOperationAuth, async (req, res) => {
   const prompt = req.body.prompt || req.body.goal;
   if (!prompt || !prompt.trim()) {
     return res.status(400).json({ error: 'Prompt or goal is required' });
@@ -564,7 +565,7 @@ router.post('/agent/execute', async (req, res) => {
 });
 
 // Human-in-the-Loop Approval Confirmation Endpoint (Stage 5 Gate)
-router.post('/agent/approve', async (req, res) => {
+router.post('/agent/approve', requireSensitiveOperationAuth, async (req, res) => {
   const { ticketId } = req.body;
   if (!ticketId) {
     return res.status(400).json({ error: 'ticketId is required' });
@@ -742,7 +743,7 @@ router.get('/deployments', async (req, res) => {
   }
 });
 
-router.post('/deployments/trigger', async (req, res) => {
+router.post('/deployments/trigger', requireSensitiveOperationAuth, async (req, res) => {
   try {
     if (portfolioJobQueue.isEmergencyStopped) {
       return res.status(403).json({ error: 'EMERGENCY_STOP_ACTIVE: System operations are blocked.' });
@@ -810,7 +811,7 @@ router.get('/knowledge/items', (req, res) => {
 });
 
 // Supabase Sync & Consistency Endpoints
-router.post('/sync/supabase', async (req, res) => {
+router.post('/sync/supabase', requireSensitiveOperationAuth, async (req, res) => {
   try {
     const result = await supabaseSyncEngine.syncAll();
     res.json(result);
@@ -948,7 +949,7 @@ router.get('/database/fingerprints', async (req, res) => {
   }
 });
 
-router.post('/database/rollback-test', async (req, res) => {
+router.post('/database/rollback-test', requireSensitiveOperationAuth, async (req, res) => {
   try {
     const result = await supabaseSyncEngine.executeAtomicSyncWithRollbackTest(true);
     res.json({ success: true, result });
@@ -1198,7 +1199,7 @@ router.get('/settings', (req, res) => {
   }
 });
 
-router.post('/settings', (req, res) => {
+router.post('/settings', requireSensitiveOperationAuth, (req, res) => {
   try {
     const updates = req.body;
     if (!updates || typeof updates !== 'object') {
@@ -1250,7 +1251,7 @@ router.get('/database/tables', (req, res) => {
   }
 });
 
-router.post('/database/backup', (req, res) => {
+router.post('/database/backup', requireSensitiveOperationAuth, (req, res) => {
   try {
     const backupDir = path.join(process.cwd(), 'data', 'backups');
     if (!fs.existsSync(backupDir)) {

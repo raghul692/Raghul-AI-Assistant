@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import * as cheerio from 'cheerio';
 import { createRequire } from 'module';
+import { validateSafeUrl } from '../security/guardrails.js';
 
 const require = createRequire(import.meta.url);
 const { PDFParse } = require('pdf-parse');
@@ -9,34 +10,8 @@ const { PDFParse } = require('pdf-parse');
  * SSRF Safety Guard: Checks if a target URL resolves to private / loopback IP space
  */
 export function isSsrfSafe(urlStr) {
-  try {
-    const parsed = new URL(urlStr);
-    const host = parsed.hostname.toLowerCase();
-
-    // Block localhost and standard loopbacks
-    if (host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '0.0.0.0') {
-      return false;
-    }
-
-    // Block AWS / GCP / Azure metadata services
-    if (host === '169.254.169.254' || host === 'metadata.google.internal') {
-      return false;
-    }
-
-    // Block RFC 1918 private IPv4 ranges
-    if (/^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host)) {
-      return false;
-    }
-
-    // Must be standard HTTP or HTTPS
-    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-      return false;
-    }
-
-    return true;
-  } catch (err) {
-    return false;
-  }
+  const check = validateSafeUrl(urlStr);
+  return check.valid;
 }
 
 /**
@@ -72,12 +47,12 @@ export class WebDocumentExtractor {
   }
 
   async extract(urlStr) {
-    const cleanUrl = canonicalizeUrl(urlStr);
+    let currentUrl = canonicalizeUrl(urlStr);
 
-    if (!isSsrfSafe(cleanUrl)) {
+    if (!isSsrfSafe(currentUrl)) {
       return {
         success: false,
-        url: cleanUrl,
+        url: currentUrl,
         error: 'SSRF guard blocked request to internal/private network.'
       };
     }
@@ -85,23 +60,54 @@ export class WebDocumentExtractor {
     try {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 18000);
+      let res;
+      let redirectCount = 0;
+      const maxRedirects = 4;
 
-      const res = await fetch(cleanUrl, {
-        headers: {
-          'User-Agent': this.userAgent,
-          'Accept': 'text/html,application/xhtml+xml,application/pdf,application/xml;q=0.9,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.9'
-        },
-        signal: controller.signal,
-        redirect: 'follow'
-      });
+      while (true) {
+        if (!isSsrfSafe(currentUrl)) {
+          clearTimeout(timer);
+          return {
+            success: false,
+            url: currentUrl,
+            error: 'SSRF guard blocked redirect to internal/private network.'
+          };
+        }
+
+        res = await fetch(currentUrl, {
+          headers: {
+            'User-Agent': this.userAgent,
+            'Accept': 'text/html,application/xhtml+xml,application/pdf,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9'
+          },
+          signal: controller.signal,
+          redirect: 'manual'
+        });
+
+        if ([301, 302, 303, 307, 308].includes(res.status)) {
+          redirectCount++;
+          if (redirectCount > maxRedirects) {
+            clearTimeout(timer);
+            return {
+              success: false,
+              url: currentUrl,
+              error: 'Exceeded maximum allowed redirects.'
+            };
+          }
+          const location = res.headers.get('location');
+          if (!location) break;
+          currentUrl = new URL(location, currentUrl).toString();
+          continue;
+        }
+        break;
+      }
 
       clearTimeout(timer);
 
       if (!res.ok) {
         return {
           success: false,
-          url: cleanUrl,
+          url: currentUrl,
           statusCode: res.status,
           error: `HTTP ${res.status}: ${res.statusText}`
         };
@@ -110,19 +116,19 @@ export class WebDocumentExtractor {
       const contentType = res.headers.get('content-type') || '';
 
       // 1. PDF Document Handling
-      if (contentType.includes('application/pdf') || cleanUrl.endsWith('.pdf')) {
+      if (contentType.includes('application/pdf') || currentUrl.endsWith('.pdf')) {
         const arrayBuf = await res.arrayBuffer();
         const buffer = Buffer.from(arrayBuf);
-        return await this.extractPdfBuffer(buffer, cleanUrl);
+        return await this.extractPdfBuffer(buffer, currentUrl);
       }
 
       // 2. HTML Web Page Handling
       const html = await res.text();
-      return this.extractHtml(html, cleanUrl);
+      return this.extractHtml(html, currentUrl);
     } catch (err) {
       return {
         success: false,
-        url: cleanUrl,
+        url: currentUrl,
         error: `Extraction failed: ${err.message}`
       };
     }

@@ -47,7 +47,7 @@ export class GitHubAgent {
       return false;
     }
 
-    const isCodeWriteRequest = /(?:எழுதி\s*காட்டு|எழுது|write\s+(?:a|an|the|code|middleware|function|api)|generate\s+code|implement\s+|sample\s+code|code\s+for|middleware\s+எழுதி)/i.test(lower);
+    const isCodeWriteRequest = /(?:ezhudhi\s*kaatu|ezhudhu|write\s+(?:a|an|the|code|middleware|function|api)|generate\s+code|implement\s+|sample\s+code|code\s+for|middleware\s+ezhudhi)/i.test(lower);
     if (isCodeWriteRequest && !hasOperationalGitAction) {
       return false;
     }
@@ -82,16 +82,16 @@ export class GitHubAgent {
   }
 
   /**
-   * Detect specific action category with Full Multi-lingual Support (Tamil Script, Tanglish & English)
+   * Detect specific action category with Full Multi-lingual Support (Tanglish & English)
    */
   classifyAction(message = '') {
     const lower = message.toLowerCase().trim();
 
     // 1. Repo Creation / Scaffolding
     if (
-      /(?:create|start|build|make|pudhu|puthu|புதிய|புது|உருவாக்கு)\s+(?:new\s+)?(?:repo|repository|project|ரிபோசிட்டரி)/i.test(lower) ||
-      /(?:repo|repository|ரிபோசிட்டரி)\s+(?:create|start|build|make|pudhu|puthu|உருவாக்கு)/i.test(lower) ||
-      /(?:create|build|make|உருவாக்கு)\s+.*(?:landing\s+page|website|app|api|வலைத்தளம்)\s+.*(?:repo|github|push)/i.test(lower) ||
+      /(?:create|start|build|make|pudhu|puthu|puthiya|uruvakku)\s+(?:new\s+)?(?:repo|repository|project)/i.test(lower) ||
+      /(?:repo|repository)\s+(?:create|start|build|make|pudhu|puthu|uruvakku)/i.test(lower) ||
+      /(?:create|build|make|uruvakku)\s+.*(?:landing\s+page|website|app|api)\s+.*(?:repo|github|push)/i.test(lower) ||
       /push.*(?:repo|github).*automatic/i.test(lower)
     ) {
       return 'CREATE_PROJECT_REPO';
@@ -99,42 +99,42 @@ export class GitHubAgent {
 
     // 2. File Editing / Code Patching / Committing
     if (
-      /(?:edit|update|modify|change|patch|fix|alter|replace|commit|push|maath\w*|podu|மாற்று|மாத்து|மாற்றி|மாத்தி|திருத்து|புதுப்பி)\S*\s+.*(?:\.html|\.css|\.js|\.json|\.md|\.ts|\.jsx|\.py|code|file|script|style|வடிவம்|கோப்பு)/i.test(lower) ||
-      /(?:\.html|\.css|\.js|\.json|\.md|\.ts|\.jsx|\.py|code|file|script|style|வடிவம்|கோப்பு)\S*\s+.*(?:edit|update|change|maath\w*|podu|push|commit\w*|மாற்று|மாத்து|மாற்றி|மாத்தி|திருத்து)/i.test(lower) ||
-      /(?:maath\w*|மாற்றி|மாத்து|மாத்தி|edit|update|modify)\s+.*(?:commit|push|github)/i.test(lower)
+      /(?:edit|update|modify|change|patch|fix|alter|replace|commit|push|maath\w*|podu|thiruthu|puthuppi)\S*\s+.*(?:\.html|\.css|\.js|\.json|\.md|\.ts|\.jsx|\.py|code|file|script|style|vadivam|koppoo)/i.test(lower) ||
+      /(?:\.html|\.css|\.js|\.json|\.md|\.ts|\.jsx|\.py|code|file|script|style|vadivam|koppoo)\S*\s+.*(?:edit|update|change|maath\w*|podu|push|commit\w*|thiruthu)/i.test(lower) ||
+      /(?:maath\w*|edit|update|modify)\s+.*(?:commit|push|github)/i.test(lower)
     ) {
       return 'EDIT_CODE';
     }
 
-    // 3. File / Code Reading (Strictly exclude code generation like "எழுதி காட்டு")
-    if (!/(?:எழுதி|write|generate|sample|example|உதாரணம்)/i.test(lower)) {
+    // 3. File / Code Reading (Strictly exclude code generation like "ezhudhi kaatu")
+    if (!/(?:ezhudhi|write|generate|sample|example|udhaaranam)/i.test(lower)) {
       if (
-        /(?:read|show|view|inspect|display|check|examine|cat|get|kaatu|kattu|paaru|padi|காட்டு|பார்|பாரு|படி|காண்பி)\S*\s+.*(?:\.html|\.css|\.js|\.json|\.md|\.ts|\.jsx|\.py|code|file|script|source|content|tree|files|கோப்பு)/i.test(lower) ||
-        /(?:\.html|\.css|\.js|\.json|\.md|\.ts|\.jsx|\.py|code|file|script|source|கோப்பு)\S*\s+.*(?:read|show|view|kaatu|kattu|paaru|padi|enna\s+iruku|காட்டு|பார்|பாரு|படி|காண்பி|என்ன\s+இருக்கு)/i.test(lower)
+        /(?:read|show|view|inspect|display|check|examine|cat|get|kaatu|kattu|paaru|padi|kaanbi)\S*\s+.*(?:\.html|\.css|\.js|\.json|\.md|\.ts|\.jsx|\.py|code|file|script|source|content|tree|files|koppoo)/i.test(lower) ||
+        /(?:\.html|\.css|\.js|\.json|\.md|\.ts|\.jsx|\.py|code|file|script|source|koppoo)\S*\s+.*(?:read|show|view|kaatu|kattu|paaru|padi|enna\s+iruku|enna\s+irukku)/i.test(lower)
       ) {
         return 'READ_CODE';
       }
     }
 
     // 4. Branch / Pull Request
-    if (/(?:create|new|open|make|உருவாக்கு)\s+(?:branch|pr|pull\s*request|கிளை)/i.test(lower) || /(?:branch|pr|pull\s*request|கிளை)\s+(?:create|open|merge|போடு|உருவாக்கு)/i.test(lower)) {
+    if (/(?:create|new|open|make|uruvakku)\s+(?:branch|pr|pull\s*request|kilai)/i.test(lower) || /(?:branch|pr|pull\s*request|kilai)\s+(?:create|open|merge|podu|uruvakku)/i.test(lower)) {
       return 'BRANCH_OR_PR';
     }
 
     // 5. Issues & Bug Reports
-    if (/(?:create|open|new|add|உருவாக்கு)\s+(?:an?\s+)?(?:issue|bug|problem|பிரச்சினை)/i.test(lower) || /(?:issue|issues|bugs?|பிரச்சினை)\s+(?:create|open|list|close|comment|போடு)/i.test(lower)) {
+    if (/(?:create|open|new|add|uruvakku)\s+(?:an?\s+)?(?:issue|bug|problem|pirachinai)/i.test(lower) || /(?:issue|issues|bugs?|pirachinai)\s+(?:create|open|list|close|comment|podu)/i.test(lower)) {
       return 'ISSUE_ACTION';
     }
 
     // 6. Commits Listing
-    if (/(?:list|show|recent|latest|enna|கமிட்|வரலாறு)\s+commits?/i.test(lower) || /commits?\s+(?:list|show|kaatu|history|recent|latest|வரலாறு|காட்டு)/i.test(lower)) {
+    if (/(?:list|show|recent|latest|enna|commit|varalaaru)\s+commits?/i.test(lower) || /commits?\s+(?:list|show|kaatu|history|recent|latest|varalaaru)/i.test(lower)) {
       return 'LIST_COMMITS';
     }
 
     // 7. Repos & Projects Listing (e.g. "my github projects list out pannu", "list all repos")
     if (
-      /(?:list|show|all|ennudaiya|my|என்னுடைய|எல்லா|பட்டியல்)\s+.*(?:repos?|repositories|projects?|ரிபோ|புராஜெக்ட்|திட்டங்கள்)/i.test(lower) ||
-      /(?:repos?|repositories|projects?|திட்டங்கள்|ரிபோ)\s+.*(?:list|all|kaatu|show|பட்டியல்|காட்டு|out\s+pannu|பண்ணு)/i.test(lower) ||
+      /(?:list|show|all|ennudaiya|my|ella|pattiyal)\s+.*(?:repos?|repositories|projects?|thittangal)/i.test(lower) ||
+      /(?:repos?|repositories|projects?|thittangal)\s+.*(?:list|all|kaatu|show|pattiyal|out\s+pannu|pannu)/i.test(lower) ||
       /(?:my\s+)?(?:github\s+)?projects?\s+(?:list|kaatu|show|out|enna)/i.test(lower)
     ) {
       return 'LIST_REPOS';

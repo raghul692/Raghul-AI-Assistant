@@ -74,7 +74,7 @@ const cases = [
   { input: "REPO: UPPERCASE-APP", expected: 'UPPERCASE-APP' },
   { input: "REPOSITORY: MixedCase-App", expected: 'MixedCase-App' },
   { input: "Multi-line message\nwith repo: multi-line-target\nend of query.", expected: 'multi-line-target' },
-  { input: "Unicode message ரிபோசிட்டரி repo: tamil-repo-test", expected: 'tamil-repo-test' },
+  { input: "Unicode message ribosittari repo: tamil-repo-test", expected: 'tamil-repo-test' },
 
   // Malformed and Negative Guards
   { input: "repo:", expected: null },

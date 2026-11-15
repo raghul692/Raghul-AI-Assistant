@@ -11,17 +11,17 @@ Each production gate has been evaluated independently against empirical verifica
 
 | Gate | Requirement | Evidence & Verification | Status |
 | :--- | :--- | :--- | :--- |
-| **1. Repository Reality** | Complete source audit against architecture | Verified all 14 target files exist and contain full implementation without placeholders. | **PASS** |
+| **1. Repository Reality** | Complete source audit against architecture | Verified all 19 target files exist and contain full implementation without placeholders. | **PASS** |
 | **2. Frontend Tier** | Vercel SPA compatibility | Verified `public/`, `vercel.json` SPA rewrites, caching headers, and HTTPS API proxying. | **PASS** |
 | **3. Backend Web Tier** | Render Web Service compatibility | Verified `server.js` starts cleanly, binds port 3000, provides `/health` and `/ready` probes. | **PASS** |
 | **4. Database Tier** | PostgreSQL 17.6 + pgvector verified | Tested against live Supabase PostgreSQL; query pool, transactions, and embeddings verified. | **PASS** |
 | **5. Migration Integrity** | 100% data integrity verified | Forensically resolved all 5 missing records via Migration 013. 8,524/8,524 records verified. | **PASS** |
-| **6. Distributed Queue** | Durable & crash-recoverable | Verified `FOR UPDATE SKIP LOCKED`, heartbeats, stalled recovery, and burst idempotency. | **PASS** |
-| **7. Background Worker** | Independent & fault-tolerant | Dedicated `worker.js` operates independently of HTTP requests; drains on `SIGTERM`. | **PASS** |
+| **6. Distributed Queue** | Durable & crash-recoverable | Verified `FOR UPDATE SKIP LOCKED`, heartbeats, stalled recovery, in-flight release, and burst idempotency. | **PASS** |
+| **7. Background Worker** | Independent & fault-tolerant | Dedicated `worker.js` operates independently of HTTP requests; fail-fast startup; drains on `SIGTERM`. | **PASS** |
 | **8. EventBus Real-Time** | Cross-process event delivery | Verified `job_events` persistence, SSE streaming protocol, and Last-Event-ID replay. | **PASS** |
-| **9. Cloud Storage** | Persistent object storage | Verified 3 Supabase Storage buckets, buffer uploads, and time-limited signed URLs. | **PASS** |
-| **10. Security Posture** | Privileged auth & SSRF hardened | Enforced `ADMIN_API_KEY` Bearer tokens on sensitive endpoints; IPv4/IPv6 SSRF blocked. | **PASS** |
-| **11. Automated Testing** | Actual automated tests executed | 14 baseline suites passed; 6 production architecture suites passed (100% success). | **PASS** |
+| **9. Cloud Storage** | Persistent object storage | Verified 3 Supabase Storage buckets, buffer uploads, path traversal defense, and signed URLs. | **PASS** |
+| **10. Security Posture** | Privileged auth & SSRF hardened | Enforced `ADMIN_API_KEY` Bearer tokens on sensitive endpoints; timing-safe checks; SSRF redirect loops blocked. | **PASS** |
+| **11. Automated Testing** | Actual automated tests executed | 14 baseline suites passed; 6 production architecture suites passed (100% success rate). | **PASS** |
 | **12. Documentation** | Accurate, truthful, zero fake claims | README, ARCHITECTURE, and guides updated with verified paths and real test evidence. | **PASS** |
 
 ---
@@ -98,20 +98,7 @@ Each production gate has been evaluated independently against empirical verifica
    `curl https://raghul-ai-api.onrender.com/health` (Expect: 200 OK, `status: 'healthy'`).
 2. Probe Web Service readiness:
    `curl https://raghul-ai-api.onrender.com/ready` (Expect: 200 OK, `status: 'ready'`).
-3. Verify Vercel proxy rewrite:
-   `curl https://raghulraja-portfolio.vercel.app/ready` (Expect: 200 OK).
-4. Verify privileged security gate:
-   `curl -X POST https://raghul-ai-api.onrender.com/api/git/status` (Expect: 401 Unauthorized).
-   `curl -H "Authorization: Bearer <ADMIN_API_KEY>" https://raghul-ai-api.onrender.com/api/git/status` (Expect: 200 OK).
-
----
-
-## 4. Rollback Plan
-
-If a critical incident occurs during staging or production deployment:
-
-1. **Vercel Instant Rollback**: In Vercel Project Dashboard > Deployments, select the previously verified deployment and click "Promote to Production". Traffic reverts instantaneously.
-2. **Render Rollback**: In Render Dashboard for `raghul-ai-api` and `raghul-ai-worker`, rollback to previous commit hash or redeploy previous build.
-3. **Database Rollback**:
-   - SQLite `data/nexus.db` was preserved non-destructively and remains untouched as an offline source of truth.
-   - PostgreSQL schema changes are backward-compatible. In the event of catastrophic data corruption, execute schema restore from pre-migration backup.
+3. Enqueue test job:
+   `curl -X POST https://raghul-ai-api.onrender.com/api/jobs -H "Content-Type: application/json" -d '{"jobType":"document_generation","payload":{"task":"test"}}'`
+4. Monitor worker execution via SSE stream:
+   `curl -N https://raghul-ai-api.onrender.com/api/jobs/[JOB_ID]/events`

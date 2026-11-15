@@ -25,21 +25,30 @@ const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const PORT = 3097;
 
-function makeRequest(path, options = {}) {
+function makeRequest(path, options = {}, retries = 3) {
   return new Promise((resolve, reject) => {
-    const url = `http://127.0.0.1:${PORT}${path}`;
-    const req = http.request(url, options, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        let json = null;
-        try { json = JSON.parse(data); } catch (_) {}
-        resolve({ statusCode: res.statusCode, headers: res.headers, body: json || data });
+    const execute = (attemptsLeft) => {
+      const url = `http://127.0.0.1:${PORT}${path}`;
+      const req = http.request(url, options, (res) => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+          let json = null;
+          try { json = JSON.parse(data); } catch (_) {}
+          resolve({ statusCode: res.statusCode, headers: res.headers, body: json || data });
+        });
       });
-    });
-    req.on('error', reject);
-    if (options.body) req.write(typeof options.body === 'string' ? options.body : JSON.stringify(options.body));
-    req.end();
+      req.on('error', (err) => {
+        if (attemptsLeft > 0 && (err.code === 'ECONNRESET' || err.code === 'ECONNREFUSED')) {
+          setTimeout(() => execute(attemptsLeft - 1), 500);
+        } else {
+          reject(err);
+        }
+      });
+      if (options.body) req.write(typeof options.body === 'string' ? options.body : JSON.stringify(options.body));
+      req.end();
+    };
+    execute(retries);
   });
 }
 

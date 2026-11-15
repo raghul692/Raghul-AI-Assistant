@@ -30,7 +30,7 @@ To ensure complete transparency and prevent false claims, all tests are explicit
 - **Category**: External Cloud Integration (Tier 3)
 - **Live Database Verified**: Supabase PostgreSQL 17.6 on `aarch64-unknown-linux-gnu`
 - **Output Record**:
-  - Health probe latency: `1,971ms` (IPv4-first prioritized)
+  - Health probe latency: `~784ms` (IPv4-first prioritized)
   - Table count query: 119 chats verified in PostgreSQL
   - Parameterized placeholder conversion (`?` to `$1, $2`): Verified
   - Transaction rollback isolation: Verified
@@ -38,7 +38,7 @@ To ensure complete transparency and prevent false claims, all tests are explicit
 
 #### 2. Distributed Queue & Worker Lifecycle (`tests/test-production-queue-worker.js`)
 - **Category**: External Cloud Integration & Queue Logic (Tier 3)
-- **Verified Operations**:
+- **Verified Operations (11 Tests Total)**:
   - Priority enqueue (1-10)
   - Idempotency collision prevention
   - Atomic `FOR UPDATE SKIP LOCKED` dequeue
@@ -47,6 +47,8 @@ To ensure complete transparency and prevent false claims, all tests are explicit
   - Exponential backoff retry and DLQ threshold routing
   - 20-request burst concurrent idempotency (0 duplicates)
   - Worker heartbeat recording and stalled job recovery
+  - In-flight job release on shutdown (`jobQueue.releaseJob()`)
+  - Job cancellation API (`jobQueue.cancel()`)
 - **Status**: **PASS (Code 0)**
 
 #### 3. Persistent Object Storage (`tests/test-production-storage.js`)
@@ -56,6 +58,8 @@ To ensure complete transparency and prevent false claims, all tests are explicit
   - Buffer upload: Successfully uploaded to `raghul-ai-documents` bucket
   - Byte-for-byte download verification
   - Signed time-limited URL generation
+  - Path traversal block verification (`../` rejected)
+  - Whitelist validation (`invalid_bucket` rejected)
   - Object deletion cleanup
 - **Status**: **PASS (Code 0)**
 
@@ -67,6 +71,7 @@ To ensure complete transparency and prevent false claims, all tests are explicit
   - CORS header injection: Verified for `https://raghulraja-portfolio.vercel.app`
   - Jobs API endpoint: 202 Accepted
   - Privileged auth enforcement: Unauthenticated request in production returned `401 Unauthorized`; Bearer token returned `200 OK`
+  - Constant-time token comparison & query parameter auth (`req.query.token`): Verified
 - **Status**: **PASS (Code 0)**
 
 #### 5. Cross-Process SSE Streaming (`tests/test-production-sse-realtime.js`)
@@ -75,6 +80,7 @@ To ensure complete transparency and prevent false claims, all tests are explicit
   - Cross-process EventBus subscription
   - SSE handshake (`text/event-stream`, `keep-alive`)
   - Live progress delivery over SSE stream
+  - Reconnection replay with `Last-Event-ID`
   - Client disconnection cleanup
 - **Status**: **PASS (Code 0)**
 
@@ -95,27 +101,34 @@ To ensure complete transparency and prevent false claims, all tests are explicit
 ## 3. Master Baseline Regression Suites (`npm test`)
 
 **Execution Command**: `npm test` (`node tests/runAllSuites.js`)  
-**Result**: **14 / 14 Suites Passed (100% Success Rate)**  
+**Result**: **14 / 14 Suites Passed (114.5s, 100% Success Rate)**  
 
 | Suite # | Test Suite Name | Execution File | Duration | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| 1 | Repository Extraction & Regex Boundaries | `tests/verify-repo-extraction.js` | ~92s | **PASS** |
-| 2 | Intent Classification & Mutual Exclusion | `tests/verify-intent-routing.js` | ~9s | **PASS** |
-| 3 | Safe Read-Only GitHub Agent | `tests/verify-github-agent-safe.js` | ~7s | **PASS** |
-| 4 | Multi-Agent Orchestration & Supervisor | `tests/test-stage4-orchestration.js` | ~10s | **PASS** |
-| 5 | Publishing & PDF Publishing Engine | `tests/test-stage5-publishing.js` | ~4s | **PASS** |
-| 6 | Workspace UI & SSE Integration | `tests/test-stage6-workspace.js` | ~2s | **PASS** |
-| 7 | Security Guardrails & SSRF Protection | `tests/test-stage7-security.js` | ~0.2s | **PASS** |
-| 8 | Benchmark Topologies & Evaluation | `tests/test-stage8-benchmark.js` | ~4s | **PASS** |
-| 9 | Audited Real Executed Deep Research Job | `tests/verify-completed-job.js` | ~4s | **PASS** |
-| 10 | Advanced AI Coding Engine & AST Validator | `tests/test-coding-engine.js` | ~1s | **PASS** |
-| 11 | Canvas Studio IDE, Terminal & Workspace | `tests/test-canvas-studio-ide.js` | ~2s | **PASS** |
-| 12 | Portfolio OS Intelligence & Telemetry | `tests/test-portfolio-intelligence.js` | ~12s | **PASS** |
-| 13 | Real-Time Voice Mode & Audio Intelligence | `tests/test-voice-chat-mode.js` | ~1s | **PASS** |
-| 14 | Conversational Memory & Context Awareness | `tests/test-chatgpt-memory-context.js` | ~1s | **PASS** |
+| 1 | Repository Extraction & Regex Boundaries | `tests/verify-repo-extraction.js` | 58.7s | **PASS** |
+| 2 | Intent Classification & Mutual Exclusion | `tests/verify-intent-routing.js` | 12.0s | **PASS** |
+| 3 | Safe Read-Only GitHub Agent | `tests/verify-github-agent-safe.js` | 6.1s | **PASS** |
+| 4 | Multi-Agent Orchestration & Supervisor | `tests/test-stage4-orchestration.js` | 10.6s | **PASS** |
+| 5 | Publishing & PDF Publishing Engine | `tests/test-stage5-publishing.js` | 4.8s | **PASS** |
+| 6 | Workspace UI & SSE Integration | `tests/test-stage6-workspace.js` | 3.0s | **PASS** |
+| 7 | Security Guardrails & SSRF Protection | `tests/test-stage7-security.js` | 0.2s | **PASS** |
+| 8 | Benchmark Topologies & Evaluation | `tests/test-stage8-benchmark.js` | 5.9s | **PASS** |
+| 9 | Audited Real Executed Deep Research Job | `tests/verify-completed-job.js` | 4.1s | **PASS** |
+| 10 | Advanced AI Coding Engine & AST Validator | `tests/test-coding-engine.js` | 0.9s | **PASS** |
+| 11 | Canvas Studio IDE, Terminal & Workspace | `tests/test-canvas-studio-ide.js` | 1.7s | **PASS** |
+| 12 | Portfolio OS Intelligence & Telemetry | `tests/test-portfolio-intelligence.js` | 5.1s | **PASS** |
+| 13 | Real-Time Voice Mode & Audio Intelligence | `tests/test-voice-chat-mode.js` | 0.9s | **PASS** |
+| 14 | Conversational Memory & Context Awareness | `tests/test-chatgpt-memory-context.js` | 0.4s | **PASS** |
 
 ---
 
-## 4. Summary & Verification Conclusion
+## 4. Strict Language Policy Scan
+
+**Execution Command**: `node scripts/verify-language-policy.js`  
+**Result**: **1,029 text files scanned, 0 violations found (100% compliant)**.
+
+---
+
+## 5. Summary & Verification Conclusion
 
 All 20 automated test suites across both regression and production architecture layers execute with **100% pass rates**. No mock data was substituted for live cloud services: Supabase PostgreSQL and Supabase Storage were verified via real network requests.

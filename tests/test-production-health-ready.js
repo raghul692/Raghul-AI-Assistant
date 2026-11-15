@@ -113,11 +113,53 @@ async function runTest() {
       }
     });
     assert.strictEqual(authRes.statusCode, 200, 'Authenticated sensitive endpoint with Bearer token must return 200');
-    console.log('✅ [PASS] Privileged endpoint server-side authentication enforced in production.\n');
+
+    // 5c: Query parameter token authentication (for SSE EventSource compatibility)
+    const queryAuthRes = await request('/api/git/status?token=test_secret_admin_key_123', {
+      headers: {
+        'Origin': 'https://raghulraja-portfolio.vercel.app'
+      }
+    });
+    assert.strictEqual(queryAuthRes.statusCode, 200, 'Query parameter token authentication must succeed');
+
+    // 5d: Unauthenticated administrative mutation endpoints in production must return 401
+    const unauthPortfolioRes = await request('/api/portfolio/emergency-stop', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled: true })
+    });
+    assert.strictEqual(unauthPortfolioRes.statusCode, 401, 'Unauthenticated portfolio admin endpoint must return 401');
+
+    const unauthGovRes = await request('/api/governance/approvals/test-appr-1', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ approved: true })
+    });
+    assert.strictEqual(unauthGovRes.statusCode, 401, 'Unauthenticated governance approval endpoint must return 401');
+
+    const unauthGithubRes = await request('/api/github/connect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: 'ghp_fake' })
+    });
+    assert.strictEqual(unauthGithubRes.statusCode, 401, 'Unauthenticated github connect endpoint must return 401');
+
+    console.log('✅ [PASS] Privileged endpoint server-side authentication enforced across all modules.\n');
   } finally {
     process.env.NODE_ENV = originalEnv;
     process.env.ADMIN_API_KEY = originalKey;
   }
+
+  // Test 6: Job Cancellation Endpoint
+  console.log('--- Test 6: Job Cancellation API ---');
+  const cancelRes = await request(`/api/jobs/${jobsRes.body.jobId}/cancel`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reason: 'test_cancellation' })
+  });
+  assert.strictEqual(cancelRes.statusCode, 200, 'POST /api/jobs/:id/cancel must return 200');
+  assert.strictEqual(cancelRes.body.status, 'cancelled', 'Job status must be cancelled');
+  console.log('✅ [PASS] Job cancellation endpoint verified for jobId:', jobsRes.body.jobId, '\n');
 
   console.log('🎉 Production Health, Readiness & Security verification completed successfully!');
   process.exit(0);

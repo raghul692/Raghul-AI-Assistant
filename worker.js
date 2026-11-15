@@ -33,6 +33,7 @@ import { runMultiAgentSwarm } from './multiAgentSwarm.js';
 import { generateIEEEPdf, generateExecutivePdf, generateDocxDocument } from './documentEngine.js';
 import { runSelfRepairLoop } from './codingAgent.js';
 import { closePostgresPool } from './database/postgresPool.js';
+import { dbAdapter } from './database/adapter.js';
 
 const WORKER_ID = process.env.WORKER_ID || `worker_${process.pid}_${crypto.randomBytes(3).toString('hex')}`;
 const POLL_INTERVAL_MS = parseInt(process.env.WORKER_POLL_INTERVAL_MS || '1500', 10);
@@ -40,6 +41,7 @@ const MAX_CONCURRENT_JOBS = parseInt(process.env.WORKER_CONCURRENCY || '2', 10);
 
 let isRunning = true;
 let activeJobs = 0;
+const inFlightJobIds = new Set();
 
 console.log('================================================================');
 console.log(`🤖 RAGHUL AI — BACKGROUND WORKER INITIALIZING [${WORKER_ID}]`);
@@ -186,6 +188,7 @@ async function processJob(job) {
 
   console.log(`▶️ [Worker ${WORKER_ID}] Processing job ${job.id} (type: ${job.job_type}, attempt: ${job.attempts})...`);
   const startTime = Date.now();
+  inFlightJobIds.add(job.id);
 
   const updateProgress = (progress, stage, message, data = {}) => {
     jobQueue.updateProgress(job.id, { progress, stage, message, data }).catch(() => {});
@@ -206,6 +209,7 @@ async function processJob(job) {
     await jobQueue.fail(job.id, err);
   } finally {
     clearInterval(heartbeatTimer);
+    inFlightJobIds.delete(job.id);
   }
 }
 
@@ -213,6 +217,20 @@ async function processJob(job) {
  * Main polling loop
  */
 async function startWorkerLoop() {
+  // Production startup connectivity validation
+  if (process.env.NODE_ENV === 'production') {
+    if (!process.env.DATABASE_URL && !process.env.SUPABASE_DATABASE_URL) {
+      console.error('❌ FATAL CONFIGURATION: DATABASE_URL is missing in production background worker.');
+      process.exit(1);
+    }
+    const health = await dbAdapter.healthCheck();
+    if (health.status !== 'healthy') {
+      console.error('❌ FATAL PRODUCTION DATABASE ERROR: PostgreSQL is unhealthy:', health.error);
+      process.exit(1);
+    }
+    console.log('✅ [Worker] Production PostgreSQL connection validated successfully.');
+  }
+
   // Crash recovery check
   try {
     const recovered = await jobQueue.recoverOrphanedJobs(WORKER_ID);
@@ -270,8 +288,17 @@ async function shutdown(signal) {
     await new Promise(r => setTimeout(r, 1000));
   }
 
-  if (activeJobs > 0) {
-    console.warn(`[Worker] ${activeJobs} jobs still in-flight at shutdown deadline. Exiting.`);
+  if (inFlightJobIds.size > 0) {
+    console.warn(`[Worker] ${inFlightJobIds.size} jobs still in-flight at shutdown deadline. Safely releasing in-flight jobs...`);
+    for (const jId of inFlightJobIds) {
+      try {
+        await jobQueue.releaseJob(jId, 'worker_shutdown');
+        console.log(`[Worker] Released in-flight job ${jId} back to pending.`);
+      } catch (e) {
+        console.error(`[Worker] Error releasing job ${jId}:`, e.message);
+      }
+    }
+    inFlightJobIds.clear();
   } else {
     console.log('[Worker] All jobs drained cleanly.');
   }

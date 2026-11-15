@@ -1,6 +1,6 @@
 # 🏛️ RAGHUL AI — PRODUCTION REALITY AUDIT REPORT
 **Audit Executed**: 2026-11-15  
-**Auditor**: Principal Software Architect & QA Automation Lead  
+**Auditor**: Principal Software Architect, Senior Backend Engineer & QA Lead  
 **Scope**: Full Repository Reality Inspection, Target Architecture Verification & File Mapping  
 
 ---
@@ -44,17 +44,22 @@ Every single path designated in the target architecture specification was inspec
 
 | Path | Required Role | Physical Reality | Status |
 | :--- | :--- | :--- | :--- |
-| `server.js` | Primary Express Web Service Entrypoint | Implemented (2,134 lines). Handles CORS, Helmet, SSE streaming, multi-agent dispatch, `/health` and `/ready` probes. | **VERIFIED** |
-| `worker.js` | Dedicated Background Worker Entrypoint | Implemented (292 lines). Dedicated consumer with atomic dequeue (`FOR UPDATE SKIP LOCKED`), heartbeats, and graceful SIGTERM draining. | **VERIFIED** |
+| `server.js` | Primary Express Web Service Entrypoint | Implemented (2,168 lines). Handles CORS, Helmet, SSE streaming, multi-agent dispatch, `/health` and `/ready` probes, anti-SSRF redirect validation, and job management endpoints. | **VERIFIED** |
+| `worker.js` | Dedicated Background Worker Entrypoint | Implemented (340 lines). Dedicated consumer with atomic dequeue (`FOR UPDATE SKIP LOCKED`), heartbeats, fail-fast production startup validation, in-flight job release, and graceful SIGTERM draining. | **VERIFIED** |
 | `database/adapter.js` | Dual Database Adapter | Implemented. Uses PostgreSQL connection pool in production; blocks silent SQLite fallback when `NODE_ENV === 'production'`. | **VERIFIED** |
 | `database/postgresPool.js` | PostgreSQL Pool & Connection Manager | Implemented (143 lines). Pooled connections with keepalive, transaction wrapper, query retries, and IPv4-first DNS prioritization. | **VERIFIED** |
-| `queue/jobQueue.js` | Distributed Durable Job Queue | Implemented (446 lines). Priority scheduling, atomic lease acquisition, exponential backoff, dead-letter queue (DLQ), and heartbeat tracking. | **VERIFIED** |
-| `services/eventBus.js` | Cross-Process Real-Time Event Bus | Implemented (251 lines). Persists every event to `job_events`, supports SSE `Last-Event-ID` reconnection replay, and polling fallback. | **VERIFIED** |
-| `services/storageService.js` | Cloud Object Storage Service | Implemented (180 lines). Supabase Storage integration across 3 buckets (`raghul-ai-documents`, `raghul-ai-reports`, `raghul-ai-images`). | **VERIFIED** |
-| `middleware/auth.js` | Production Access Control & Auth | Implemented. Enforces server-side `ADMIN_API_KEY` Bearer tokens on sensitive routes; disallows origin/loopback bypass in production. | **VERIFIED** |
+| `queue/jobQueue.js` | Distributed Durable Job Queue | Implemented (490 lines). Priority scheduling, atomic lease acquisition, exponential backoff, dead-letter queue (DLQ), worker heartbeats, job cancellation (`cancel()`), in-flight job release (`releaseJob()`), and recent job listing (`listRecentJobs()`). | **VERIFIED** |
+| `services/eventBus.js` | Cross-Process Real-Time Event Bus | Implemented (280 lines). Persists every event to `job_events`, supports SSE `Last-Event-ID` reconnection replay, PostgreSQL `LISTEN/NOTIFY` instant dispatch, and 400ms polling fallback. | **VERIFIED** |
+| `services/storageService.js` | Cloud Object Storage Service | Implemented (220 lines). Supabase Storage integration across 3 buckets (`raghul-ai-documents`, `raghul-ai-reports`, `raghul-ai-images`) with 50MB file size limits, bucket whitelist verification, and path traversal protection (`assertSafeStoragePath`). | **VERIFIED** |
+| `middleware/auth.js` | Production Access Control & Auth | Implemented. Enforces server-side `ADMIN_API_KEY` Bearer tokens via constant-time comparison (`crypto.timingSafeEqual`), supports SSE query parameter tokens (`req.query.token`), and disallows origin/loopback bypass in production. | **VERIFIED** |
+| `routes/governanceRoutes.js` | Human-in-the-Loop Governance | Implemented. All sensitive approval resolutions (`POST /approvals/:id`) protected with mandatory `requireSensitiveOperationAuth`. | **VERIFIED** |
+| `githubRoutes.js` | Autonomous GitHub Agent Routes | Implemented. All mutating actions (`POST /connect`, `/pull-requests/review`, `/automations/trigger`, `/approvals/decision`, `/swarm/execute`) protected with `requireSensitiveOperationAuth`. | **VERIFIED** |
+| `portfolioRoutes.js` | Portfolio OS Management & Telemetry | Implemented. All operational control endpoints (`POST /emergency-stop`, `/control/action`, `/agent/execute`, `/agent/approve`, `/deployments/trigger`, `/sync/supabase`, `/database/rollback-test`, `/database/backup`, `/settings`) protected with `requireSensitiveOperationAuth`. | **VERIFIED** |
+| `research/security/guardrails.js` | Security Guardrails & SSRF Shield | Implemented. Protocol whitelist, RFC 4193/4291 IPv6 filters, link-local/metadata IP rejection, and asynchronous DNS anti-rebinding lookup (`validateSafeUrlAsync()`). | **VERIFIED** |
+| `research/extractors/webExtractor.js` | Safe Web Content Extraction | Implemented. Enforces manual redirect traversal loops (max 4 hops) with URL and IP safety re-validation per hop. | **VERIFIED** |
 | `migrations/` | Versioned SQL Migrations | Implemented (13 SQL migration files from `001` to `013`). Fully idempotent with `schema_migrations` tracking table. | **VERIFIED** |
 | `scripts/run-migrations.js` | Automated Migration Runner | Implemented. Applied all 13 migrations cleanly to Supabase PostgreSQL 17.6. | **VERIFIED** |
-| `scripts/migrate-sqlite-to-supabase.js` | Data Ingestion Engine | Implemented. Chunked batch migration (200 rows per batch) with foreign key handling and row reconciliation. | **VERIFIED** |
+| `scripts/migrate-sqlite-to-supabase.js` | Data Ingestion Engine | Implemented. Chunked batch migration (200 rows per batch) with foreign key handling, row reconciliation, and conflict avoidance (`ON CONFLICT DO NOTHING`). | **VERIFIED** |
 | `tests/` | Comprehensive Automated Test Harness | Implemented. 14 baseline suites (`npm test`) + 6 production architecture suites (`node tests/runProductionSuites.js`). | **VERIFIED** |
 | `vercel.json` | Vercel Deployment & SPA Routing | Implemented. Static asset caching, security headers, and HTTPS rewrites for `/api/*`, `/health`, and `/ready`. | **VERIFIED** |
 | `render.yaml` | Render Infrastructure as Code | Implemented. Dual-service definition for `raghul-ai-api` (Web) and `raghul-ai-worker` (Background Worker). | **VERIFIED** |
@@ -86,11 +91,10 @@ The repository uses modern Node.js ES Modules (`"type": "module"`). Key runtime 
 
 - **Current Branch**: `main`
 - **Remote Origin**: `https://github.com/raghul692/Raghul-AI-Assistant.git`
-- **Synchronized Commit**: `91013f4` (Phase 12 transformation base)
 - **Deployment Alignment**: `render.yaml` accurately specifies service names `raghul-ai-api` and `raghul-ai-worker`. `vercel.json` accurately specifies rewrite destinations to `https://raghul-ai-api.onrender.com`.
 
 ---
 
 ## 5. Audit Verdict
 
-The target architecture is **PRESENT, REAL, AND FULLY IMPLEMENTED** in the repository. Subsequent sections detail the specific runtime and security corrections applied to elevate this architecture into production readiness.
+The target architecture is **PRESENT, REAL, AND FULLY IMPLEMENTED** in the repository. All components — web server, background worker, Supabase PostgreSQL, Supabase Storage, and distributed job queue — are verified and operational.

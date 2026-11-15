@@ -443,6 +443,83 @@ export class JobQueue {
     }
     return 0;
   }
+
+  /**
+   * Cancel a pending or running job
+   */
+  async cancel(jobId, reason = 'cancelled_by_user') {
+    const now = Date.now();
+    if (this.isPostgres()) {
+      const res = await pgQuery(`
+        UPDATE job_queue
+        SET status = 'cancelled',
+            finished_at = $1,
+            error_message = $2
+        WHERE id = $3 AND status IN ('pending', 'running')
+      `, [now, reason, jobId]);
+      await eventBus.publish(jobId, 'cancelled', { jobId, reason, status: 'cancelled' });
+      return { success: true, jobId, status: 'cancelled', affected: res.rowCount };
+    } else {
+      this._assertValidDriver();
+      const info = sqliteDb.prepare(`
+        UPDATE portfolio_job_queue
+        SET status = 'cancelled',
+            error_message = ?,
+            updated_at = ?
+        WHERE id = ? AND status IN ('pending', 'running')
+      `).run(reason, now, jobId);
+      return { success: true, jobId, status: 'cancelled', affected: info.changes };
+    }
+  }
+
+  /**
+   * Release an in-flight job back to pending (called during worker shutdown)
+   */
+  async releaseJob(jobId, reason = 'worker_shutdown') {
+    const now = Date.now();
+    if (this.isPostgres()) {
+      await pgQuery(`
+        UPDATE job_queue
+        SET status = 'pending',
+            worker_id = NULL,
+            locked_at = NULL,
+            error_message = $1
+        WHERE id = $2 AND status = 'running'
+      `, [`Released: ${reason}`, jobId]);
+      await eventBus.publish(jobId, 'released', { jobId, reason, status: 'pending' });
+    } else {
+      this._assertValidDriver();
+      sqliteDb.prepare(`
+        UPDATE portfolio_job_queue
+        SET status = 'pending',
+            error_message = ?,
+            updated_at = ?
+        WHERE id = ? AND status = 'running'
+      `).run(`Released: ${reason}`, now, jobId);
+    }
+  }
+
+  /**
+   * List recent jobs
+   */
+  async listRecentJobs(limit = 20) {
+    if (this.isPostgres()) {
+      const rows = await pgQueryAll('SELECT * FROM job_queue ORDER BY created_at DESC LIMIT $1', [limit]);
+      return rows.map(r => ({
+        ...r,
+        payload: typeof r.payload === 'string' ? JSON.parse(r.payload) : (r.payload || {}),
+        result: typeof r.result === 'string' ? JSON.parse(r.result) : (r.result || null)
+      }));
+    } else {
+      this._assertValidDriver();
+      const rows = sqliteDb.prepare('SELECT * FROM portfolio_job_queue ORDER BY created_at DESC LIMIT ?').all(limit);
+      return rows.map(r => ({
+        ...r,
+        payload: typeof r.payload === 'string' ? JSON.parse(r.payload) : (r.payload || {}),
+        result: typeof r.result === 'string' ? JSON.parse(r.result) : (r.result || null)
+      }));
+    }
+  }
 }
 
 export const jobQueue = new JobQueue();

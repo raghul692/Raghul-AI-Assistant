@@ -17,15 +17,46 @@ export function requestIdMiddleware(req, res, next) {
   next();
 }
 
-export function requireLocalDeveloperOrigin(req, res, next) {
-  const authHeader = req.headers['authorization'] || req.headers['x-api-key'] || req.headers['x-admin-key'];
-  const devKey = process.env.ADMIN_API_KEY || process.env.DEVELOPER_API_KEY;
+/**
+ * Constant-time string comparison to prevent timing attack side channels.
+ */
+function safeCompareTokens(provided, secret) {
+  if (!provided || !secret || typeof provided !== 'string' || typeof secret !== 'string') return false;
+  const provBuf = Buffer.from(provided);
+  const secBuf = Buffer.from(secret);
+  if (provBuf.length !== secBuf.length) return false;
+  return crypto.timingSafeEqual(provBuf, secBuf);
+}
 
-  const hasValidKey = Boolean(
-    devKey &&
-    authHeader &&
-    (authHeader === devKey || authHeader === `Bearer ${devKey}`)
-  );
+/**
+ * Validates whether the incoming request contains a valid server-side API key.
+ * Checks Bearer token in Authorization header, x-api-key / x-admin-key, or query param.
+ */
+export function hasValidApiKey(req) {
+  const devKey = process.env.ADMIN_API_KEY || process.env.DEVELOPER_API_KEY;
+  if (!devKey) return false;
+
+  const rawHeader = req.headers['authorization'] || req.headers['x-api-key'] || req.headers['x-admin-key'];
+  const queryToken = req.query?.token || req.query?.apiKey || req.query?.key;
+  const candidate = (rawHeader || queryToken || '').trim();
+
+  if (!candidate) return false;
+
+  // Exact key match
+  if (safeCompareTokens(candidate, devKey)) return true;
+
+  // Bearer prefix match
+  if (candidate.startsWith('Bearer ')) {
+    const bearerToken = candidate.slice(7).trim();
+    if (safeCompareTokens(bearerToken, devKey)) return true;
+  }
+
+  return false;
+}
+
+export function requireLocalDeveloperOrigin(req, res, next) {
+  const devKey = process.env.ADMIN_API_KEY || process.env.DEVELOPER_API_KEY;
+  const isKeyValid = hasValidApiKey(req);
 
   // In production: Server-side token authentication is strictly mandatory.
   // Origin and loopback headers are never trusted as identity in production.
@@ -37,7 +68,7 @@ export function requireLocalDeveloperOrigin(req, res, next) {
       });
     }
 
-    if (hasValidKey) {
+    if (isKeyValid) {
       return next();
     }
 
@@ -62,7 +93,7 @@ export function requireLocalDeveloperOrigin(req, res, next) {
     || /\.onrender\.com$/.test(origin)
     || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
 
-  if (hasValidKey || isLoopback || isAllowedOrigin) {
+  if (isKeyValid || isLoopback || isAllowedOrigin) {
     return next();
   }
 
@@ -73,3 +104,4 @@ export function requireLocalDeveloperOrigin(req, res, next) {
 }
 
 export const requireSensitiveOperationAuth = requireLocalDeveloperOrigin;
+export const requireAdminAuth = requireLocalDeveloperOrigin;

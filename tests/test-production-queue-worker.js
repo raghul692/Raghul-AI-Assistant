@@ -155,6 +155,38 @@ async function runTest() {
   assert.strictEqual(recoveredJob.status, 'pending', 'Stalled job must be restored to pending state for retry');
   console.log('✅ [PASS] Stalled job recovery after heartbeat expiration verified.\n');
 
+  // Test 9: Job Cancellation API
+  console.log('--- Test 9: Job Cancellation ---');
+  const cancelJobEnq = await jobQueue.enqueue({
+    jobType: 'document_generation',
+    payload: { task: 'to_be_cancelled' }
+  });
+  const cancelRes = await jobQueue.cancel(cancelJobEnq.jobId, 'test_user_cancellation');
+  assert.strictEqual(cancelRes.status, 'cancelled');
+  const cancelledJob = await jobQueue.getJob(cancelJobEnq.jobId);
+  assert.strictEqual(cancelledJob.status, 'cancelled', 'Job must be marked cancelled');
+  console.log('✅ [PASS] Job cancellation verified.\n');
+
+  // Test 10: In-Flight Job Release on Worker Shutdown
+  console.log('--- Test 10: Safe In-Flight Job Release ---');
+  await jobQueue.enqueue({
+    jobType: 'document_generation',
+    payload: { task: 'to_be_released' }
+  });
+  const workerReleaseId = `temp_worker_${Date.now()}`;
+  const acquiredJob = await jobQueue.dequeue(workerReleaseId);
+  assert(acquiredJob, 'Worker must acquire an active in-flight job');
+  await jobQueue.releaseJob(acquiredJob.id, 'worker_shutdown');
+  const releasedJob = await jobQueue.getJob(acquiredJob.id);
+  assert.strictEqual(releasedJob.status, 'pending', 'Released job must return to pending status');
+  console.log('✅ [PASS] Safe in-flight job release verified.\n');
+
+  // Test 11: List Recent Jobs
+  console.log('--- Test 11: List Recent Jobs ---');
+  const recentJobs = await jobQueue.listRecentJobs(5);
+  assert(Array.isArray(recentJobs) && recentJobs.length > 0, 'Must return array of recent jobs');
+  console.log(`✅ [PASS] List recent jobs verified (${recentJobs.length} retrieved).\n`);
+
   console.log('🎉 Background Job Queue & Worker lifecycle verified successfully!');
   try {
     const { closePostgresPool } = await import('../database/postgresPool.js');

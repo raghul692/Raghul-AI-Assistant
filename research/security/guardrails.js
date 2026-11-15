@@ -4,6 +4,7 @@
  * Complies with OWASP Top 10 for LLM Applications (2026) and ASVS 5.0.
  */
 import { URL } from 'url';
+import dns from 'dns';
 
 // Cloud & Metadata IP addresses & Hostnames to block
 const BLOCKED_HOSTNAMES = new Set([
@@ -95,6 +96,71 @@ export function validateSafeUrl(urlString) {
   }
 
   return { valid: true, url: parsed.toString() };
+}
+
+/**
+ * Checks whether an IP address belongs to private/reserved ranges.
+ */
+export function isPrivateIp(ip) {
+  if (!ip || typeof ip !== 'string') return true;
+  const cleanIp = ip.replace(/^::ffff:/i, '').toLowerCase();
+
+  // IPv4 checks
+  const ipv4Match = cleanIp.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (ipv4Match) {
+    const o1 = parseInt(ipv4Match[1], 10);
+    const o2 = parseInt(ipv4Match[2], 10);
+    if (o1 === 127 || o1 === 10 || o1 === 0) return true;
+    if (o1 === 172 && o2 >= 16 && o2 <= 31) return true;
+    if (o1 === 192 && o2 === 168) return true;
+    if (o1 === 169 && o2 === 254) return true;
+    return false;
+  }
+
+  // IPv6 checks
+  if (
+    cleanIp === '::1' ||
+    cleanIp === '::' ||
+    cleanIp.startsWith('fe80:') ||
+    cleanIp.startsWith('fc00:') ||
+    cleanIp.startsWith('fd00:')
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Validates external URL and performs DNS resolution to guard against DNS rebinding attacks.
+ */
+export async function validateSafeUrlAsync(urlString) {
+  const syncCheck = validateSafeUrl(urlString);
+  if (!syncCheck.valid) return syncCheck;
+
+  try {
+    const parsed = new URL(syncCheck.url);
+    const hostname = parsed.hostname;
+
+    // If hostname is already an IP, it was checked by validateSafeUrl
+    if (/^(\d{1,3}\.){3}\d{1,3}$/.test(hostname) || hostname.startsWith('[')) {
+      return syncCheck;
+    }
+
+    const addresses = await dns.promises.lookup(hostname, { all: true });
+    for (const record of addresses) {
+      if (isPrivateIp(record.address)) {
+        return {
+          valid: false,
+          reason: `DNS Rebinding / SSRF Violation: Hostname "${hostname}" resolves to private/internal IP "${record.address}".`
+        };
+      }
+    }
+
+    return syncCheck;
+  } catch (err) {
+    return { valid: false, reason: `DNS resolution failed for "${urlString}": ${err.message}` };
+  }
 }
 
 /**

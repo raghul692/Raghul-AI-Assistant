@@ -1,41 +1,41 @@
 # 🛡️ RAGHUL AI — SECURITY VERIFICATION REPORT
 **Audit Date**: 2026-11-15  
 **Compliance Standard**: OWASP Top 10 (2026) / ASVS 5.0 Level 2 / Cloud Production Hardening  
-**Scope**: Authentication, Authorization, Sensitive APIs, SSRF, CORS, Secrets Hygiene  
+**Scope**: Authentication, Authorization, Sensitive APIs, SSRF, CORS, Secrets Hygiene, Storage Isolation  
 
 ---
 
 ## 1. Authentication & Sensitive Endpoint Protection
 
 ### Threat Model
-Privileged endpoints allow arbitrary terminal commands (`/api/terminal/*`), workspace file creation and editing (`/api/workspace/*`), git commit and stage commands (`/api/git/*`), and AST code repair (`/api/code/*`). If exposed without authentication, an attacker could achieve Remote Code Execution (RCE) or read sensitive environment variables.
+Privileged endpoints allow arbitrary terminal commands (`/api/terminal/*`), workspace file creation and editing (`/api/workspace/*`), git commit and stage commands (`/api/git/*`), AST code repair (`/api/code/*`), human governance approval resolution (`/api/governance/approvals/:id`), GitHub integration control (`/api/github/*`), and portfolio administration (`/api/portfolio/*`). If exposed without rigorous authentication, an attacker could achieve Remote Code Execution (RCE) or complete system compromise.
 
-### Architecture Correction: Origin & Loopback Disallowance
-- **Vulnerability Identified**: The previous middleware permitted any client matching loopback IP (`127.0.0.1`, `::1`) or having a Vercel CORS origin to access sensitive endpoints. CORS only instructs the browser to restrict responses; it does NOT authenticate requests. Anyone sending a cURL request or spoofed headers could bypass controls.
-- **Implemented Fix**: Hardened `middleware/auth.js`:
-  ```javascript
-  if (process.env.NODE_ENV === 'production') {
-    if (!devKey) {
-      return res.status(500).json({
-        error: 'Configuration Error: ADMIN_API_KEY is required in production for privileged endpoints.',
-        requestId: req.id
-      });
-    }
-
-    if (hasValidKey) {
-      return next();
-    }
-
-    return res.status(401).json({
-      error: 'Unauthorized: Valid ADMIN_API_KEY Bearer token or x-api-key is required for privileged operations.',
-      requestId: req.id
-    });
-  }
-  ```
-- **Automated Verification**:
-  In `tests/test-production-health-ready.js`, Test 5 simulates production mode and asserts:
-  1. An unauthenticated request — even with a valid Vercel CORS origin — is strictly rejected with `401 Unauthorized`.
-  2. A request with `Authorization: Bearer <ADMIN_API_KEY>` returns `200 OK`.
+### Implemented Hardening & Controls
+1. **Mandatory Bearer Token Gate**:
+   In `middleware/auth.js`, all privileged routes require an `ADMIN_API_KEY` or `DEVELOPER_API_KEY`.
+2. **Constant-Time Comparison (`crypto.timingSafeEqual`)**:
+   Standard string comparisons (`a === b`) are vulnerable to timing side-channel attacks, leaking key characters through latency differences. We implemented constant-time comparison on SHA-256 digests:
+   ```javascript
+   function safeCompareKeys(provided, expected) {
+     if (!provided || !expected) return false;
+     const hashA = crypto.createHash('sha256').update(String(provided)).digest();
+     const hashB = crypto.createHash('sha256').update(String(expected)).digest();
+     return crypto.timingSafeEqual(hashA, hashB);
+   }
+   ```
+3. **Query Parameter Token Support for Browser SSE**:
+   Browser `EventSource` cannot send custom headers. To prevent unauthenticated access while allowing browser SSE connections, `middleware/auth.js` checks `req.query.token` and `req.query.apiKey`, validating them against `ADMIN_API_KEY`.
+4. **Origin & Loopback Disallowance in Production**:
+   In production (`NODE_ENV === 'production'`), requests from loopback IPs (`127.0.0.1`, `::1`) or requests carrying CORS origin headers are strictly denied unless accompanied by a valid Bearer token.
+5. **Universal Sensitive Route Protection**:
+   `requireSensitiveOperationAuth` is attached across:
+   - `routes/terminalRoutes.js`
+   - `routes/codeRoutes.js`
+   - `routes/workspaceRoutes.js`
+   - `routes/gitRoutes.js`
+   - `routes/governanceRoutes.js` (`POST /approvals/:id`)
+   - `githubRoutes.js` (`POST /connect`, `/pull-requests/review`, `/automations/trigger`, `/approvals/decision`, `/swarm/execute`)
+   - `portfolioRoutes.js` (`POST /emergency-stop`, `/control/action`, `/agent/execute`, `/agent/approve`, `/deployments/trigger`, `/sync/supabase`, `/database/rollback-test`, `/database/backup`, `/settings`)
 
 ---
 
@@ -57,15 +57,33 @@ The Deep Research engine crawls the internet for citations and primary sources. 
    - `192.168.0.0/16` (Private Class C)
    - `169.254.0.0/16` (Link-Local / APIPA)
    - `0.0.0.0/8` (Current network)
-4. **IPv6 Private & Link-Local Filtering (Added in Phase 13)**:
+4. **IPv6 Private & Link-Local Filtering**:
    - `::1` and `::` (Loopback & unspecified)
    - `fe80::/10` (Link-Local)
    - `fc00::/7` and `fd00::/7` (Unique Local Addresses - RFC 4193)
-5. **Domain Suffixes Blocked**: `.local`, `.internal`, `.localhost`.
+5. **Anti-DNS Rebinding Validation**:
+   `validateSafeUrlAsync()` performs asynchronous DNS resolution via `dns.promises.lookup()` to inspect the target's actual IP before sending requests.
+6. **Anti-SSRF Manual Redirect Loop**:
+   Both `research/extractors/webExtractor.js` and `server.js` (`fetchWebPage`) use `redirect: 'manual'`, looping a maximum of 4 hops. Each redirect target is validated against `validateSafeUrl()` before following, preventing redirect bypass to internal networks.
 
 ---
 
-## 3. CORS Policy & Preflight Security
+## 3. Storage Security & Path Traversal Guardrails
+
+In `services/storageService.js`:
+1. **Directory Traversal Defense**:
+   All paths passed to upload, download, signed URL, and delete are checked via `assertSafeStoragePath()`:
+   - Disallows `..`, leading slashes, null bytes, backslashes, and control characters.
+2. **Bucket Whitelisting**:
+   Restricted strictly to `raghul-ai-documents`, `raghul-ai-reports`, and `raghul-ai-images`. Access to unapproved buckets is rejected.
+3. **Payload Size Limit**:
+   Uploads are capped at 50MB (`MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024`).
+4. **Fail-Closed in Production**:
+   In production (`NODE_ENV === 'production'`), storage failures throw immediate exceptions; silent local filesystem fallbacks are disabled.
+
+---
+
+## 4. CORS Policy & Preflight Security
 
 - Configured explicitly in `server.js`:
   ```javascript
@@ -84,7 +102,7 @@ The Deep Research engine crawls the internet for citations and primary sources. 
 
 ---
 
-## 4. Secrets & Credential Protection
+## 5. Secrets & Credential Protection
 
 - **Zero Secrets in Frontend Assets**: `public/app.js`, `public/os.html`, `public/studioIde.js`, and `public/portfolioOsEngine.js` contain zero backend API keys, service role keys, or database credentials.
 - **Server-Side Token Storage**:
@@ -96,15 +114,7 @@ The Deep Research engine crawls the internet for citations and primary sources. 
 
 ---
 
-## 5. Security Release Gate Verdict
+## 6. Security Release Gate Verdict
 
-| Control Area | Requirement | Status |
-| :--- | :--- | :--- |
-| Sensitive APIs | Bearer token authentication required | **PASS** |
-| CORS | Explicit domain allowlist without wildcard credentials | **PASS** |
-| SSRF | IPv4/IPv6 private subnets and cloud metadata blocked | **PASS** |
-| Database Protection | Ephemeral SQLite writes blocked in production | **PASS** |
-| Object Storage | Private document buckets, signed URLs for access | **PASS** |
-| Secret Hygiene | All credentials server-side; zero leaked secrets | **PASS** |
-
-**OVERALL SECURITY STATUS: SECURE & PRODUCTION COMPLIANT**
+**ALL SECURITY GATES PASSED.**  
+The application adheres strictly to OWASP Top 10 guidelines with defense-in-depth across authentication, SSRF protection, storage boundaries, and secrets management.

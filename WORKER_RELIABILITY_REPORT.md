@@ -1,7 +1,7 @@
 # ⚙️ RAGHUL AI — WORKER & DISTRIBUTED QUEUE RELIABILITY REPORT
 **Audit Executed**: 2026-11-15  
 **Engine**: Render Background Worker (`worker.js`) + Supabase PostgreSQL Queue (`queue/jobQueue.js`)  
-**Scope**: Atomic Leases, Idempotency, Leases & Heartbeats, DLQ, Graceful Shutdown  
+**Scope**: Atomic Leases, Idempotency, Leases & Heartbeats, DLQ, Graceful Shutdown, In-Flight Job Release  
 
 ---
 
@@ -57,25 +57,29 @@ RETURNING *;
 ### 5. Dead-Letter Queue (DLQ)
 - Jobs exceeding `max_attempts` (default: 3) transition to `status = 'dlq'`, preserving the terminal error message, attempt count, and execution timestamps for audit analysis.
 
+### 6. Job Cancellation & In-Flight Release APIs
+- `jobQueue.cancel(jobId, reason)`: Allows canceling pending or running jobs cleanly, marking them `status = 'cancelled'` and broadcasting an audit event.
+- `jobQueue.releaseJob(jobId, reason)`: Enables a shutting-down worker to release an in-flight job back to `status = 'pending'` without waiting for stall timeouts.
+- `jobQueue.listRecentJobs(limit)`: Provides real-time operational visibility into recent queue items.
+
 ---
 
 ## 3. Worker Lifecycle & Shutdown Resilience
 
-### Worker Startup Lifecycle
-1. Process boots via `npm run worker` (`node --dns-result-order=ipv4first worker.js`).
-2. Validates database pool and cloud storage connectivity.
-3. Executes crash recovery: checks for any running jobs previously locked by this worker ID or stalled.
-4. Starts the polling loop (`POLL_INTERVAL_MS = 1500`, `MAX_CONCURRENT_JOBS = 3`).
+### Fail-Fast Production Startup
+In production (`NODE_ENV === 'production'`), `worker.js` executes strict pre-flight checks:
+1. Validates that `DATABASE_URL` is set.
+2. Checks PostgreSQL health via `dbAdapter.healthCheck()`.
+3. If PostgreSQL is unreachable, it logs a fatal error and terminates immediately with exit code 1. It will **never** silently fall back to an ephemeral SQLite database.
 
-### Graceful Termination (`SIGTERM` / `SIGINT`)
-- Background workers in cloud platforms (Render, Kubernetes) receive a `SIGTERM` signal prior to platform container termination.
-- Worker intercepts `SIGTERM` and `SIGINT`:
-  1. Sets `isRunning = false` (stops dequeuing new jobs).
-  2. Enters a draining loop with a 15-second grace period.
-  3. Awaits completion of in-flight active jobs.
-  4. Flushes and closes the PostgreSQL connection pool cleanly (`closePostgresPool()`).
-  5. Exits cleanly with code 0.
-- Verified in `tests/test-production-simulation-e2e.js`: Step 5 sends `SIGTERM` to the background worker; all jobs drain cleanly without dropped records.
+### In-Flight Job Tracking & Graceful Draining
+1. Worker tracks all active job IDs in an `inFlightJobIds` set.
+2. On receiving `SIGTERM` or `SIGINT`:
+   - Sets `isRunning = false` (stops dequeuing new jobs).
+   - Enters a graceful drain loop with a 15-second timeout.
+   - If jobs complete within the window, the worker exits cleanly.
+   - If jobs remain active when the timeout expires, the worker calls `jobQueue.releaseJob()` on each active job, unlocking them in PostgreSQL so that peer workers can pick them up immediately.
+   - Closes the PostgreSQL connection pool and exits with code 0.
 
 ---
 
@@ -98,8 +102,9 @@ The worker hosts four autonomous task handlers:
 | Atomic Dequeue | `FOR UPDATE SKIP LOCKED` single acquisition | `test-production-queue-worker.js` Test 3 | **VERIFIED** |
 | Real-Time Telemetry | Progress broadcast over EventBus & SSE | `test-production-queue-worker.js` Test 4 | **VERIFIED** |
 | Result Storage | JSON result saved to PostgreSQL `job_queue` | `test-production-queue-worker.js` Test 5 | **VERIFIED** |
-| Retry & Backoff | Exponential delay up to max attempts | `test-production-queue-worker.js` Test 6 | **VERIFIED** |
-| DLQ Routing | Terminal failure moved to `'dlq'` | `test-production-queue-worker.js` Test 6 | **VERIFIED** |
-| Stalled Recovery | Heartbeat expiration triggers reclamation | `test-production-queue-worker.js` Test 8 | **VERIFIED** |
-| Crash Recovery | Orphaned jobs recovered on restart | `test-production-simulation-e2e.js` | **VERIFIED** |
-| Graceful Shutdown | In-flight jobs drain before process exit | `test-production-simulation-e2e.js` Step 5 | **VERIFIED** |
+| Exponential Backoff & DLQ | Max attempts transitions to DLQ | `test-production-queue-worker.js` Test 6 | **VERIFIED** |
+| Burst Concurrency | 20 parallel requests generate 1 job | `test-production-queue-worker.js` Test 7 | **VERIFIED** |
+| Heartbeat Tracking | Heartbeat extends lease lock | `test-production-queue-worker.js` Test 8 | **VERIFIED** |
+| Stalled Job Recovery | Expired leases automatically reclaimed | `test-production-queue-worker.js` Test 9 | **VERIFIED** |
+| In-Flight Job Release | Graceful shutdown releases job to pending | `test-production-queue-worker.js` Test 10 | **VERIFIED** |
+| Job Cancellation | Cancel transitions status to cancelled | `test-production-queue-worker.js` Test 11 | **VERIFIED** |

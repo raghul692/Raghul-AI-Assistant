@@ -44,6 +44,13 @@ class CrossProcessEventBus extends EventEmitter {
       await client.connect();
       this.listenerClient = client;
 
+      // Subscribe to unified real-time event notification channel
+      try {
+        await client.query('LISTEN job_events');
+      } catch (listenErr) {
+        console.warn('[EventBus] LISTEN job_events notice:', listenErr.message);
+      }
+
       client.on('notification', (msg) => {
         try {
           const payload = JSON.parse(msg.payload);
@@ -154,6 +161,11 @@ class CrossProcessEventBus extends EventEmitter {
             this.seenEventIds.delete(first);
           }
         }
+
+        // Publish PostgreSQL notification wake-up signal
+        try {
+          await pgQuery("SELECT pg_notify('job_events', $1)", [JSON.stringify(eventPayload)]);
+        } catch (_) {}
       } catch (err) {
         console.warn(`[EventBus] Failed to persist job event:`, err.message);
       }

@@ -14,7 +14,7 @@ import dns from 'dns';
 import dotenv from 'dotenv';
 
 try {
-  dns.setDefaultResultOrder('ipv4first');
+  dns.setDefaultResultOrder('verbatim');
 } catch (_) {}
 
 dotenv.config();

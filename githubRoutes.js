@@ -21,6 +21,7 @@ import {
   logGitHubAudit,
   verifyGitHubAuditLedger
 } from './db.js';
+import { requireSensitiveOperationAuth } from './middleware/auth.js';
 
 const router = express.Router();
 
@@ -76,7 +77,7 @@ router.get('/identity', async (req, res) => {
   }
 });
 
-router.post('/connect', async (req, res) => {
+router.post('/connect', requireSensitiveOperationAuth, async (req, res) => {
   try {
     const { token } = req.body;
     if (token) {
@@ -204,7 +205,7 @@ router.get('/pull-requests', async (req, res) => {
   }
 });
 
-router.post('/pull-requests/review', async (req, res) => {
+router.post('/pull-requests/review', requireSensitiveOperationAuth, async (req, res) => {
   const { owner, repo, prNumber } = req.body;
   if (!owner || !repo || !prNumber) return res.status(400).json({ error: 'owner, repo, prNumber required.' });
 
@@ -310,7 +311,7 @@ router.get('/automations', (req, res) => {
   }
 });
 
-router.post('/automations/trigger', async (req, res) => {
+router.post('/automations/trigger', requireSensitiveOperationAuth, async (req, res) => {
   try {
     const { automationId, repo } = req.body;
     if (!automationId) return res.status(400).json({ error: 'automationId is required.' });
@@ -365,7 +366,7 @@ router.get('/approvals/all', (req, res) => {
   }
 });
 
-router.post('/approvals/decision', async (req, res) => {
+router.post('/approvals/decision', requireSensitiveOperationAuth, async (req, res) => {
   const { approvalId, decision, reason = '' } = req.body; // decision: 'approved' | 'rejected'
   if (!approvalId || !['approved', 'rejected'].includes(decision)) {
     return res.status(400).json({ error: 'approvalId and valid decision ("approved" | "rejected") required.' });
@@ -398,7 +399,7 @@ router.post('/approvals/decision', async (req, res) => {
 // 8. 10-Agent GitHub Swarm Execution
 // =========================================================================
 
-router.post('/swarm/execute', async (req, res) => {
+router.post('/swarm/execute', requireSensitiveOperationAuth, async (req, res) => {
   const { goal, repo } = req.body;
   if (!goal) return res.status(400).json({ error: 'goal is required for swarm execution.' });
 

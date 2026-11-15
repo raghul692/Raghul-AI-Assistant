@@ -29,13 +29,13 @@ if (!hasSoul || !hasNoDevWorkflow || !hasNoGithubBloat || !hasNoPortfolioBloat) 
 // 2. Test Code Generation Intent
 const codePrompt = promptEngine.buildSystemInstruction({
   personaKey: 'coder',
-  message: 'Express.js-ல் JWT Auth + Refresh Token + Redis Rate Limiting உடன் கூடிய production-ready middleware எழுதி காட்டு.',
+  message: 'Express.js-\u0bb2\u0bcd JWT Auth + Refresh Token + Redis Rate Limiting \u0b89\u0b9f\u0ba9\u0bcd \u0b95\u0bc2\u0b9f\u0bbf\u0baf production-ready middleware \u0b8e\u0bb4\u0bc1\u0ba4\u0bbf \u0b95\u0bbe\u0b9f\u0bcd\u0b9f\u0bc1.',
   userName: 'Raghul',
   githubContext: '26 repositories under @raghul692',
   portfolioContext: 'Live at https://raghulraja.is-a.dev/'
 });
 
-console.log('\n--- Test 2: Code Generation ("Express.js middleware எழுதி காட்டு") ---');
+console.log('\n--- Test 2: Code Generation ("Express.js middleware \u0b8e\u0bb4\u0bc1\u0ba4\u0bbf \u0b95\u0bbe\u0b9f\u0bcd\u0b9f\u0bc1") ---');
 const hasDevWorkflow = codePrompt.includes('DISCIPLINED DEVELOPER WORKFLOW');
 const hasZeroPlaceholderRule = codePrompt.includes('Strict Zero-Placeholder Invariant');
 const hasCanvasConventions = codePrompt.includes('Canvas Studio Multi-File Project Conventions');

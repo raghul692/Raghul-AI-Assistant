@@ -292,23 +292,46 @@ function shouldTriggerLiveSearch(persona, message) {
 // Deep Web Page Reader: Extracts readable content from any provided URL
 async function fetchWebPage(url) {
   try {
-    const safeCheck = validateSafeUrl(url);
-    if (!safeCheck || !safeCheck.valid) {
-      console.warn('[Security] Blocked potentially unsafe / SSRF URL in Deep Web Reader:', safeCheck?.reason || 'Invalid URL');
-      return null;
-    }
-    const parsed = new URL(url);
-    if (!['http:', 'https:'].includes(parsed.protocol)) return null;
+    let currentUrl = url;
+    let redirectCount = 0;
+    const maxRedirects = 3;
+    let res;
 
-    const res = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-      },
-      signal: AbortSignal.timeout(9000)
-    });
+    while (true) {
+      const safeCheck = validateSafeUrl(currentUrl);
+      if (!safeCheck || !safeCheck.valid) {
+        console.warn('[Security] Blocked potentially unsafe / SSRF URL in Deep Web Reader:', safeCheck?.reason || 'Invalid URL');
+        return null;
+      }
+      const parsed = new URL(currentUrl);
+      if (!['http:', 'https:'].includes(parsed.protocol)) return null;
+
+      res = await fetch(currentUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        },
+        signal: AbortSignal.timeout(9000),
+        redirect: 'manual'
+      });
+
+      if ([301, 302, 303, 307, 308].includes(res.status)) {
+        redirectCount++;
+        if (redirectCount > maxRedirects) {
+          console.warn('[Security] Blocked excessive redirects in Deep Web Reader');
+          return null;
+        }
+        const location = res.headers.get('location');
+        if (!location) return null;
+        currentUrl = new URL(location, currentUrl).toString();
+        continue;
+      }
+      break;
+    }
+
     if (!res.ok) return null;
     const html = await res.text();
+    const parsed = new URL(currentUrl);
 
     const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
     const title = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '').trim() : parsed.hostname;

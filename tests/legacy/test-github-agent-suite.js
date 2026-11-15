@@ -58,7 +58,7 @@ async function runSuite() {
   // 3. Live Remote File Read
   console.log('\n--- 3. Live Remote File Read Test ---');
   const readRes = await githubAgent.executeIntent({
-    message: 'modern-saas-landing-page repo-ல் உள்ள index.html file-ஐ காட்டு',
+    message: 'modern-saas-landing-page repo-\u0bb2\u0bcd \u0b89\u0bb3\u0bcd\u0bb3 index.html file-\u0b90 \u0b95\u0bbe\u0b9f\u0bcd\u0b9f\u0bc1',
     sendSSE: (e) => console.log(`   [SSE] ${e.type}: ${e.text || e.message || ''}`)
   });
   assert(readRes && readRes.includes('NexusSaaS') || readRes.includes('html') || readRes.includes('DOCTYPE'), 'Real index.html content fetched from GitHub');
@@ -67,7 +67,7 @@ async function runSuite() {
   // 4. Live Remote Code Edit & Push (Real Commit on GitHub)
   console.log('\n--- 4. Live Remote Code Edit & Commit Test ---');
   const editRes = await githubAgent.executeIntent({
-    message: 'modern-saas-landing-page repo-ல் style.css-ல் accent color-ஐ purple ஆக மாற்றி commit பண்ணு',
+    message: 'modern-saas-landing-page repo-\u0bb2\u0bcd style.css-\u0bb2\u0bcd accent color-\u0b90 purple \u0b86\u0b95 \u0bae\u0bbe\u0bb1\u0bcd\u0bb1\u0bbf commit \u0baa\u0ba3\u0bcd\u0ba3\u0bc1',
     sendSSE: (e) => console.log(`   [SSE] ${e.type}: ${e.text || e.message || ''}`)
   });
   assert(editRes && editRes.includes('Commit Summary'), 'Edit commit summary returned');

@@ -44,6 +44,17 @@ router.post('/', async (req, res) => {
   }
 });
 
+// 1b. List Recent Jobs
+router.get('/', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit || '20', 10);
+    const jobs = await jobQueue.listRecentJobs(limit);
+    res.json({ success: true, count: jobs.length, jobs });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // 2. Get Job Details (Polling Fallback)
 router.get('/:id', async (req, res) => {
   try {
@@ -52,6 +63,17 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Job not found' });
     }
     res.json({ success: true, job });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 2b. Cancel Pending or Running Job
+router.post('/:id/cancel', async (req, res) => {
+  try {
+    const reason = req.body?.reason || 'cancelled_by_user';
+    const result = await jobQueue.cancel(req.params.id, reason);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -5,6 +5,7 @@ import {
   resolveHumanApproval,
   verifyAuditLedgerIntegrity
 } from '../governanceAudit.js';
+import { requireSensitiveOperationAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -19,8 +20,8 @@ router.get('/approvals', (req, res) => {
   res.json({ approvals: listPendingApprovals() });
 });
 
-// 3. Resolve Approval
-router.post('/approvals/:id', (req, res) => {
+// 3. Resolve Approval (Privileged human governance action)
+router.post('/approvals/:id', requireSensitiveOperationAuth, (req, res) => {
   try {
     const { approved = true, reviewer = 'Raghul' } = req.body;
     const result = resolveHumanApproval(req.params.id, Boolean(approved), reviewer);

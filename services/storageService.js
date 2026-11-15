@@ -19,9 +19,26 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const LOCAL_STORAGE_DIR = path.resolve(__dirname, '..', 'data', 'generated');
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+const ALLOWED_BUCKETS = new Set(['raghul-ai-documents', 'raghul-ai-reports', 'raghul-ai-images']);
 
 if (!fs.existsSync(LOCAL_STORAGE_DIR)) {
   fs.mkdirSync(LOCAL_STORAGE_DIR, { recursive: true });
+}
+
+function assertSafeStoragePath(bucket, storagePath) {
+  if (!storagePath || typeof storagePath !== 'string') {
+    throw new Error('Invalid storage path');
+  }
+  if (storagePath.includes('..') || path.isAbsolute(storagePath)) {
+    throw new Error('Directory traversal attempt blocked in storage path');
+  }
+  const localFolder = path.join(LOCAL_STORAGE_DIR, bucket);
+  const resolved = path.resolve(localFolder, storagePath);
+  if (!resolved.startsWith(path.resolve(LOCAL_STORAGE_DIR))) {
+    throw new Error('Directory traversal attempt blocked in storage path');
+  }
+  return resolved;
 }
 
 export class StorageService {
@@ -56,6 +73,12 @@ export class StorageService {
     if (!fileName || !buffer) {
       throw new Error('fileName and buffer are required for upload');
     }
+    if (buffer.length > MAX_FILE_SIZE) {
+      throw new Error(`File size ${buffer.length} bytes exceeds maximum permitted limit (${MAX_FILE_SIZE} bytes).`);
+    }
+    if (!ALLOWED_BUCKETS.has(bucket)) {
+      throw new Error(`Invalid storage bucket "${bucket}". Allowed buckets: ${Array.from(ALLOWED_BUCKETS).join(', ')}`);
+    }
 
     const cleanFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
     const storagePath = `${Date.now()}_${cleanFileName}`;
@@ -86,13 +109,18 @@ export class StorageService {
         };
       } catch (cloudErr) {
         console.warn(`[StorageService] Cloud upload notice for ${fileName}:`, cloudErr.message);
+        if (process.env.NODE_ENV === 'production') {
+          throw new Error(`Production cloud upload failed for bucket "${bucket}": ${cloudErr.message}`);
+        }
       }
+    } else if (process.env.NODE_ENV === 'production') {
+      throw new Error('PRODUCTION STORAGE VIOLATION: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required in production.');
     }
 
-    // Local Disk Fallback
-    const localFolder = path.join(LOCAL_STORAGE_DIR, bucket);
+    // Local Disk Fallback (local development and offline testing only)
+    const localFilePath = assertSafeStoragePath(bucket, storagePath);
+    const localFolder = path.dirname(localFilePath);
     fs.mkdirSync(localFolder, { recursive: true });
-    const localFilePath = path.join(localFolder, storagePath);
     fs.writeFileSync(localFilePath, buffer);
 
     return {
@@ -139,8 +167,8 @@ export class StorageService {
       }
     }
 
-    // Check local fallback
-    const localFilePath = path.join(LOCAL_STORAGE_DIR, bucket, storagePath);
+    // Check local fallback with path traversal protection
+    const localFilePath = assertSafeStoragePath(bucket, storagePath);
     if (fs.existsSync(localFilePath)) {
       return fs.readFileSync(localFilePath);
     }
@@ -159,6 +187,7 @@ export class StorageService {
         return data.signedUrl;
       }
     }
+    assertSafeStoragePath(bucket, storagePath);
     return `/data/generated/${bucket}/${storagePath}`;
   }
 
@@ -169,7 +198,7 @@ export class StorageService {
     if (this.isCloudConfigured()) {
       await this.client.storage.from(bucket).remove([storagePath]);
     }
-    const localFilePath = path.join(LOCAL_STORAGE_DIR, bucket, storagePath);
+    const localFilePath = assertSafeStoragePath(bucket, storagePath);
     if (fs.existsSync(localFilePath)) {
       try { fs.unlinkSync(localFilePath); } catch (_) {}
     }
