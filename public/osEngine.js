@@ -360,7 +360,9 @@ class PortfolioOSEngine {
     const text = document.getElementById('osStreamText');
 
     try {
-      this.eventSource = new EventSource('/api/portfolio/stream');
+      const isCloud = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('is-a.dev');
+      const streamUrl = isCloud ? 'https://raghul-ai-api.onrender.com/api/portfolio/stream' : '/api/portfolio/stream';
+      this.eventSource = new EventSource(streamUrl);
 
       this.eventSource.onopen = () => {
         if (dot) dot.className = 'os-stream-dot';

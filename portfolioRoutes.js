@@ -139,10 +139,12 @@ router.get('/telemetry', (req, res) => {
 
 // Real-Time SSE Event Stream
 router.get('/stream', (req, res) => {
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders?.();
+  res.write(': connected\n\n');
 
   portfolioTelemetryService.addStreamClient(res);
 

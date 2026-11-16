@@ -168,7 +168,9 @@
     }
 
     try {
-      const es = new EventSource('/api/portfolio/stream');
+      const isCloud = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('is-a.dev');
+      const streamUrl = isCloud ? 'https://raghul-ai-api.onrender.com/api/portfolio/stream' : '/api/portfolio/stream';
+      const es = new EventSource(streamUrl);
       window.portSseSource = es;
 
       es.onmessage = (event) => {

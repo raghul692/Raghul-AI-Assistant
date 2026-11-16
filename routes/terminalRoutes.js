@@ -45,10 +45,12 @@ router.get('/stream', (req, res) => {
     return res.status(404).json({ error: `Terminal session "${sessionId}" not found` });
   }
 
-  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders?.();
+  res.write(': connected\n\n');
 
   session.addListener(res);
 });
