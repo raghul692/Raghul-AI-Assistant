@@ -858,14 +858,14 @@ app.post('/api/chat/stream', async (req, res) => {
   res.write(': connected\n\n');
 
   const abortController = new AbortController();
-  req.on('close', () => {
+  res.on('close', () => {
     if (!res.writableEnded) {
       abortController.abort();
     }
   });
 
   const sendSSE = (data) => {
-    if (res.writableEnded || res.destroyed || req.destroyed) return;
+    if (res.writableEnded || res.destroyed) return;
     try {
       res.write(`data: ${JSON.stringify(data)}\n\n`);
     } catch (_) {}
@@ -2131,14 +2131,14 @@ app.get('/api/swarm/stream', async (req, res) => {
   res.write(': connected\n\n');
 
   const abortController = new AbortController();
-  req.on('close', () => {
+  res.on('close', () => {
     if (!res.writableEnded) {
       abortController.abort();
     }
   });
 
   const sendEvent = (data) => {
-    if (res.writableEnded || res.destroyed || req.destroyed) return;
+    if (res.writableEnded || res.destroyed) return;
     try {
       res.write(`data: ${JSON.stringify(data)}\n\n`);
     } catch (_) {}
