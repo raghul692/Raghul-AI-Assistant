@@ -21,11 +21,12 @@ async function runTest() {
   console.log('--- Test 1: Enqueue Job with Priority ---');
   const idempotencyKey = `idemp_${Date.now()}`;
   const enq1 = await jobQueue.enqueue({
-    jobType: 'document_generation',
+    jobType: 'test_document_generation',
     payload: { title: 'Benchmark Research Paper', format: 'pdf' },
     priority: 2,
     idempotencyKey,
-    maxAttempts: 2
+    maxAttempts: 2,
+    delayMs: 60000
   });
 
   assert(enq1.jobId, 'Should receive generated jobId');
@@ -35,9 +36,10 @@ async function runTest() {
   // Test 2: Idempotency Protection
   console.log('--- Test 2: Idempotency Collision Protection ---');
   const enq2 = await jobQueue.enqueue({
-    jobType: 'document_generation',
+    jobType: 'test_document_generation',
     payload: { title: 'Duplicate Paper' },
-    idempotencyKey
+    idempotencyKey,
+    delayMs: 60000
   });
   assert(enq2.isDuplicate, 'Second enqueue with same idempotency key must be flagged duplicate');
   assert.strictEqual(enq2.jobId, enq1.jobId, 'Duplicate submission must return original jobId');
@@ -46,7 +48,7 @@ async function runTest() {
   // Test 3: Dequeue Job with Atomic Lock
   console.log('--- Test 3: Atomic Dequeue (FOR UPDATE SKIP LOCKED) ---');
   const workerId = `test_worker_${Date.now()}`;
-  const dequeued = await jobQueue.dequeue(workerId);
+  const dequeued = await jobQueue.dequeue(workerId, { targetJobId: enq1.jobId });
   assert(dequeued, 'Worker should acquire next pending job');
   assert.strictEqual(dequeued.id, enq1.jobId, 'Dequeued job must match enqueued ID');
   assert.strictEqual(dequeued.status, 'running', 'Dequeued status must be running');
@@ -90,14 +92,15 @@ async function runTest() {
   // Test 6: Exponential Backoff & DLQ on Failure
   console.log('--- Test 6: Failure Handling, Exponential Backoff & DLQ ---');
   const failJobEnq = await jobQueue.enqueue({
-    jobType: 'code_repair',
+    jobType: 'test_code_repair',
     payload: { target: 'non_existent.js' },
     priority: 1,
-    maxAttempts: 1
+    maxAttempts: 1,
+    delayMs: 60000
   });
 
   const workerFailId = `test_worker_fail_${Date.now()}`;
-  const jobToFail = await jobQueue.dequeue(workerFailId);
+  const jobToFail = await jobQueue.dequeue(workerFailId, { targetJobId: failJobEnq.jobId });
   assert(jobToFail && jobToFail.id === failJobEnq.jobId);
 
   // Since maxAttempts is 1, this attempt (1 >= 1) should move directly to DLQ
@@ -112,7 +115,7 @@ async function runTest() {
   const burstKey = `burst_key_${Date.now()}`;
   const burstResults = await Promise.all(
     Array.from({ length: 20 }).map(() => jobQueue.enqueue({
-      jobType: 'document_generation',
+      jobType: 'test_burst_job',
       idempotencyKey: burstKey,
       payload: { burst: true }
     }))
@@ -129,13 +132,14 @@ async function runTest() {
   // Test 8: Heartbeat Signal & Stalled Job Recovery
   console.log('--- Test 8: Heartbeat Signal & Stalled Job Recovery ---');
   const stalledEnq = await jobQueue.enqueue({
-    jobType: 'document_generation',
+    jobType: 'test_stalled_job',
     payload: { task: 'stalled_test' },
     priority: 1,
-    maxAttempts: 3
+    maxAttempts: 3,
+    delayMs: 60000
   });
   const stalledWorkerId = `crashed_worker_${Date.now()}`;
-  const stalledJob = await jobQueue.dequeue(stalledWorkerId);
+  const stalledJob = await jobQueue.dequeue(stalledWorkerId, { targetJobId: stalledEnq.jobId });
   assert(stalledJob && stalledJob.id === stalledEnq.jobId);
 
   // Heartbeat signal
@@ -158,8 +162,9 @@ async function runTest() {
   // Test 9: Job Cancellation API
   console.log('--- Test 9: Job Cancellation ---');
   const cancelJobEnq = await jobQueue.enqueue({
-    jobType: 'document_generation',
-    payload: { task: 'to_be_cancelled' }
+    jobType: 'test_cancellation_job',
+    payload: { task: 'to_be_cancelled' },
+    delayMs: 60000
   });
   const cancelRes = await jobQueue.cancel(cancelJobEnq.jobId, 'test_user_cancellation');
   assert.strictEqual(cancelRes.status, 'cancelled');
@@ -169,13 +174,14 @@ async function runTest() {
 
   // Test 10: In-Flight Job Release on Worker Shutdown
   console.log('--- Test 10: Safe In-Flight Job Release ---');
-  await jobQueue.enqueue({
-    jobType: 'document_generation',
-    payload: { task: 'to_be_released' }
+  const releaseJobEnq = await jobQueue.enqueue({
+    jobType: 'test_release_job',
+    payload: { task: 'to_be_released' },
+    delayMs: 60000
   });
   const workerReleaseId = `temp_worker_${Date.now()}`;
-  const acquiredJob = await jobQueue.dequeue(workerReleaseId);
-  assert(acquiredJob, 'Worker must acquire an active in-flight job');
+  const acquiredJob = await jobQueue.dequeue(workerReleaseId, { targetJobId: releaseJobEnq.jobId });
+  assert(acquiredJob && acquiredJob.id === releaseJobEnq.jobId, 'Worker must acquire an active in-flight job');
   await jobQueue.releaseJob(acquiredJob.id, 'worker_shutdown');
   const releasedJob = await jobQueue.getJob(acquiredJob.id);
   assert.strictEqual(releasedJob.status, 'pending', 'Released job must return to pending status');

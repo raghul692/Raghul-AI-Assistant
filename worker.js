@@ -255,7 +255,7 @@ async function startWorkerLoop() {
       }
 
       if (activeJobs < MAX_CONCURRENT_JOBS) {
-        const job = await jobQueue.dequeue(WORKER_ID);
+        const job = await jobQueue.dequeue(WORKER_ID, Object.keys(HANDLERS));
         if (job) {
           activeJobs++;
           processJob(job).finally(() => {

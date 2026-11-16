@@ -65,13 +65,46 @@ async function runAll() {
   console.log('🚀 RAGHUL AI — EXECUTING MASTER TEST SUITE (NPM TEST)');
   console.log('================================================================\n');
 
+  let serverProcess = null;
+  const isServerRunning = await fetch('http://127.0.0.1:3000/health').then(r => r.ok).catch(() => false);
+  if (!isServerRunning) {
+    console.log('⚡ Starting local test API server on port 3000...');
+    serverProcess = spawn(process.execPath, ['--dns-result-order=ipv4first', 'server.js'], {
+      cwd: PROJECT_ROOT,
+      env: { ...process.env, PORT: '3000', WORKER_EMBEDDED: 'false' },
+      stdio: 'pipe'
+    });
+
+    let ready = false;
+    for (let i = 0; i < 40; i++) {
+      await new Promise(r => setTimeout(r, 500));
+      ready = await fetch('http://127.0.0.1:3000/health').then(r => r.ok).catch(() => false);
+      if (ready) break;
+    }
+
+    if (ready) {
+      console.log('✅ Local test API server active and listening on port 3000.\n');
+    } else {
+      console.warn('⚠️ Warning: Local test API server did not respond within 20s.\n');
+    }
+  } else {
+    console.log('✅ Local test API server is already active on port 3000.\n');
+  }
+
   const totalStart = Date.now();
   const results = [];
 
-  for (const suite of SUITES) {
-    console.log(`\n▶️ Running: ${suite.name} (${suite.file})...`);
-    const res = await runSuite(suite);
-    results.push(res);
+  try {
+    for (const suite of SUITES) {
+      console.log(`\n▶️ Running: ${suite.name} (${suite.file})...`);
+      const res = await runSuite(suite);
+      results.push(res);
+    }
+  } finally {
+    if (serverProcess) {
+      console.log('\n🛑 Stopping local test API server...');
+      serverProcess.kill('SIGTERM');
+    }
   }
 
   const totalDuration = ((Date.now() - totalStart) / 1000).toFixed(1);

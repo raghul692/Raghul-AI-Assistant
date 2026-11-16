@@ -44,7 +44,9 @@ export class JobQueue {
     payload = {},
     priority = 5,
     idempotencyKey = null,
-    maxAttempts = 3
+    maxAttempts = 3,
+    delayMs = 0,
+    nextRetryAt = null
   }) {
     if (!jobType) {
       throw new Error('jobType is required to enqueue a job');
@@ -53,6 +55,7 @@ export class JobQueue {
     const now = Date.now();
     const jobId = `job_${now}_${crypto.randomBytes(4).toString('hex')}`;
     const effectiveKey = idempotencyKey || null;
+    const effectiveRetryAt = nextRetryAt || (delayMs > 0 ? now + delayMs : null);
 
     if (this.isPostgres()) {
       if (effectiveKey) {
@@ -69,8 +72,8 @@ export class JobQueue {
         await pgQuery(`
           INSERT INTO job_queue (
             id, idempotency_key, job_type, priority, payload, status,
-            attempts, max_attempts, created_at
-          ) VALUES ($1, $2, $3, $4, $5, 'pending', 0, $6, $7)
+            attempts, max_attempts, next_retry_at, created_at
+          ) VALUES ($1, $2, $3, $4, $5, 'pending', 0, $6, $7, $8)
           ON CONFLICT (idempotency_key) DO NOTHING
         `, [
           jobId,
@@ -79,6 +82,7 @@ export class JobQueue {
           priority,
           JSON.stringify(payload),
           maxAttempts,
+          effectiveRetryAt,
           now
         ]);
       } catch (insertErr) {
@@ -115,8 +119,8 @@ export class JobQueue {
         sqliteDb.prepare(`
           INSERT OR IGNORE INTO portfolio_job_queue (
             id, idempotency_key, name, job_type, payload, status,
-            attempts, max_attempts, created_at
-          ) VALUES (?, ?, ?, ?, ?, 'pending', 0, ?, ?)
+            attempts, max_attempts, next_retry_at, created_at
+          ) VALUES (?, ?, ?, ?, ?, 'pending', 0, ?, ?, ?)
         `).run(
           jobId,
           effectiveKey,
@@ -124,6 +128,7 @@ export class JobQueue {
           jobType,
           JSON.stringify(payload),
           maxAttempts,
+          effectiveRetryAt,
           now
         );
       } catch (sqliteErr) {
@@ -148,11 +153,24 @@ export class JobQueue {
 
   /**
    * Atomically dequeue the next available job using FOR UPDATE SKIP LOCKED
+   * Supports targetJobId targeting, job_type filtering, and future delay protection.
    */
-  async dequeue(workerId = 'worker-1') {
+  async dequeue(workerId = 'worker-1', options = null) {
     const now = Date.now();
+    const isArray = Array.isArray(options);
+    const allowedJobTypes = isArray ? options : (options?.allowedJobTypes || null);
+    const targetJobId = (!isArray && options?.targetJobId) ? options.targetJobId : null;
+    const ignoreDelay = (!isArray && (options?.ignoreDelay || Boolean(targetJobId)));
 
     if (this.isPostgres()) {
+      let filterClause = '';
+      const params = [workerId, now, ignoreDelay ? true : false, targetJobId];
+
+      if (Array.isArray(allowedJobTypes) && allowedJobTypes.length > 0) {
+        params.push(allowedJobTypes);
+        filterClause = ' AND job_type = ANY($5::text[])';
+      }
+
       const sql = `
         UPDATE job_queue
         SET status = 'running',
@@ -163,7 +181,9 @@ export class JobQueue {
         WHERE id = (
             SELECT id FROM job_queue
             WHERE status = 'pending'
-              AND (next_retry_at IS NULL OR next_retry_at <= $2)
+              AND ($3::boolean = true OR next_retry_at IS NULL OR next_retry_at <= $2)
+              AND ($4::text IS NULL OR id = $4)
+              ${filterClause}
             ORDER BY priority ASC, created_at ASC
             FOR UPDATE SKIP LOCKED
             LIMIT 1
@@ -171,7 +191,7 @@ export class JobQueue {
         RETURNING *;
       `;
 
-      const row = await pgQueryRow(sql, [workerId, now]);
+      const row = await pgQueryRow(sql, params);
       if (!row) return null;
 
       const payload = typeof row.payload === 'string' ? JSON.parse(row.payload) : (row.payload || {});
@@ -182,14 +202,21 @@ export class JobQueue {
     } else {
       // SQLite fallback (local development / testing only)
       this._assertValidDriver();
-      const candidate = sqliteDb.prepare(`
+      let query = `
         SELECT * FROM portfolio_job_queue
         WHERE status = 'pending'
-          AND (next_retry_at IS NULL OR next_retry_at <= ?)
-        ORDER BY created_at ASC
-        LIMIT 1
-      `).get(now);
+          AND (? = 1 OR next_retry_at IS NULL OR next_retry_at <= ?)
+          AND (? IS NULL OR id = ?)
+      `;
+      const params = [ignoreDelay ? 1 : 0, now, targetJobId, targetJobId];
+      if (Array.isArray(allowedJobTypes) && allowedJobTypes.length > 0) {
+        const placeholders = allowedJobTypes.map(() => '?').join(',');
+        query += ` AND job_type IN (${placeholders})`;
+        params.push(...allowedJobTypes);
+      }
+      query += ` ORDER BY created_at ASC LIMIT 1`;
 
+      const candidate = sqliteDb.prepare(query).get(...params);
       if (!candidate) return null;
 
       sqliteDb.prepare(`
