@@ -857,8 +857,18 @@ app.post('/api/chat/stream', async (req, res) => {
   res.flushHeaders?.();
   res.write(': connected\n\n');
 
+  const abortController = new AbortController();
+  req.on('close', () => {
+    if (!res.writableEnded) {
+      abortController.abort();
+    }
+  });
+
   const sendSSE = (data) => {
-    res.write(`data: ${JSON.stringify(data)}\n\n`);
+    if (res.writableEnded || res.destroyed || req.destroyed) return;
+    try {
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    } catch (_) {}
   };
 
   try {
@@ -1782,21 +1792,31 @@ Mandate: Answer all questions about Raghul Raja's portfolio, about section, educ
       preferredProvider: (req.body.preferredProvider && req.body.preferredProvider !== 'auto') ? req.body.preferredProvider : null,
       preferredModel: modelChoice,
       attachments,
+      signal: abortController.signal,
       onToken: (tok) => {
+        if (abortController.signal.aborted) return;
         const cleanTok = ensureEnglishOrTanglish(tok);
         fullResponseText += cleanTok;
         sendSSE({ type: 'token', text: cleanTok });
       },
       onReasoning: (resText) => {
+        if (abortController.signal.aborted) return;
         sendSSE({ type: 'reasoning', text: ensureEnglishOrTanglish(resText) });
       },
       onStatus: (statusEvt) => {
+        if (abortController.signal.aborted) return;
         sendSSE(statusEvt);
       },
       onProviderSwitch: (switchEvt) => {
+        if (abortController.signal.aborted) return;
         sendSSE({ type: 'provider_switch', ...switchEvt });
       }
     });
+
+    if (abortController.signal.aborted) {
+      if (!res.writableEnded) res.end();
+      return;
+    }
 
     const activeModel = streamResult.model || modelChoice;
     const activeProvider = streamResult.provider || 'gemini';
@@ -1849,16 +1869,20 @@ Mandate: Answer all questions about Raghul Raja's portfolio, about section, educ
       memoryTurns: chat.history.length,
       title: chat.title
     });
-    res.end();
+    if (!res.writableEnded) res.end();
 
   } catch (err) {
+    if (abortController.signal.aborted) {
+      if (!res.writableEnded) res.end();
+      return;
+    }
     console.error('Streaming API Error:', err);
     sendSSE({
       type: 'error',
       error: err?.message || 'Error occurred while contacting Gemini API.',
       hint: 'Please verify network or API Key.'
     });
-    res.end();
+    if (!res.writableEnded) res.end();
   }
 });
 
@@ -2106,21 +2130,38 @@ app.get('/api/swarm/stream', async (req, res) => {
   res.flushHeaders?.();
   res.write(': connected\n\n');
 
+  const abortController = new AbortController();
+  req.on('close', () => {
+    if (!res.writableEnded) {
+      abortController.abort();
+    }
+  });
+
   const sendEvent = (data) => {
-    res.write(`data: ${JSON.stringify(data)}\n\n`);
+    if (res.writableEnded || res.destroyed || req.destroyed) return;
+    try {
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    } catch (_) {}
   };
 
   try {
     const result = await runMultiAgentSwarm({
       problem,
       context,
+      signal: abortController.signal,
       onAgentEvent: (evt) => sendEvent({ type: 'agent_event', ...evt })
     });
-    sendEvent({ type: 'done', result });
+    if (!abortController.signal.aborted) {
+      sendEvent({ type: 'done', result });
+    }
   } catch (err) {
-    sendEvent({ type: 'error', error: err.message });
+    if (!abortController.signal.aborted) {
+      sendEvent({ type: 'error', error: err.message });
+    }
   } finally {
-    res.end();
+    if (!res.writableEnded) {
+      res.end();
+    }
   }
 });
 

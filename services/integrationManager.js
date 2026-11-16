@@ -138,7 +138,7 @@ class IntegrationManager {
   /**
    * Helper to execute fetch with strict timeout & categorized diagnostics
    */
-  async _probeUrl(url, options = {}, timeoutMs = 6000) {
+  async _probeUrl(url, options = {}, timeoutMs = 12000) {
     this.validateSafeTargetUrl(url);
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);

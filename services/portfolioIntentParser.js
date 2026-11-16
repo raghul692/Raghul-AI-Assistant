@@ -59,6 +59,12 @@ const ENTITY_PATTERNS = {
     /\b(?:skill|skills|thiran|tech\s+stack|techstack|technologies|technology)\b/i,
     /\b(?:frontend|backend|database|devops|fullstack)\s+(?:skills|tech|technologies)\b/i,
   ],
+  EXPERIENCE: [
+    /\b(?:experience|work\s+experience|job|employment|company|internship|history|role\s+history|career)\b/i,
+  ],
+  EDUCATION: [
+    /\b(?:education|degree|college|university|school|gpa|cgpa|academic|study|course)\b/i,
+  ],
   SYSTEM: [
     /\b(?:deploy|deployment|vercel|github|backup|audit|integrity|telemetry|analytics|traffic)\b/i,
   ]
@@ -88,28 +94,25 @@ export function detectAction(query) {
  * Detect targeted entity in prompt.
  */
 export function detectEntity(query) {
-  for (const regex of ENTITY_PATTERNS.PROFILE) {
+  for (const regex of (ENTITY_PATTERNS.PROFILE || [])) {
     if (regex.test(query)) return ENTITIES.PROFILE;
   }
-  for (const regex of ENTITY_PATTERNS.CERTIFICATE) {
+  for (const regex of (ENTITY_PATTERNS.CERTIFICATE || [])) {
     if (regex.test(query)) return ENTITIES.CERTIFICATE;
   }
-  for (const regex of ENTITY_PATTERNS.PROJECT) {
+  for (const regex of (ENTITY_PATTERNS.PROJECT || [])) {
     if (regex.test(query)) return ENTITIES.PROJECT;
   }
-  for (const regex of ENTITY_PATTERNS.SKILL) {
+  for (const regex of (ENTITY_PATTERNS.SKILL || [])) {
     if (regex.test(query)) return ENTITIES.SKILL;
   }
-  for (const regex of ENTITY_PATTERNS.EXPERIENCE) {
+  for (const regex of (ENTITY_PATTERNS.EXPERIENCE || [])) {
     if (regex.test(query)) return ENTITIES.EXPERIENCE;
   }
-  for (const regex of ENTITY_PATTERNS.EDUCATION) {
+  for (const regex of (ENTITY_PATTERNS.EDUCATION || [])) {
     if (regex.test(query)) return ENTITIES.EDUCATION;
   }
-  for (const regex of ENTITY_PATTERNS.PROFILE) {
-    if (regex.test(query)) return ENTITIES.PROFILE;
-  }
-  for (const regex of ENTITY_PATTERNS.SYSTEM) {
+  for (const regex of (ENTITY_PATTERNS.SYSTEM || [])) {
     if (regex.test(query)) return ENTITIES.SYSTEM;
   }
   return ENTITIES.UNKNOWN;

@@ -214,7 +214,7 @@ export class JobQueue {
         query += ` AND job_type IN (${placeholders})`;
         params.push(...allowedJobTypes);
       }
-      query += ` ORDER BY created_at ASC LIMIT 1`;
+      query += ` ORDER BY priority ASC, created_at ASC LIMIT 1`;
 
       const candidate = sqliteDb.prepare(query).get(...params);
       if (!candidate) return null;
@@ -230,6 +230,10 @@ export class JobQueue {
       const payload = typeof candidate.payload === 'string' ? JSON.parse(candidate.payload) : (candidate.payload || {});
       return {
         ...candidate,
+        status: 'running',
+        worker_id: workerId,
+        started_at: now,
+        attempts: (candidate.attempts || 0) + 1,
         payload
       };
     }

@@ -14,7 +14,7 @@ async function runTest() {
   // Clean up any lingering pending test jobs from previous runs
   if (jobQueue.isPostgres()) {
     const { pgQuery } = await import('../database/postgresPool.js');
-    await pgQuery("UPDATE job_queue SET status = 'cancelled' WHERE status = 'pending' AND job_type IN ('document_generation', 'code_repair')");
+    await pgQuery("UPDATE job_queue SET status = 'cancelled' WHERE status = 'pending' AND (job_type LIKE 'test_%' OR job_type IN ('document_generation', 'code_repair'))");
   }
 
   // Test 1: Job Enqueue with Priority & Idempotency

@@ -15,6 +15,11 @@ During the comprehensive audit, 5 real production defects were uncovered, analyz
 | **BUG-03** | High | Queue Engine (`queue/jobQueue.js`) | `dequeue()` lacked ability to filter by `job_type`, target specific job IDs, or protect delayed jobs, causing local test jobs to race with live cloud workers. | Enhanced `dequeue(workerId, options)` to support `allowedJobTypes`, `targetJobId`, and `ignoreDelay` in both PostgreSQL and SQLite drivers. | **PASS (Deterministic Dequeue)** |
 | **BUG-04** | Medium | Queue Engine (`queue/jobQueue.js`) | `enqueue()` lacked a `delayMs` / `nextRetryAt` parameter, making it impossible to schedule future executions or protect cancellation tests from instant worker pickup. | Added `delayMs` and `nextRetryAt` parameters to `jobQueue.enqueue()` mapped to the existing `next_retry_at` database column. | **PASS (Delayed Jobs & Protected Cancel)** |
 | **BUG-05** | High | SSE Proxy Buffering (`server.js`) | Vercel Edge reverse proxy dropped streaming connections after 15s with HTTP 502 Bad Gateway due to proxy buffering prior to model response. | Implemented immediate header flush, `X-Accel-Buffering: no`, and initial byte `: connected\n\n` across all SSE streaming endpoints. | **PASS (Sub-second Stream Flush)** |
+| **BUG-06** | High | Portfolio Intent Parser (`services/portfolioIntentParser.js`) | `detectEntity()` crashed with `TypeError: ENTITY_PATTERNS.EXPERIENCE is not iterable` because `EXPERIENCE` and `EDUCATION` keys were missing from `ENTITY_PATTERNS`. | Added regex patterns for `EXPERIENCE` and `EDUCATION` and guarded all lookups with `(ENTITY_PATTERNS.XYZ || [])`. | **PASS (Clean Intent Detection)** |
+| **BUG-07** | High | SSE Streaming & Multi-Agent Swarm (`server.js`, `multiAgentSwarm.js`) | Missing `req.on('close')` abort handling on `/api/chat/stream` and `/api/swarm/stream` meant LLM token generation continued upstream after client disconnect, leaking quota and memory. | Attached `AbortController`, listened to client socket `close`, guarded SSE writes, and propagated `signal` into `aiProviderManager` and `multiAgentSwarm`. | **PASS (Upstream Abort on Disconnect)** |
+| **BUG-08** | Medium | Persistent Queue Driver (`queue/jobQueue.js`) | SQLite `dequeue()` returned old candidate snapshot without `status: 'running'`, missing `worker_id` and un-incremented attempts, breaking driver parity with PostgreSQL. | Updated SQLite dequeue return payload to mirror PostgreSQL `RETURNING *` with `status: 'running'`, `worker_id`, `started_at`, and incremented `attempts`. | **PASS (Engine Driver Parity)** |
+| **BUG-09** | Medium | Integration Probe Engine (`services/integrationManager.js`) | 6000ms probe timeout caused false-positive connection timeout errors during concurrent HTTPS DNS/TLS negotiation on Windows development environments. | Increased `_probeUrl` default timeout to 12000ms and tuned connection options. | **PASS (Robust Probing)** |
+| **BUG-10** | Medium | Governance Test Harness (`tests/test-end-to-end-live-forensic.js`) | Authorization ticket tests passed unapproved operator ID `'Raghul Operator'` and mismatching action string, triggering cryptographic keystore rejection. | Bound test tickets to registered `DEFAULT_OPERATOR_ID` (`'operator_raghul_sec_admin'`) and matched exact action and parameter schemas. | **PASS (38/38 Forensic Assertions Passed)** |
 
 ---
 
@@ -44,3 +49,21 @@ During the comprehensive audit, 5 real production defects were uncovered, analyz
 - **Root Cause**: Reverse proxies buffer outgoing HTTP responses if chunked transfer encoding is not acknowledged immediately. If AI generation takes more than 15 seconds, Vercel drops the socket.
 - **Fix**: Flushed headers immediately and transmitted `: connected\n\n` upon socket acceptance. Added automatic direct-to-Render fallback on cloud origins if the Vercel proxy encounters a timeout.
 - **Verification**: Tested live browser chat at `https://raghul-ai-assistant.vercel.app/`. Received first token in under 2 seconds without proxy drops.
+
+### BUG-06: Intent Parser Missing Entity Patterns Runtime Exception
+- **File Touched**: `services/portfolioIntentParser.js`
+- **Root Cause**: In `detectEntity(query)`, the code iterated over `ENTITY_PATTERNS.EXPERIENCE` and `ENTITY_PATTERNS.EDUCATION`. Neither array was defined in `ENTITY_PATTERNS`, resulting in unhandled `TypeError: ENTITY_PATTERNS.EXPERIENCE is not iterable` when user queries reached those branches.
+- **Fix**: Added comprehensive regex patterns for `EXPERIENCE` and `EDUCATION` to `ENTITY_PATTERNS`, safe-guarded property access with `(ENTITY_PATTERNS.XYZ || [])`, and removed redundant `PROFILE` loop.
+- **Verification**: All queries parsing experience or education succeed without throwing runtime errors.
+
+### BUG-07: Zombie LLM Generation on Client SSE Disconnect
+- **Files Touched**: `server.js`, `multiAgentSwarm.js`
+- **Root Cause**: `/api/chat/stream` and `/api/swarm/stream` lacked `req.on('close')` listeners and did not propagate cancellation signals into `orchestrateStream()` or `runMultiAgentSwarm()`. If a user closed the browser tab during a long response, the backend kept executing the full AI workflow and incurring quota costs.
+- **Fix**: Attached `AbortController`, listened to client socket `close`, guarded SSE writes against closed/destroyed streams, and threaded `signal: abortController.signal` into `aiProviderManager.orchestrateStream` and `runMultiAgentSwarm`.
+- **Verification**: Abort events cleanly terminate upstream streaming without unhandled socket error writes.
+
+### BUG-08: Job Queue SQLite Dequeue Status Mismatch
+- **File Touched**: `queue/jobQueue.js`
+- **Root Cause**: SQLite `dequeue()` returned `candidate` which retained `status: 'pending'` and lacked `worker_id` and updated `attempts`. In contrast, PostgreSQL returned updated row fields via `RETURNING *`.
+- **Fix**: Updated SQLite dequeue return object to explicitly reflect `{ ...candidate, status: 'running', worker_id: workerId, started_at: now, attempts: (candidate.attempts || 0) + 1, payload }`.
+- **Verification**: Verified status parity between SQLite and PostgreSQL across all queue test suites.

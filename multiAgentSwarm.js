@@ -32,21 +32,25 @@ function getProviderManager() {
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
-async function runAgentPrompt({ prompt, maxTokens = 550, temperature = 0.2, taskCategory = 'general_conversation' }) {
+async function runAgentPrompt({ prompt, maxTokens = 550, temperature = 0.2, taskCategory = 'general_conversation', signal = null }) {
+  if (signal?.aborted) throw new Error('AbortError: Multi-agent swarm step aborted');
   const mgr = getProviderManager();
   try {
     const res = await mgr.generateText({ prompt, maxTokens, temperature, taskCategory });
     if (res && res.text) return res.text.trim();
   } catch (err) {
+    if (signal?.aborted) throw err;
     console.warn(`[AgentSwarm] Provider error (${err.message}), trying alternative providers...`);
   }
 
   // Staggered fallback over configured providers
   for (const prov of ['cloudflare', 'nvidia', 'groq', 'openrouter']) {
+    if (signal?.aborted) throw new Error('AbortError: Multi-agent swarm step aborted');
     try {
       const res = await mgr.generateText({ prompt, maxTokens, temperature, preferredProvider: prov });
       if (res && res.text) return res.text.trim();
     } catch (e) {
+      if (signal?.aborted) throw e;
       // continue to next provider
     }
   }
@@ -73,12 +77,15 @@ export async function runMultiAgentSwarm({
   problem,
   context = '',
   isTamil = false,
-  onAgentEvent = () => {}
+  onAgentEvent = () => {},
+  signal = null
 }) {
+  if (signal?.aborted) throw new Error('AbortError: Multi-agent swarm execution aborted');
   const startTime = Date.now();
   const agentResults = {};
 
   const emit = (role, status, message, data = {}) => {
+    if (signal?.aborted) return;
     onAgentEvent({
       agent: role,
       status,
@@ -107,8 +114,10 @@ Decompose this challenge:
 3. Assignment matrix for: Research, Data, Design, Coding, Security, QA
 Provide an executive decomposition in concise, high-signal bullet points.`;
   
-  agentResults.orchestrator = await runAgentPrompt({ prompt: orchPrompt, maxTokens: 450, taskCategory: 'general_conversation' });
+  agentResults.orchestrator = await runAgentPrompt({ prompt: orchPrompt, maxTokens: 450, taskCategory: 'general_conversation', signal });
   emit(AGENT_ROLES.ORCHESTRATOR, 'completed', 'Problem decomposed and execution plan assigned.', { durationMs: Date.now() - t0 });
+
+  if (signal?.aborted) throw new Error('AbortError: Multi-agent swarm execution aborted');
 
   // 2. Planning & Strategy Agent
   const t1 = Date.now();
@@ -123,8 +132,10 @@ Define the tactical execution strategy:
 - Fallback & risk mitigation gates
 Provide a clear, structured roadmap.`;
 
-  agentResults.planning = await runAgentPrompt({ prompt: planPrompt, maxTokens: 450, taskCategory: 'complex_reasoning' });
+  agentResults.planning = await runAgentPrompt({ prompt: planPrompt, maxTokens: 450, taskCategory: 'complex_reasoning', signal });
   emit(AGENT_ROLES.PLANNING, 'completed', 'Execution roadmap and dependency gates established.', { durationMs: Date.now() - t1 });
+
+  if (signal?.aborted) throw new Error('AbortError: Multi-agent swarm execution aborted');
 
   // =========================================================================
   // STAGE 2: Parallel Research & Domain Analysis Branch
@@ -140,7 +151,7 @@ Provide a clear, structured roadmap.`;
 Problem: "${problem}"
 Plan: ${agentResults.planning.slice(0, 300)}
 Summarize key industry standards, necessary protocols, API constraints, and verified best practices.`;
-    const resOut = await runAgentPrompt({ prompt: researchPrompt, maxTokens: 400 });
+    const resOut = await runAgentPrompt({ prompt: researchPrompt, maxTokens: 400, signal });
     emit(AGENT_ROLES.RESEARCH, 'completed', 'Domain research & protocol analysis completed.', { durationMs: Date.now() - tResearch });
     return resOut;
   };
@@ -153,7 +164,7 @@ Summarize key industry standards, necessary protocols, API constraints, and veri
     const dataPrompt = `You are the Data Analysis Agent.
 Problem: "${problem}"
 Identify optimal data structures, schema relations, time/space complexity bottlenecks, and caching strategies.`;
-    const dataOut = await runAgentPrompt({ prompt: dataPrompt, maxTokens: 400 });
+    const dataOut = await runAgentPrompt({ prompt: dataPrompt, maxTokens: 400, signal });
     emit(AGENT_ROLES.DATA, 'completed', 'Algorithmic complexity & schema modeling validated.', { durationMs: Date.now() - tData });
     return dataOut;
   };
@@ -166,7 +177,7 @@ Identify optimal data structures, schema relations, time/space complexity bottle
     const designPrompt = `You are the Design & UX Agent.
 Problem: "${problem}"
 Specify the user-facing interactions: error boundaries, loading states, accessibility (a11y), and responsive visual hierarchy.`;
-    const designOut = await runAgentPrompt({ prompt: designPrompt, maxTokens: 400 });
+    const designOut = await runAgentPrompt({ prompt: designPrompt, maxTokens: 400, signal });
     emit(AGENT_ROLES.DESIGN, 'completed', 'UX states and interface contracts verified.', { durationMs: Date.now() - tDesign });
     return designOut;
   };
@@ -176,6 +187,8 @@ Specify the user-facing interactions: error boundaries, loading states, accessib
     parallelBranch2(),
     parallelBranch3()
   ]);
+
+  if (signal?.aborted) throw new Error('AbortError: Multi-agent swarm execution aborted');
 
   agentResults.research = researchOut;
   agentResults.data = dataOut;
@@ -197,8 +210,10 @@ Synthesize the production code implementation.
 Apply Clean Code, SOLID principles, defensive error handling, and type safety.
 Include code snippets where appropriate.`;
 
-  agentResults.coding = await runAgentPrompt({ prompt: codingPrompt, maxTokens: 800, taskCategory: 'coding_debugging' });
+  agentResults.coding = await runAgentPrompt({ prompt: codingPrompt, maxTokens: 800, taskCategory: 'coding_debugging', signal });
   emit(AGENT_ROLES.CODING, 'completed', 'Production code implementation synthesized.', { durationMs: Date.now() - tCoding });
+
+  if (signal?.aborted) throw new Error('AbortError: Multi-agent swarm execution aborted');
 
   // =========================================================================
   // STAGE 4: Parallel Verification & Security Gate
@@ -220,7 +235,7 @@ Perform an exhaustive security review:
 2. Input sanitization and authorization boundaries
 3. Secret redaction and defense-in-depth controls
 Provide a rigorous audit verdict with required safety mitigations.`;
-    const secOut = await runAgentPrompt({ prompt: secPrompt, maxTokens: 450 });
+    const secOut = await runAgentPrompt({ prompt: secPrompt, maxTokens: 450, signal });
     emit(AGENT_ROLES.SECURITY, 'completed', 'Security audit complete: Zero high-risk bypasses found.', { durationMs: Date.now() - tSec });
     return secOut;
   };
@@ -239,7 +254,7 @@ Generate test coverage:
 2. Boundary conditions and empty/invalid input tests
 3. Network timeout, crash recovery, and concurrency edge cases
 Provide actionable assertions.`;
-    const qaOut = await runAgentPrompt({ prompt: qaPrompt, maxTokens: 450 });
+    const qaOut = await runAgentPrompt({ prompt: qaPrompt, maxTokens: 450, signal });
     emit(AGENT_ROLES.QA, 'completed', 'Test suite and regression matrix established.', { durationMs: Date.now() - tQA });
     return qaOut;
   };
@@ -255,7 +270,7 @@ Validate the client-side execution:
 1. SSE streaming connection resilience & reconnection logic
 2. DOM rendering efficiency and repaint minimization
 3. Keyboard navigation & mobile responsive viewport handling`;
-    const browserOut = await runAgentPrompt({ prompt: browserPrompt, maxTokens: 400 });
+    const browserOut = await runAgentPrompt({ prompt: browserPrompt, maxTokens: 400, signal });
     emit(AGENT_ROLES.BROWSER, 'completed', 'Client browser lifecycle & SSE stability validated.', { durationMs: Date.now() - tBrowser });
     return browserOut;
   };
@@ -265,6 +280,8 @@ Validate the client-side execution:
     parallelAudit2(),
     parallelAudit3()
   ]);
+
+  if (signal?.aborted) throw new Error('AbortError: Multi-agent swarm execution aborted');
 
   agentResults.security = secOut;
   agentResults.qa = qaOut;
@@ -294,7 +311,7 @@ ${isTamil ? '4. Provide an articulate Tanglish (English alphabet only) and Engli
 
 Deliver a pristine, publication-grade technical solution.`;
 
-  const finalSynthesis = await runAgentPrompt({ prompt: synthPrompt, maxTokens: 1200, taskCategory: 'complex_reasoning' });
+  const finalSynthesis = await runAgentPrompt({ prompt: synthPrompt, maxTokens: 1200, taskCategory: 'complex_reasoning', signal });
   const totalDurationMs = Date.now() - startTime;
 
   emit(AGENT_ROLES.SYNTHESIS, 'completed', 'Final consensus reached and verified.', { durationMs: Date.now() - tSynth });
