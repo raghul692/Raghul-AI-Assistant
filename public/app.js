@@ -3396,39 +3396,69 @@ async function handleSubmit(e) {
   let reasoningInterval = null;
 
   try {
-    const response = await fetch('/api/chat/stream', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      signal: state.activeAbortController.signal,
-      body: JSON.stringify({
-        message: text,
-        sessionId: state.sessionId,
-        personaKey: state.activePersona,
-        customPrompt: state.customPrompt,
-        userName: state.userName,
-        userRole: state.userRole,
-        customAbout: state.customAbout,
-        customInstructions: state.customInstructions,
-        temperature: state.temperature,
-        userApiKey: state.apiKey,
-        modelChoice: state.modelChoice,
-        language: state.language || 'auto',
-        alwaysShowCode: state.always_show_code,
-        memoryTurns: state.memoryTurns,
-        memoryEnabled: state.memoryEnabled,
-        webSearchEnabled: state.webSearchEnabled,
-        deepThinkingEnabled: state.deepThinkingEnabled,
-        isDeepResearch: state.isDeepResearch,
-        researchDepth: state.researchDepth,
-        projectId: state.activeProjectId,
-        attachments: attachmentsToSend.map(a => ({
-          name: a.name,
-          mimeType: a.mimeType,
-          size: a.size,
-          data: a.data
-        }))
-      })
+    const streamPayload = JSON.stringify({
+      message: text,
+      sessionId: state.sessionId,
+      personaKey: state.activePersona,
+      customPrompt: state.customPrompt,
+      userName: state.userName,
+      userRole: state.userRole,
+      customAbout: state.customAbout,
+      customInstructions: state.customInstructions,
+      temperature: state.temperature,
+      userApiKey: state.apiKey,
+      modelChoice: state.modelChoice || 'gemini-2.5-flash',
+      language: state.language || 'auto',
+      alwaysShowCode: state.always_show_code,
+      memoryTurns: state.memoryTurns,
+      memoryEnabled: state.memoryEnabled,
+      webSearchEnabled: state.webSearchEnabled,
+      deepThinkingEnabled: state.deepThinkingEnabled,
+      isDeepResearch: state.isDeepResearch,
+      researchDepth: state.researchDepth,
+      projectId: state.activeProjectId,
+      attachments: attachmentsToSend.map(a => ({
+        name: a.name,
+        mimeType: a.mimeType,
+        size: a.size,
+        data: a.data
+      }))
     });
+
+    const isCloudHosted = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('is-a.dev');
+    const primaryEndpoint = '/api/chat/stream';
+    const fallbackEndpoint = isCloudHosted ? 'https://raghul-ai-api.onrender.com/api/chat/stream' : null;
+
+    let response;
+    try {
+      response = await fetch(primaryEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: state.activeAbortController.signal,
+        body: streamPayload
+      });
+      if (!response.ok && (response.status === 502 || response.status === 504) && fallbackEndpoint) {
+        console.warn('Proxy returned', response.status, '- Connecting directly to Render backend...');
+        response = await fetch(fallbackEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: state.activeAbortController.signal,
+          body: streamPayload
+        });
+      }
+    } catch (netErr) {
+      if (fallbackEndpoint && netErr.name !== 'AbortError') {
+        console.warn('Network error on primary endpoint - Retrying direct backend...', netErr.message);
+        response = await fetch(fallbackEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: state.activeAbortController.signal,
+          body: streamPayload
+        });
+      } else {
+        throw netErr;
+      }
+    }
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);

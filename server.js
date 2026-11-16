@@ -622,7 +622,7 @@ app.post('/api/canvas/ai-action', async (req, res) => {
   try {
     const { content, language = 'javascript', action = 'refactor', customInstruction = '', userApiKey } = req.body;
     if (!content) return res.status(400).json({ error: 'Content required' });
-    const apiKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY;
+    const apiKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY || process.env.GEMINI_PORTFOLIO_API_KEY;
     const client = getGenAIClient(apiKey);
     const result = await executeCanvasAction({
       client,
@@ -642,7 +642,7 @@ app.post('/api/canvas/ai-generate', async (req, res) => {
   try {
     const { prompt, files = [], activeFileName = '', language = 'javascript', userApiKey } = req.body;
     if (!prompt || !prompt.trim()) return res.status(400).json({ error: 'Prompt is required' });
-    const apiKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY;
+    const apiKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY || process.env.GEMINI_PORTFOLIO_API_KEY;
     const client = getGenAIClient(apiKey);
     const result = await executeAutonomousStudioGeneration({
       client,
@@ -737,7 +737,7 @@ app.post('/api/tasks/plan', async (req, res) => {
   try {
     const { goal, context, userApiKey } = req.body;
     if (!goal) return res.status(400).json({ error: 'Goal required' });
-    const apiKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY;
+    const apiKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY || process.env.GEMINI_PORTFOLIO_API_KEY;
     const client = getGenAIClient(apiKey);
     const plan = await createAutonomousPlan(client, goal, context);
     res.json(plan);
@@ -749,7 +749,7 @@ app.post('/api/tasks/plan', async (req, res) => {
 app.post('/api/tasks/:id/execute', async (req, res) => {
   try {
     const { userApiKey } = req.body;
-    const apiKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY;
+    const apiKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY || process.env.GEMINI_PORTFOLIO_API_KEY;
     const client = getGenAIClient(apiKey);
     const result = await executeAutonomousPlan({ client, taskId: req.params.id });
     res.json(result);
@@ -763,7 +763,7 @@ app.post('/api/swarm/run', async (req, res) => {
   try {
     const { problem, context, isTamil, userApiKey } = req.body;
     if (!problem) return res.status(400).json({ error: 'Problem statement required' });
-    const apiKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY;
+    const apiKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY || process.env.GEMINI_PORTFOLIO_API_KEY;
     const client = getGenAIClient(apiKey);
     const swarmResult = await runMultiAgentSwarm({ client, problem, context, isTamil: Boolean(isTamil) });
     res.json(swarmResult);
@@ -855,6 +855,7 @@ app.post('/api/chat/stream', async (req, res) => {
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders?.();
+  res.write(': connected\n\n');
 
   const sendSSE = (data) => {
     res.write(`data: ${JSON.stringify(data)}\n\n`);
@@ -873,7 +874,7 @@ app.post('/api/chat/stream', async (req, res) => {
       customInstructions = '',
       temperature = 0.7,
       userApiKey,
-      modelChoice = 'gemini-3-flash-preview',
+      modelChoice = 'gemini-2.5-flash',
       attachments = [], // Multimodal images & PDFs
       webSearchEnabled = null, // Explicit boolean toggle (true/false/null)
       deepThinkingEnabled = false, // Explicit extended reasoning toggle
@@ -893,7 +894,7 @@ app.post('/api/chat/stream', async (req, res) => {
     const sanitizedMessage = hasMessage ? sanitizeUserInput(message) : '';
     const injectionCheck = detectPromptInjection(sanitizedMessage);
 
-    const apiKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY;
+    const apiKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY || process.env.GEMINI_PORTFOLIO_API_KEY;
 
     // Retrieve or initialize persistent chat
     let chat = getChat(sessionId);
@@ -1865,7 +1866,7 @@ Mandate: Answer all questions about Raghul Raja's portfolio, about section, educ
 app.post('/api/chat', async (req, res) => {
   try {
     const { message, sessionId = 'default-session', personaKey = 'assistant', customPrompt, userApiKey, modelChoice = 'gemini-3.5-flash-lite' } = req.body;
-    const apiKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY;
+    const apiKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY || process.env.GEMINI_PORTFOLIO_API_KEY;
 
     if (!apiKey) {
       return res.status(400).json({ error: 'API Key is missing.' });

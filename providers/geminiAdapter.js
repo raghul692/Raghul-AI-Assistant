@@ -6,12 +6,12 @@ export class GeminiProvider extends BaseProvider {
     super({
       id: 'gemini',
       name: 'Google Gemini',
-      apiKey: config.apiKey || process.env.GEMINI_API_KEY || '',
-      defaultModel: config.defaultModel || 'gemini-3-flash-preview',
+      apiKey: config.apiKey || process.env.GEMINI_API_KEY || process.env.GEMINI_PORTFOLIO_API_KEY || '',
+      defaultModel: config.defaultModel || 'gemini-2.5-flash',
       models: [
-        { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash Preview', contextWindow: 1048576, isFreeTier: true },
-        { id: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash', contextWindow: 1048576, isFreeTier: true },
         { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', contextWindow: 1048576, isFreeTier: true },
+        { id: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash', contextWindow: 1048576, isFreeTier: true },
+        { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash Preview', contextWindow: 1048576, isFreeTier: true },
         { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', contextWindow: 2097152, isFreeTier: false }
       ],
       timeoutMs: config.timeoutMs || 25000,
@@ -24,7 +24,7 @@ export class GeminiProvider extends BaseProvider {
   }
 
   get apiKey() {
-    return this._apiKey || process.env.GEMINI_API_KEY || '';
+    return this._apiKey || process.env.GEMINI_API_KEY || process.env.GEMINI_PORTFOLIO_API_KEY || '';
   }
 
   set apiKey(val) {
