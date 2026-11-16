@@ -2123,6 +2123,13 @@ app.get('/api/swarm/stream', async (req, res) => {
 const server = app.listen(PORT, () => {
   console.log(`⚡ Ultra-Fast AI Chatbot running at http://localhost:${PORT}`);
   console.log(`🚀 Token Streaming (SSE) enabled with low-latency models!`);
+
+  if (process.env.WORKER_EMBEDDED === 'true') {
+    console.log('🤖 WORKER_EMBEDDED active: Starting embedded background job worker...');
+    import('./worker.js').catch(err => {
+      console.error('[Server] Failed to start embedded worker:', err.message);
+    });
+  }
 });
 
 // ARCH-03: Graceful Shutdown Lifecycle

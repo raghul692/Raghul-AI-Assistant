@@ -310,10 +310,16 @@ async function shutdown(signal) {
   process.exit(0);
 }
 
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-process.on('SIGINT', () => shutdown('SIGINT'));
+const isEmbedded = process.env.WORKER_EMBEDDED === 'true';
+
+if (!isEmbedded) {
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
+}
+
+export { startWorkerLoop, shutdown };
 
 startWorkerLoop().catch((err) => {
   console.error('[Worker] Fatal worker error:', err);
-  process.exit(1);
+  if (!isEmbedded) process.exit(1);
 });
